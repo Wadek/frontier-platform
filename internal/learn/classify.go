@@ -208,6 +208,7 @@ func walkLight(root string) (langs map[string]int, manifests []string, files int
 		".git": true, "node_modules": true, "vendor": true, ".frontier": true,
 		"__pycache__": true, "dist": true, "build": true, "library": true,
 		"covers": true, "postgres": true, "models": true, "blobs": true,
+		"venv": true, ".venv": true,
 	}
 	_ = filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
 		if err != nil {

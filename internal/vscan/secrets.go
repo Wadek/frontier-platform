@@ -19,6 +19,7 @@ func ListSecretSurfaces(root string) ([]string, error) {
 	skipDir := map[string]bool{
 		".git": true, "node_modules": true, "vendor": true, ".frontier": true,
 		"__pycache__": true, "dist": true, "build": true, "testdata": true,
+		"venv": true, ".venv": true, "site-packages": true,
 	}
 	var out []string
 	_ = filepath.Walk(root, func(path string, info os.FileInfo, err error) error {

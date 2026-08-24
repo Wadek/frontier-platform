@@ -67,6 +67,39 @@ pytest tests/test_browser_smoke.py -v --tb=short
 | Full list refetch after every mutation | Patch local state from response (Opt-003) |
 | Pretty-print JSON every save | Compact dump if schema allows (advise) |
 
+## FastAPI habitat variant (Satokori)
+
+**Learned from:** `D:\wakalabs\satokori` (cloned from `Wadek/Farm`, relaunched as Satokori).
+
+### Detect extra
+
+- `main.py` + `app/routes/` + `static/*.html` (not only `server.py` in `app/`)
+- `uvicorn main:app`
+- Learn still `app_compose` when `docker-compose.yml` + `data/` exist
+
+### Equivalence extras
+
+```text
+pytest tests/ -v --tb=short
+```
+
+Must stay equal: `/health`, `/catalog` lot count, `/onboard` (organizer-only), `/listings/{id}/gate` drops kg **without** a `/ledger` row.
+
+### Docker
+
+- Image: `python:3.12-slim` (not Alpine)
+- `DATABASE_URL=sqlite:////data/farm.db` on a bind volume
+- Seed only if the db file is missing
+- Strip CRLF on `entrypoint.sh`
+
+### Pitfalls
+
+| Pitfall | Fix |
+|---------|-----|
+| Walking `venv/` during `frontier learn` | Learn skipDir must include `venv` and `.venv` |
+| Demo passwords in the HTML header | Fine for local tryout; never the production `SECRET_KEY` |
+| Treating `/transactions/complete` as the default checkout | Default path is cash-at-gate; MYC ledger is opt-in ecology, not a kassa |
+
 ## Reference layout
 
 ```text

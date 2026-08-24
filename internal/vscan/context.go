@@ -136,7 +136,8 @@ func inventory(root string) (map[string]int, []string) {
 		if info.IsDir() {
 			name := info.Name()
 			if name == ".git" || name == "node_modules" || name == "vendor" || name == ".frontier" ||
-				name == "dist" || name == "build" || name == "testdata" || name == "__pycache__" {
+				name == "dist" || name == "build" || name == "testdata" || name == "__pycache__" ||
+				name == "venv" || name == ".venv" || name == "site-packages" {
 				return filepath.SkipDir
 			}
 			return nil

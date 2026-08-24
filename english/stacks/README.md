@@ -13,8 +13,8 @@ After the first successful Opt cycle on a new stack (like `tasks` for Python + s
 
 | Playbook | Matches (Learn hints) | Reference customer |
 |----------|------------------------|--------------------|
-| [python-web-static.md](python-web-static.md) | `app_compose`, Python HTTP + static HTML/JS | `github.com/Wadek/tasks` |
-| [habitat-edge.md](habitat-edge.md) | cloudflared + `waka-net` public hostnames | Pigeon / wakalabs edge |
+| [python-web-static.md](python-web-static.md) | `app_compose`, Python HTTP + static HTML/JS | `github.com/Wadek/tasks`, Satokori |
+| [habitat-edge.md](habitat-edge.md) | cloudflared + `waka-net` public hostnames | Pigeon / Satokori / wakalabs edge |
 | [go-http.md](go-http.md) | Go `net/http` / chi / echo APIs | *(stub — fill on first Go Opt)* |
 | [node-express.md](node-express.md) | Node Express/Fastify + SPA | *(stub — fill on first Node Opt)* |
 

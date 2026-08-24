@@ -30,6 +30,7 @@ func scanLargeFunctions(root string) ([]hotspot, error) {
 		".git": true, "node_modules": true, "vendor": true, ".frontier": true,
 		"__pycache__": true, "dist": true, "build": true, "testdata": true,
 		"library": true, "covers": true, "postgres": true, "bin": true, "ledgers": true,
+		"venv": true, ".venv": true, "site-packages": true,
 	}
 	err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
