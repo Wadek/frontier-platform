@@ -1,0 +1,18 @@
+@startuml
+[*] --> queued
+queued --> review : dispatch
+review --> holding : pro runway @ peak
+holding --> review : off-peak fires (job service)
+review --> taxiing : cleared
+review --> rejected : refused (human)
+rejected --> [*]
+taxiing --> airborne : context hydrated
+airborne --> handed_off : crosses plane boundary
+handed_off --> airborne : target pilot returns result
+airborne --> landed : done
+airborne --> failed : error / egress-refused
+failed --> review : retry (human)
+landed --> debriefed : .agent_learning appended
+debriefed --> filed : ledger sealed
+filed --> [*]
+@enduml
