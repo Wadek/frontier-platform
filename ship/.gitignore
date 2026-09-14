@@ -1,0 +1,12 @@
+/frontier-mcp
+/frontier-mcp.exe
+/frontier-git
+/frontier-git.exe
+*.exe
+.frontier/
+dist/
+haskell/dist-newstyle/
+haskell/.stack-work/
+*.o
+*.hi
+.DS_Store
