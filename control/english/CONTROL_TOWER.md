@@ -80,6 +80,19 @@ manifest) is capped and recorded.
 | T6 | All code shipping goes through frontier plan → apply (never bypass) |
 | T7 | No xAI/Anthropic/OpenAI API calls anywhere in the fleet |
 | T8 | All cloud calls are api.deepseek.com; pro off-peak only |
+| T9 | No new runs when the session context/cache is ≥95% full — soft-refuse, seal the handoff, open a new session |
+
+## Session budget (the 95% rule — T9)
+
+When a session's context or cache reaches **95%**, the agent **soft-refuses** new runs:
+it stops starting work, **updates the handoff** (`HANDOFF.md` for the plane + a
+`.agent_learning` debrief record), and **insists on opening a new session** to continue.
+Soft = the handoff artifacts are required before stopping; never a silent stop, never a
+hard crash into a full cache. The decision is deterministic:
+`session_budget(usage_pct)` (Python `reference/tower_ref.py` · Go
+`internal/sessionbudget` · Haskell `Tower.SessionBudget`) — at ≥95% it returns
+`refuse_new_runs + require_handoff + require_new_session`. The review gate consults it
+before every dispatch, and every pilot obeys it between turns.
 
 ## Runways
 

@@ -124,3 +124,26 @@ CARD_KEYS = {"specversion", "type", "source", "id", "data"}
 
 def valid_card(env: dict) -> bool:
     return isinstance(env, dict) and CARD_KEYS <= set(env) and env.get("specversion") == "1.0"
+
+
+# ---------------------------------------------------------------- session budget
+BUDGET_SOFT_LIMIT = 95.0
+
+
+def session_budget(usage_pct: float) -> dict:
+    """The 95% rule (T9): soft-refuse new runs, insist on handoff + a new session."""
+    if usage_pct >= BUDGET_SOFT_LIMIT:
+        return {
+            "ok": False,
+            "refuse_new_runs": True,
+            "require_handoff": True,
+            "require_new_session": True,
+            "reason": "session context/cache >= 95% - update the handoff and open a new session",
+        }
+    return {
+        "ok": True,
+        "refuse_new_runs": False,
+        "require_handoff": False,
+        "require_new_session": False,
+        "reason": "budget ok",
+    }

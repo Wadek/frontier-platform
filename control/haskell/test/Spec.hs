@@ -4,6 +4,7 @@ module Main (main) where
 import Data.Time.Calendar (fromGregorian)
 import Data.Time.Clock (UTCTime (..), secondsToDiffTime)
 import Tower.FlightPlan
+import Tower.SessionBudget
 import Tower.Weather
 
 -- 2026-09-14 is a Monday; 2026-09-12 is a Saturday.
@@ -37,4 +38,7 @@ main = do
   check (not (nextOk Queued Airborne)) "no clearance skip"
   check (nextOk Review Holding && nextOk Holding Review) "holding path"
   check (nextOk Airborne HandedOff && nextOk HandedOff Airborne) "handoff path"
+  -- session budget (95% rule)
+  check (check 95.0 == Verdict False True True True) "95% soft-refuses with handoff"
+  check (check 94.99 == Verdict True False False False) "below 95% stays open"
   putStrLn "tower laws hold"

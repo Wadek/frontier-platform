@@ -159,5 +159,25 @@ class TestHandoffCard(unittest.TestCase):
                                        "source": "s", "id": "i", "data": {}}))
 
 
+class TestSessionBudget(unittest.TestCase):
+    def test_soft_refusal_at_95(self):
+        v = t.session_budget(95.0)
+        self.assertFalse(v["ok"])
+        self.assertTrue(v["refuse_new_runs"])
+        self.assertTrue(v["require_handoff"])
+        self.assertTrue(v["require_new_session"])
+
+    def test_budget_ok_below_95(self):
+        v = t.session_budget(94.99)
+        self.assertTrue(v["ok"])
+        self.assertFalse(v["refuse_new_runs"])
+
+    def test_far_over_95_still_soft(self):
+        # Even a full cache is a SOFT refusal: handoff + new session, never hard stop
+        # without the handoff artifacts.
+        v = t.session_budget(99.9)
+        self.assertTrue(v["require_handoff"])
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
