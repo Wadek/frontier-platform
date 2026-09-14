@@ -1,0 +1,40 @@
+@startuml
+title frontier-fleet — control plane architecture
+skinparam componentStyle rectangle
+
+package "frontier-fleet (D:\\wakalabs\\frontier-fleet)" {
+  package "frontier-control (tower · Milkcow)" {
+    [taxonomist\ninit/diff/add/approve/retire]
+    [data index\n(roster registry)]
+    [weather\npeak/off-peak + daily check]
+    [job service\nscheduled one-shots]
+    [workflow engine\nFSM over journal]
+    [review\nclearance/conscience]
+    [runway adapters\nwaka-cli/deepseek/dsh]
+    [monitor\nT-directives replay]
+    [prove\nProven/Theory harness]
+  }
+  [frontier-ship\nplan → apply → push] as ship
+  database "ledger\nappend-only JSONL (F0)" as ledger
+  [runtime\nhooks · bin · PIPELINE] as runtime
+  ship --> ledger : seals gate rows
+  runtime --> ledger
+}
+
+package "planes (~20)" {
+  [food] [opengym] [satokori] [tasks] [polly-engine]
+}
+package "pilots (D:\\wakalabs root)" {
+  [.agent_food] [.agent_opengym] [.agent_satokori]
+}
+cloud "runways" {
+  [waka-cli (Ollama 7B, RTX 2080)]
+  [deepseek-flash]
+  [deepseek-v4-pro\nOFF-PEAK ONLY]
+}
+actor Human
+Human --> frontier-control
+frontier-control --> planes : dispatch
+frontier-control --> runways : sized dispatch
+pilots --> planes : fly
+@enduml

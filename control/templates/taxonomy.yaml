@@ -1,0 +1,13 @@
+version: 1
+plane: <plane-dir-name>
+created_by: <pilot-or-human-id>
+domain: <one-line domain, InstructLab-style>
+runways: [waka-cli, deepseek-flash]
+tier: untrusted            # untrusted -> trusted -> saint (earned, never assumed)
+lineage:
+  parent: null             # set when this pilot is a child of another (speciation)
+expires: null              # ISO date; children re-validate (speciation expiry)
+brief: brief.md
+knowledge:
+  - knowledge/architecture.md
+  - knowledge/mappings.md

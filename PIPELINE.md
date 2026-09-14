@@ -1,0 +1,97 @@
+# Permanent local pre-GitHub build pipeline
+
+This is the **only** ship process. It applies to every repo, every branch, every client (Grok, terminal, GitHub Desktop, VS Code). Nothing goes to GitHub until it passes.
+
+Canonical code: `D:\wakalabs\frontier-fleet\ship` (imported with history from `frontier-ship`)
+Runtime: `D:\wakalabs\frontier-fleet\runtime` (legacy junction `D:\frontier` still points here)
+Enforcement: global `core.hooksPath` = `D:/wakalabs/frontier-fleet/runtime/hooks`
+
+---
+
+## The process (do not skip, do not soften)
+
+```text
+1. Work on a feature branch   (never main / master)
+2. Commit a clean tree
+3. frontier hygiene           (optional: AI provenance on the changeset)
+4. frontier plan              (OWASP Guard + Hygiene line + push rules; fail closed)
+5. frontier apply             (seal gate.passed from a fresh plan)
+6. git push                   (hook re-runs plan → apply, then allows the remote)
+7. Open a PR into main        (human merge; do not push main)
+```
+
+Same commands:
+
+```powershell
+git checkout -b frontier/topic
+git add -A
+git commit -m "msg"
+frontier hygiene   # advise; FRONTIER_HYGIENE_BLOCK=1 to fail closed
+frontier plan      # must exit 0
+frontier apply     # must exit 0
+git push -u origin HEAD
+gh pr create --fill
+```
+
+Helper (same thing, refuses main):
+
+```powershell
+powershell -File D:\wakalabs\frontier-fleet\ship\scripts\dogfood-push.ps1
+```
+
+---
+
+## What the gate actually checks today
+
+| Check | Blocks ship? | Notes |
+|-------|----------------|-------|
+| Feature branch (not `main`/`master`) | **yes** | Commit on main is also refused |
+| Clean working tree | **yes** | `.frontier/` dirt is ignored |
+| OWASP v0 High/Critical | **yes** | Built-in `frontier guard` / ScanTree |
+| Fresh `plan.passed` then `gate.passed` | **yes** | Ledger under `D:\frontier\ledgers\…`, 15 min TTL |
+| Secret-surface / Checkov / enhance | advise | Not a hard block yet |
+| Hygiene (H) watermarks-remover | advise | `frontier hygiene`; block only if `FRONTIER_HYGIENE_BLOCK=1` |
+| Slim (S) | no | Planned, not enforced |
+| Layer A tests (pytest / go test / …) | **manual** | Required when the stack playbook exists; not in the binary gate |
+| Layer B Playwright | **manual** | Same — `ship/english/O_VERIFY.md` |
+| GitHub Actions `verify.yml` | remote | Add on GitHub remotes; does not replace local gate |
+
+`FRONTIER_SOFT=1` is **forbidden** for real ship. The hooks force `FRONTIER_SOFT=0`.
+
+---
+
+## What is *not* a legal path to GitHub
+
+- `git push --no-verify`
+- `git -c core.hooksPath= push`
+- `& "C:\Program Files\Git\cmd\git.exe" push` to skip Frontier
+- GitHub MCP `push_files` / `create_or_update_file`
+- Agent `merge_pull_request` onto main
+- Direct commits or pushes to `main` / `master`
+
+---
+
+## Verify / Optimize (when the repo has tests)
+
+After Guard, and **before** opening the PR, run the stack playbook verbosely and paste the log.
+
+Python + static UI (tasks / Satokori): `ship/english/stacks/python-web-static.md`
+Standard: `ship/english/O_VERIFY.md` — Layer A equivalence + Layer B browser, always `-v`.
+
+---
+
+## Where evidence lives
+
+Ledger is **outside** the work tree (does not dirty the diff):
+
+`D:\frontier\ledgers\<hash>\ledger.jsonl`
+
+---
+
+## Turn the gate off (you should not)
+
+```powershell
+git config --global --unset core.hooksPath
+```
+
+That is a policy break, not a convenience flag.

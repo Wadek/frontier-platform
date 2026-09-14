@@ -1,0 +1,18 @@
+cabal-version: 2.4
+name: frontier-tower
+version: 0.1.0.0
+license: MIT
+build-type: Simple
+
+library
+  hs-source-dirs: src
+  exposed-modules: Tower.Weather, Tower.FlightPlan
+  build-depends: base >=4.14 && <5, time >=1.9
+  default-language: Haskell2010
+
+test-suite tower-laws
+  type: exitcode-stdio-1.0
+  hs-source-dirs: test
+  main-is: Spec.hs
+  build-depends: base, time, frontier-tower
+  default-language: Haskell2010
