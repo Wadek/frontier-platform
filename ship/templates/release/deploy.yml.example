@@ -1,0 +1,23 @@
+# Example GitHub Actions CD. Prefer a self-hosted runner on the deploy host
+# when the host is not reachable from GitHub-hosted runners.
+name: deploy
+on:
+  push:
+    branches: [main, alpha]
+  workflow_dispatch:
+concurrency:
+  group: deploy-${{ github.ref_name }}
+  cancel-in-progress: false
+jobs:
+  deploy:
+    runs-on: [self-hosted, linux]   # or windows labels matching your runner
+    environment: ${{ github.ref_name == 'main' && 'production' || 'alpha' }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy
+        run: |
+          if [ "${GITHUB_REF_NAME}" = "main" ]; then
+            pwsh -File ./scripts/deploy.ps1 -Env prod
+          else
+            pwsh -File ./scripts/deploy.ps1 -Env alpha
+          fi

@@ -251,7 +251,9 @@ Same as standalone:  frontier scm | learn | guard | hygiene | runtime | slim | o
 	case "agents", "agent":
 		runAgents(args[1:])
 	case "plan":
-		runPlan(cwd, true)
+		runPlan(cwd, true, wantJSON(args[1:]))
+	case "release-check", "release_check", "releasecheck":
+		runReleaseCheck(cwd, true, wantJSON(args[1:]))
 	case "apply", "gate":
 		runApply(cwd, true)
 	case "mock-import":
@@ -1383,11 +1385,15 @@ Next real importer: harvest MITRE/CWE/CAPEC â†’ same columns â†’ Haske
 }
 
 func evaluateForShip(cwd string) (policy.GateResult, []owasp.Finding, error) {
+	return evaluateForShipOpts(cwd, true)
+}
+
+func evaluateForShipOpts(cwd string, verbose bool) (policy.GateResult, []owasp.Finding, error) {
 	repo := gitx.Repo{Dir: cwd}
 	b, _ := repo.Branch()
 	h, _ := repo.RevParseHead()
 	p, _ := repo.StatusPorcelain()
-	findings, err := runExam(cwd, true)
+	findings, err := runExam(cwd, verbose)
 	if err != nil {
 		return policy.GateResult{}, nil, err
 	}
@@ -1395,16 +1401,16 @@ func evaluateForShip(cwd string) (policy.GateResult, []owasp.Finding, error) {
 	g.Branch, g.Head = b, h
 	g.Dirty = policy.DirtyPorcelain(p)
 	if owasp.BlocksGate(findings) {
-		g.OK = false
-		g.Reasons = append(g.Reasons, "OWASP V: untriaged High/Critical finding(s)")
+		g.AddCode(policy.CodeOWASPBlock, policy.MsgOWASPBlock)
 		axiom("F4", "exam.block", "High/Critical under V blocks ship")
 	}
 	hrep := inspectHygieneQuiet(cwd)
-	fmt.Printf("Hygiene (H): disposition=%s  scanned=%d  suspicious=%d  healthy=%v\n",
-		hygiene.Disposition(hrep), hrep.Scanned, hrep.Suspicious, hrep.Healthy)
+	if verbose {
+		fmt.Printf("Hygiene (H): disposition=%s  scanned=%d  suspicious=%d  healthy=%v\n",
+			hygiene.Disposition(hrep), hrep.Scanned, hrep.Suspicious, hrep.Healthy)
+	}
 	if hygiene.BlocksGate(hrep) {
-		g.OK = false
-		g.Reasons = append(g.Reasons, "Hygiene H: untriaged provenance marks (FRONTIER_HYGIENE_BLOCK=1)")
+		g.AddCode(policy.CodeHygieneBlock, policy.MsgHygieneBlock)
 		axiom("F4", "hygiene.block", "operator asked Hygiene to fail closed")
 	}
 	if strings.EqualFold(b, "main") || strings.EqualFold(b, "master") {
@@ -1413,14 +1419,50 @@ func evaluateForShip(cwd string) (policy.GateResult, []owasp.Finding, error) {
 	return g, findings, nil
 }
 
+const tokenThriftLine = "token: prefer tools over prose; no filler; stop when the gate can pass"
+
+func printTokenThriftReminder() {
+	fmt.Println(tokenThriftLine)
+}
+
+func wantJSON(args []string) bool {
+	for _, a := range args {
+		if a == "--json" || a == "-json" {
+			return true
+		}
+	}
+	return false
+}
+
+func printGateJSON(g policy.GateResult, mode string) {
+	payload := map[string]any{
+		"ok":      g.OK,
+		"mode":    mode,
+		"codes":   g.Codes,
+		"reasons": g.Reasons,
+		"branch":  g.Branch,
+		"head":    g.Head,
+		"dirty":   g.Dirty,
+		"seal":    g.SealHash,
+	}
+	if mode == "release-check" {
+		payload["ok"] = policy.ReleaseAuthorized(g)
+		payload["release_authorized"] = policy.ReleaseAuthorized(g)
+	}
+	b, _ := json.MarshalIndent(payload, "", "  ")
+	fmt.Println(string(b))
+}
+
 // runPlan = terraform plan: preview only; nothing remote; fail closed.
-func runPlan(cwd string, exitNonZero bool) {
-	fmt.Println(`â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
-â•‘  PLAN (like terraform plan) â€” V enforced     â•‘
-â•‘  S (Slim): not enforced yet                  â•‘
-â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•`)
+func runPlan(cwd string, exitNonZero bool, asJSON bool) {
+	if !asJSON {
+		fmt.Println(`╔══════════════════════════════════════════════╗
+║  PLAN (like terraform plan) — V enforced     ║
+║  S (Slim): not enforced yet                  ║
+╚══════════════════════════════════════════════╝`)
+	}
 	axiom("F0", "plan.start", "preview ship decision; no remote mutate")
-	g, _, err := evaluateForShip(cwd)
+	g, _, err := evaluateForShipOpts(cwd, !asJSON)
 	if err != nil {
 		fail(err)
 		return
@@ -1435,19 +1477,60 @@ func runPlan(cwd string, exitNonZero bool) {
 		fail(err)
 		return
 	}
-	fmt.Println()
-	if sealed.OK {
-		fmt.Println("Plan: OK â€” may run: git frontier apply")
-		axiom("F0", "plan.passed", sealed.SealHash)
+	if asJSON {
+		printGateJSON(*sealed, "plan")
 	} else {
-		fmt.Println("Plan: FAILED â€” fix issues; nothing will apply/push")
-		fmt.Printf("Reasons: %v\n", sealed.Reasons)
-		axiom("F0", "plan.failed", strings.Join(sealed.Reasons, "; "))
-		axiom("F3", "continuity", "fail closed â€” like terraform")
+		fmt.Println()
+		if sealed.OK {
+			fmt.Println("Plan: OK — may run: git frontier apply")
+			printTokenThriftReminder()
+			axiom("F0", "plan.passed", sealed.SealHash)
+		} else {
+			fmt.Println("Plan: FAILED — fix issues; nothing will apply/push")
+			fmt.Printf("Reasons: %v\n", sealed.Reasons)
+			fmt.Printf("Codes:   %v\n", sealed.Codes)
+			axiom("F0", "plan.failed", strings.Join(sealed.Reasons, "; "))
+			axiom("F3", "continuity", "fail closed — like terraform")
+		}
+		fmt.Printf("ok=%v seal=%s branch=%s head=%s\n", sealed.OK, sealed.SealHash, sealed.Branch, sealed.Head)
+		fmt.Println("╚══════════════════════════════════════════════╝")
 	}
-	fmt.Printf("ok=%v seal=%s branch=%s head=%s\n", sealed.OK, sealed.SealHash, sealed.Branch, sealed.Head)
-	fmt.Println("â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•")
 	if !sealed.OK && exitNonZero {
+		os.Exit(2)
+	}
+}
+
+// runReleaseCheck authorizes a production deploy without authorizing a push.
+// Tolerates sole code refuse_push_main; fails closed on any other code.
+func runReleaseCheck(cwd string, exitNonZero bool, asJSON bool) {
+	if !asJSON {
+		fmt.Println(`╔══════════════════════════════════════════════╗
+║  RELEASE-CHECK — deploy authorize (not push) ║
+╚══════════════════════════════════════════════╝`)
+	}
+	axiom("F0", "release-check.start", "authorize deploy; do not apply/push")
+	g, _, err := evaluateForShipOpts(cwd, !asJSON)
+	if err != nil {
+		fail(err)
+		return
+	}
+	ok := policy.ReleaseAuthorized(g)
+	g.OK = ok
+	if asJSON {
+		printGateJSON(g, "release-check")
+	} else {
+		if ok {
+			fmt.Println("Release-check: OK — deploy may proceed (push to main still refused)")
+			printTokenThriftReminder()
+		} else {
+			fmt.Println("Release-check: FAILED")
+			fmt.Printf("Reasons: %v\n", g.Reasons)
+			fmt.Printf("Codes:   %v\n", g.Codes)
+		}
+		fmt.Printf("ok=%v branch=%s head=%s\n", ok, g.Branch, g.Head)
+		fmt.Println("╚══════════════════════════════════════════════╝")
+	}
+	if !ok && exitNonZero {
 		os.Exit(2)
 	}
 }
@@ -1497,9 +1580,10 @@ func runApply(cwd string, exitNonZero bool) {
 	}
 	axiom("F0", "gate.passed", sealed.SealHash)
 	axiom("F2", "ready", "authorized human may git push")
-	fmt.Printf("Apply: OK â€” sealed gate.passed\nplan_seal=%s gate_seal=%s\n", detail, sealed.SealHash)
+	fmt.Printf("Apply: OK — sealed gate.passed\nplan_seal=%s gate_seal=%s\n", detail, sealed.SealHash)
+	printTokenThriftReminder()
 	fmt.Println("Next: git push")
-	fmt.Println("â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•")
+	fmt.Println("╚══════════════════════════════════════════════╝")
 }
 
 func printDemo(cwd string) {

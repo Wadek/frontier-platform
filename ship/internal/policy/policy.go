@@ -17,14 +17,35 @@ func Require(have role.Role, min role.Role, tool string) error {
 	return nil
 }
 
+// Stable reason codes for plan --json and release-check (do not reword casually).
+const (
+	CodeDetachedHEAD   = "detached_head"
+	CodeMissingHEAD    = "missing_head"
+	CodeDirtyTree      = "dirty_tree"
+	CodeRefusePushMain = "refuse_push_main"
+	CodeOWASPBlock     = "owasp_high_or_critical"
+	CodeHygieneBlock   = "hygiene_block"
+)
+
+// Legacy human reason strings (still emitted for display / older classifiers).
+const (
+	MsgRefusePushMain = "refusing direct push to main/master (use a feature branch)"
+	MsgDirtyTree      = "working tree dirty; commit or clean before push"
+	MsgDetachedHEAD   = "detached HEAD or empty branch"
+	MsgMissingHEAD    = "missing HEAD"
+	MsgOWASPBlock     = "OWASP V: untriaged High/Critical finding(s)"
+	MsgHygieneBlock   = "Hygiene H: untriaged provenance marks (FRONTIER_HYGIENE_BLOCK=1)"
+)
+
 // GateResult is a sealed pre-push policy check.
 type GateResult struct {
 	OK        bool           `json:"ok"`
+	Codes     []string       `json:"codes"`
 	Reasons   []string       `json:"reasons"`
 	Branch    string         `json:"branch"`
 	Head      string         `json:"head"`
 	Dirty     bool           `json:"dirty"`
-	SealHash  string         `json:"seal_hash,omitempty"`
+	SealHash  string         `json:"seal,omitempty"`
 	ExpiresAt string         `json:"expires_at,omitempty"`
 	Extras    map[string]any `json:"extras,omitempty"`
 }
@@ -57,28 +78,86 @@ func DirtyPorcelain(porcelain string) bool {
 
 // EvaluatePushGate is local-first and cheap: no model calls.
 func EvaluatePushGate(branch, head, porcelain string, allowDirty bool) GateResult {
-	var reasons []string
+	var codes, reasons []string
 	dirty := DirtyPorcelain(porcelain)
 	if branch == "" {
-		reasons = append(reasons, "detached HEAD or empty branch")
+		codes = append(codes, CodeDetachedHEAD)
+		reasons = append(reasons, MsgDetachedHEAD)
 	}
 	if head == "" {
-		reasons = append(reasons, "missing HEAD")
+		codes = append(codes, CodeMissingHEAD)
+		reasons = append(reasons, MsgMissingHEAD)
 	}
 	if dirty && !allowDirty {
-		reasons = append(reasons, "working tree dirty; commit or clean before push")
+		codes = append(codes, CodeDirtyTree)
+		reasons = append(reasons, MsgDirtyTree)
 	}
 	if strings.EqualFold(branch, "main") || strings.EqualFold(branch, "master") {
-		reasons = append(reasons, "refusing direct push to main/master (use a feature branch)")
+		codes = append(codes, CodeRefusePushMain)
+		reasons = append(reasons, MsgRefusePushMain)
 	}
-	ok := len(reasons) == 0
+	ok := len(codes) == 0
 	return GateResult{
 		OK:      ok,
+		Codes:   codes,
 		Reasons: reasons,
 		Branch:  branch,
 		Head:    head,
 		Dirty:   dirty,
 	}
+}
+
+// AddCode appends a stable code and matching human reason if not already present.
+func (g *GateResult) AddCode(code, msg string) {
+	for _, c := range g.Codes {
+		if c == code {
+			return
+		}
+	}
+	g.Codes = append(g.Codes, code)
+	g.Reasons = append(g.Reasons, msg)
+	g.OK = false
+}
+
+// DeriveCodes maps legacy reason strings to stable codes (for older ledgers/tests).
+func DeriveCodes(reasons []string) []string {
+	var out []string
+	for _, r := range reasons {
+		switch {
+		case r == MsgRefusePushMain || strings.Contains(r, "refusing direct push to main"):
+			out = append(out, CodeRefusePushMain)
+		case r == MsgDirtyTree || strings.Contains(r, "working tree dirty"):
+			out = append(out, CodeDirtyTree)
+		case r == MsgDetachedHEAD || strings.Contains(r, "detached HEAD"):
+			out = append(out, CodeDetachedHEAD)
+		case r == MsgMissingHEAD || strings.Contains(r, "missing HEAD"):
+			out = append(out, CodeMissingHEAD)
+		case r == MsgOWASPBlock || strings.Contains(r, "OWASP V:"):
+			out = append(out, CodeOWASPBlock)
+		case r == MsgHygieneBlock || strings.Contains(r, "Hygiene H:"):
+			out = append(out, CodeHygieneBlock)
+		default:
+			out = append(out, "unknown:"+r)
+		}
+	}
+	return out
+}
+
+// ReleaseAuthorized reports whether a GateResult may authorize a production deploy.
+// Push to main remains refused; that single refusal is tolerated for release mode.
+// Any other code (dirty, OWASP, hygiene, unknown) fails closed.
+func ReleaseAuthorized(g GateResult) bool {
+	codes := g.Codes
+	if len(codes) == 0 && len(g.Reasons) > 0 {
+		codes = DeriveCodes(g.Reasons)
+	}
+	for _, c := range codes {
+		if c == CodeRefusePushMain {
+			continue
+		}
+		return false
+	}
+	return true
 }
 
 // SealGate writes gate.passed or gate.failed to the ledger.
@@ -90,6 +169,7 @@ func SealGate(l *ledger.Ledger, actor string, g GateResult) (*GateResult, error)
 	}
 	payload := map[string]any{
 		"ok":         g.OK,
+		"codes":      g.Codes,
 		"reasons":    g.Reasons,
 		"branch":     g.Branch,
 		"head":       g.Head,
@@ -143,6 +223,7 @@ func SealPlan(l *ledger.Ledger, actor string, g GateResult) (*GateResult, error)
 	}
 	payload := map[string]any{
 		"ok":         g.OK,
+		"codes":      g.Codes,
 		"reasons":    g.Reasons,
 		"branch":     g.Branch,
 		"head":       g.Head,
