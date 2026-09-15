@@ -1,0 +1,13 @@
+# Local git hooks for the frontier-platform monorepo.
+# pre-commit: refuse main/master only (plan requires a clean tree after commit).
+# pre-push: full frontier plan → apply.
+
+pre-commit:
+  commands:
+    deny-main:
+      run: powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/deny-main.ps1
+
+pre-push:
+  commands:
+    frontier-pre-push:
+      run: powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/frontier-gate.ps1 -Hook pre-push

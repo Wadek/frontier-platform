@@ -1,0 +1,39 @@
+# Providers — harness adapters. Same workflow, any provider.
+# A provider is a command template + cost class + context injection.
+
+providers:
+  - id: local
+    kind: local
+    cost_class: free
+    command: >
+      local-agent -p "{prompt}" --cwd {cwd} --docs {brief} --always-approve
+    inject:
+      - .agent_{project}/brief.md
+      - .agent_{project}/knowledge/mappings.md
+    notes: On-host model; 0 cloud tokens; prefer for atomic work.
+
+  - id: deepseek-flash
+    kind: cloud
+    cost_class: cheap
+    model: deepseek-flash
+    base_url: https://api.deepseek.com
+    notes: Anytime after egress; supports Vision; coach/tips/draft work.
+
+  - id: deepseek-v4-pro
+    kind: cloud
+    cost_class: expensive
+    model: deepseek-v4-pro
+    base_url: https://api.deepseek.com
+    off_peak_only: true
+    notes: Teacher pass, deep analysis, verify. Deferred at peak (pricing.yaml).
+
+  - id: dsh
+    kind: harness
+    cost_class: variable
+    notes: DeepSeek Harness sessions. Runs any workflow; cost per model.
+
+policy:
+  sizing: deterministic (control_ref.route) — a model never picks its own provider
+  egress: filter before any cloud call
+  budgets:
+    local_cloud_ratio_target: "90/10"

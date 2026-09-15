@@ -1,0 +1,8 @@
+runtime/
+node_modules/
+*.exe
+
+__pycache__/
+
+.cleanup-terms.md
+

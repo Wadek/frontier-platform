@@ -1,0 +1,13 @@
+version: 1
+project: <project-dir-name>
+created_by: <agent-or-human-id>
+domain: <one-line domain, InstructLab-style>
+providers: [local, deepseek-flash]
+tier: untrusted            # untrusted -> trusted -> saint (earned, never assumed)
+lineage:
+  parent: null             # set when this agent is a child of another (human-gated fork)
+expires: null              # ISO date; children re-validate (fork expiry)
+brief: brief.md
+knowledge:
+  - knowledge/architecture.md
+  - knowledge/mappings.md

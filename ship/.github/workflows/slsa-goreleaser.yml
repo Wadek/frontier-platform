@@ -1,0 +1,59 @@
+# Alpha / tagged releases with SLSA3 provenance (Go builder).
+# Trigger: push tag v*  OR  Actions → "SLSA go releaser" → Run workflow
+name: SLSA go releaser
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+permissions: read-all
+
+jobs:
+  args:
+    runs-on: ubuntu-latest
+    outputs:
+      commit: ${{ steps.ldflags.outputs.commit }}
+      version: ${{ steps.ldflags.outputs.version }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+      - id: ldflags
+        run: |
+          echo "commit=$GITHUB_SHA" >> "$GITHUB_OUTPUT"
+          if [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
+            echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+          else
+            echo "version=$(git describe --tags --always --dirty | sed 's/^v//')" >> "$GITHUB_OUTPUT"
+          fi
+
+  # Prerelease when tag contains "alpha" or "beta" or "rc", or on manual dispatch.
+  build:
+    permissions:
+      id-token: write
+      contents: write
+      actions: read
+    needs: args
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - cfg: frontier-git-linux-amd64.yml
+          - cfg: frontier-git-linux-arm64.yml
+          - cfg: frontier-git-windows-amd64.yml
+          - cfg: frontier-git-darwin-amd64.yml
+          - cfg: frontier-git-darwin-arm64.yml
+          - cfg: frontier-linux-amd64.yml
+          - cfg: frontier-windows-amd64.yml
+    uses: slsa-framework/slsa-github-generator/.github/workflows/builder_go_slsa3.yml@v2.1.0
+    with:
+      go-version-file: go.mod
+      config-file: .slsa-goreleaser/${{ matrix.cfg }}
+      evaluated-envs: "VERSION:${{ needs.args.outputs.version }}, COMMIT:${{ needs.args.outputs.commit }}"
+      # Upload to GitHub Release for tags; still builds on workflow_dispatch.
+      upload-assets: ${{ startsWith(github.ref, 'refs/tags/') }}
+      prerelease: ${{ contains(github.ref_name, 'alpha') || contains(github.ref_name, 'beta') || contains(github.ref_name, 'rc') || github.event_name == 'workflow_dispatch' }}
+      # Required by some generator versions when TUF/Rekor flakes:
+      compile-builder: true
