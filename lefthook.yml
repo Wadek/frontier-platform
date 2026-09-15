@@ -1,13 +1,15 @@
-# Local git hooks for the frontier-platform monorepo.
-# pre-commit: refuse main/master only (plan requires a clean tree after commit).
-# pre-push: full frontier plan → apply.
+# Local git hooks for frontier-platform.
+# Note: default branch is frontier/public-root (no main). Do not let lefthook
+# diff against main — that fails with exit 128 and blocks push.
 
 pre-commit:
-  commands:
-    deny-main:
+  jobs:
+    - name: deny-main
       run: powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/deny-main.ps1
 
 pre-push:
-  commands:
-    frontier-pre-push:
+  jobs:
+    - name: frontier-gate
+      # Always non-empty so lefthook does not skip; avoid `git diff HEAD main`.
+      files: git ls-files
       run: powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/frontier-gate.ps1 -Hook pre-push

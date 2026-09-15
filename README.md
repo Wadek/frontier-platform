@@ -1,36 +1,38 @@
 # frontier-platform
 
-Local-first tooling to **ship safely** and **spend less** on model usage.
+Local-first **security (S)**, **AI usage (L4)**, and **delivery (L7)** controls so AI-assisted code can reach production without skipping checks.
 
-One monorepo, four capabilities:
+Verbose habitat plan: `D:\wakalabs\docs\CODE_TO_PRODUCTION_PLAN.md` (diagrams in `docs/architecture/`).
 
-| Dir | Capability | Binary / job |
-|---|---|---|
-| `ship/` | **frontier-ship** — gate: plan → apply → push, hash-chained ledger (F0), monitor D0–D7 | `frontier` |
-| `control/` | **frontier-control** — taxonomy, workflows, providers, pricing, child-agent forking | `control` |
-| `control/` (ai) | **frontier-insight** — AI-usage audit + improve | `control ai` |
-| `control/` (ops) | **frontier-ops** — docker, health, IP drift, decommission | `control ops` |
+## Branches (apps)
 
-- [`PIPELINE.md`](PIPELINE.md) — permanent ship process
-- [`control/`](control/) — coordinator doctrine and reference implementation
-- [`hygiene/`](hygiene/) — optional AI-provenance inspect service for `frontier hygiene`
-- `runtime/` — live gate binaries, hooks, ledgers (gitignored; point `FRONTIER_RUNTIME` here)
+`feat/*` → `dev` (local serve) → `alpha` (versioned) → `main` (human merge, versioned prod).
 
-## Laws
-
-Ship axioms F0–F5 bind shipping: evidence before remote effect, never push `main`, never bypass the gate, English/Haskell/Go consilience. Control adds directives C0–C9 (`control/english/CONTROL.md`).
-
-## Build and test
-
-- Ship: Go toolchain (see `ship/README.md`).
-- Control: Go under `control/`; Python stdlib reference + tests:
+## Ship (`ship/`)
 
 ```powershell
-python -m unittest discover -s control/tests -v
+frontier plan          # or: frontier plan --json
+frontier apply
+frontier release-check # prod deploy authorize (not a push)
+git push               # hooks re-run plan/apply
 ```
 
-- Haskell witnesses: `control/haskell/` (where GHC exists).
+Never push `main` via Frontier. Prod deploy uses `release-check`, then app `deploy.ps1`.
 
-## Gate (this repo dogfoods itself)
+Release templates: `ship/templates/release/`. Process: `ship/english/RELEASE_PROCESS.md`.  
+Token thrift: printed on plan/apply OK; skill `grok/token-thrift`.
 
-`lefthook.yml` + `scripts/frontier-gate.ps1` dispatch: feature branch → `frontier plan` → `frontier apply` → push. Never `--no-verify`, never `main`.
+## Control (`control/`)
+
+First-class AI usage plane: `control pricing|roster|check`. Other verbs reserved (not all implemented in v0.1).
+
+## Standard vs custom
+
+| standard | custom |
+|----------|--------|
+| git, GitHub PR/Actions/Environments, Docker/Podman, Gitleaks, Trivy, Checkov, Semgrep (CI), Playwright, ZAP | Frontier plan/apply/release-check/ledger/hooks, deploy templates, control CLI, token thrift |
+
+## Build
+
+- Ship: Go (`ship/`). Place `frontier.exe` under `runtime/bin` (or `FRONTIER_RUNTIME`).
+- Control: `python -m unittest discover -s control/tests -v`
