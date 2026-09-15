@@ -90,12 +90,15 @@ type Report struct {
 	Verdict        string    `json:"verdict"`
 }
 
-// LedgersRoot is where evidence ledgers live (FRONTIER_HOME/ledgers).
+// LedgersRoot is where evidence ledgers live ($FRONTIER_RUNTIME/ledgers or $FRONTIER_HOME/ledgers).
 func LedgersRoot() string {
+	if v := strings.TrimSpace(os.Getenv("FRONTIER_RUNTIME")); v != "" {
+		return filepath.Join(v, "ledgers")
+	}
 	if v := strings.TrimSpace(os.Getenv("FRONTIER_HOME")); v != "" {
 		return filepath.Join(v, "ledgers")
 	}
-	return filepath.Join("D:\\frontier", "ledgers")
+	return filepath.Join("runtime", "ledgers")
 }
 
 func isMain(branch string) bool {

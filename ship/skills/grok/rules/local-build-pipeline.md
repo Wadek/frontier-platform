@@ -2,18 +2,17 @@
 
 Every session, every repo, every push. Do not invent a shorter path.
 
-**Spec:** `D:\wakalabs\frontier\PIPELINE.md`  
-**Tool:** Frontier Ship (`frontier` / `git frontier`) at `D:\frontier\bin`  
-**Source:** `C:\Users\waka\src\frontier-ship`
+**Spec:** `./PIPELINE.md` (repo root) or `ship/../PIPELINE.md` in the monorepo  
+**Tool:** Frontier Ship (`frontier` / `git frontier`) on PATH or under `$FRONTIER_RUNTIME/bin`
 
 ## Required sequence before GitHub
 
 1. Feature branch (never commit or push `main` / `master`).
 2. Clean commit.
-3. `frontier hygiene` inspects the changeset for AI provenance (watermarks-remover at `http://127.0.0.1:8765`). Advise by default.
+3. `frontier hygiene` inspects the changeset for AI provenance (optional service at `http://127.0.0.1:8765`). Advise by default.
 4. `frontier plan` must exit 0 (OWASP Guard + push rules).
 5. `frontier apply` must exit 0 (seals `gate.passed`).
-6. `git push` — global hooks re-run plan/apply. Never `--no-verify`.
+6. `git push` — hooks re-run plan/apply. Never `--no-verify`.
 7. Open a PR into `main`. Human merges. Agents do not merge to main.
 
 `FRONTIER_SOFT=1` is forbidden for real ship.
@@ -22,7 +21,7 @@ Every session, every repo, every push. Do not invent a shorter path.
 
 - `git push --no-verify`
 - Overriding `core.hooksPath`
-- Calling `C:\Program Files\Git\cmd\git.exe push` to skip the shim/hooks
+- Calling system `git` in a way that skips Frontier hooks
 - GitHub MCP `push_files`, `create_or_update_file`, or `merge_pull_request`
 - Pushing or committing on `main`/`master`
 

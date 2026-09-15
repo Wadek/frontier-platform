@@ -17,7 +17,7 @@ func Require(have role.Role, min role.Role, tool string) error {
 	return nil
 }
 
-// GateResult is a sealed pre-push conscience check.
+// GateResult is a sealed pre-push policy check.
 type GateResult struct {
 	OK        bool           `json:"ok"`
 	Reasons   []string       `json:"reasons"`

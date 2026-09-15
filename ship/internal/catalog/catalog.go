@@ -1,4 +1,4 @@
-// Package catalog lists the wakalabs skills and agents imported into
+// Package catalog lists the skills and agents imported into
 // frontier-ship (skills/ and agents/ in the source tree) so they can be used
 // through `frontier skills` / `frontier agents`.
 //
@@ -10,12 +10,12 @@
 //     (e.g. "github/git-agent", "grok/rules/local-build-pipeline");
 //   - support trees (references/, scripts/, docs/) and dot-dirs are skipped.
 //
-// Resolution order for the roots (local-first, single habitat):
+// Resolution order for the roots (local-first):
 //
 //	FRONTIER_SKILLS_DIR / FRONTIER_AGENTS_DIR  (explicit override)
-//	D:\frontier\skills / D:\frontier\agents     (deployed copy)
-//	<dir of running binary>\skills / \agents    (next to the binary)
-//	C:\Users\waka\src\frontier-ship\skills / \agents  (source checkout)
+//	$FRONTIER_RUNTIME/skills / agents            (deployed copy)
+//	<dir of running binary>\skills / \agents     (next to the binary)
+//	./skills / ./agents                          (source checkout cwd)
 package catalog
 
 import (
@@ -51,19 +51,24 @@ func AgentsDir() string {
 
 func resolveDir(name string) string {
 	exe, _ := os.Executable()
-	candidates := []string{
-		filepath.Join("D:\\frontier", name),
+	var candidates []string
+	if rt := strings.TrimSpace(os.Getenv("FRONTIER_RUNTIME")); rt != "" {
+		candidates = append(candidates, filepath.Join(rt, name))
 	}
 	if exe != "" {
 		candidates = append(candidates, filepath.Join(filepath.Dir(exe), name))
 	}
-	candidates = append(candidates,
-		filepath.Join("C:\\Users\\waka", "src", "frontier-ship", name),
-	)
+	if cwd, err := os.Getwd(); err == nil {
+		candidates = append(candidates, filepath.Join(cwd, name))
+		candidates = append(candidates, filepath.Join(cwd, "ship", name))
+	}
 	for _, c := range candidates {
 		if st, err := os.Stat(c); err == nil && st.IsDir() {
 			return c
 		}
+	}
+	if len(candidates) == 0 {
+		return name
 	}
 	return candidates[len(candidates)-1] // last chance; List will report missing
 }

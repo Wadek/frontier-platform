@@ -1,10 +1,10 @@
 # Permanent local pre-GitHub build pipeline
 
-This is the **only** ship process. It applies to every repo, every branch, every client (Grok, terminal, GitHub Desktop, VS Code). Nothing goes to GitHub until it passes.
+This is the **only** ship process. It applies to every repo, every branch, every client. Nothing goes to GitHub until it passes.
 
-Canonical code: `D:\wakalabs\frontier-fleet\ship` (imported with history from `frontier-ship`)
-Runtime: `D:\wakalabs\frontier-fleet\runtime` (legacy junction `D:\frontier` still points here)
-Enforcement: global `core.hooksPath` = `D:/wakalabs/frontier-fleet/runtime/hooks`
+Canonical code: `ship/` (history from frontier-ship)  
+Runtime: `$FRONTIER_RUNTIME` (defaults to `./runtime` in this repo)  
+Enforcement: set `core.hooksPath` to `$FRONTIER_RUNTIME/hooks` (or use lefthook in-repo)
 
 ---
 
@@ -36,7 +36,7 @@ gh pr create --fill
 Helper (same thing, refuses main):
 
 ```powershell
-powershell -File D:\wakalabs\frontier-fleet\ship\scripts\dogfood-push.ps1
+powershell -File ./ship/scripts/dogfood-push.ps1
 ```
 
 ---
@@ -48,15 +48,15 @@ powershell -File D:\wakalabs\frontier-fleet\ship\scripts\dogfood-push.ps1
 | Feature branch (not `main`/`master`) | **yes** | Commit on main is also refused |
 | Clean working tree | **yes** | `.frontier/` dirt is ignored |
 | OWASP v0 High/Critical | **yes** | Built-in `frontier guard` / ScanTree |
-| Fresh `plan.passed` then `gate.passed` | **yes** | Ledger under `D:\frontier\ledgers\…`, 15 min TTL |
+| Fresh `plan.passed` then `gate.passed` | **yes** | Ledger under `$FRONTIER_RUNTIME/ledgers/…`, 15 min TTL |
 | Secret-surface / Checkov / enhance | advise | Not a hard block yet |
-| Hygiene (H) watermarks-remover | advise | `frontier hygiene`; block only if `FRONTIER_HYGIENE_BLOCK=1` |
+| Hygiene (H) | advise | `frontier hygiene`; block only if `FRONTIER_HYGIENE_BLOCK=1` |
 | Slim (S) | no | Planned, not enforced |
-| Layer A tests (pytest / go test / …) | **manual** | Required when the stack playbook exists; not in the binary gate |
-| Layer B Playwright | **manual** | Same — `ship/english/O_VERIFY.md` |
-| GitHub Actions `verify.yml` | remote | Add on GitHub remotes; does not replace local gate |
+| Layer A tests | **manual** | Required when a stack playbook exists; not in the binary gate |
+| Layer B browser | **manual** | See `ship/english/O_VERIFY.md` |
+| GitHub Actions `verify.yml` | remote | Does not replace the local gate |
 
-`FRONTIER_SOFT=1` is **forbidden** for real ship. The hooks force `FRONTIER_SOFT=0`.
+`FRONTIER_SOFT=1` is **forbidden** for real ship. Hooks force `FRONTIER_SOFT=0`.
 
 ---
 
@@ -64,7 +64,7 @@ powershell -File D:\wakalabs\frontier-fleet\ship\scripts\dogfood-push.ps1
 
 - `git push --no-verify`
 - `git -c core.hooksPath= push`
-- `& "C:\Program Files\Git\cmd\git.exe" push` to skip Frontier
+- Calling a system `git.exe` to skip Frontier hooks
 - GitHub MCP `push_files` / `create_or_update_file`
 - Agent `merge_pull_request` onto main
 - Direct commits or pushes to `main` / `master`
@@ -73,10 +73,7 @@ powershell -File D:\wakalabs\frontier-fleet\ship\scripts\dogfood-push.ps1
 
 ## Verify / Optimize (when the repo has tests)
 
-After Guard, and **before** opening the PR, run the stack playbook verbosely and paste the log.
-
-Python + static UI (tasks / Satokori): `ship/english/stacks/python-web-static.md`
-Standard: `ship/english/O_VERIFY.md` — Layer A equivalence + Layer B browser, always `-v`.
+After Guard, and **before** opening the PR, run the stack playbook verbosely and paste the log. Standard: `ship/english/O_VERIFY.md`.
 
 ---
 
@@ -84,7 +81,7 @@ Standard: `ship/english/O_VERIFY.md` — Layer A equivalence + Layer B browser, 
 
 Ledger is **outside** the work tree (does not dirty the diff):
 
-`D:\frontier\ledgers\<hash>\ledger.jsonl`
+`$FRONTIER_RUNTIME/ledgers/<hash>/ledger.jsonl`
 
 ---
 

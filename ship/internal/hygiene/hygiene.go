@@ -296,7 +296,7 @@ func InspectFiles(base, root string, absPaths []string) *Report {
 	ver, err := Health(base)
 	if err != nil {
 		rep.Healthy = false
-		rep.Note = "watermarks-remover not reachable at " + base + " (" + err.Error() + "). Start: python D:\\wakalabs\\watermarks-remover\\service\\scripts\\server.py --host 127.0.0.1 --port 8765"
+		rep.Note = "hygiene service not reachable at " + base + " (" + err.Error() + "). Start: docker run -d -p 127.0.0.1:8765:8765 frontier-hygiene"
 		return rep
 	}
 	rep.Healthy = true

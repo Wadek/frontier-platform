@@ -1,7 +1,0 @@
-logs/
-.env
-.env.*
-.waka-bot/
-__pycache__/
-*.pyc
-*.tmp

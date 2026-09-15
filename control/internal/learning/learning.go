@@ -11,12 +11,12 @@ import (
 	"time"
 )
 
-// Record is one session debrief. Field names are the fleet standard.
+// Record is one session debrief. Field names are the platform standard.
 type Record struct {
 	Session         string            `json:"session"`
-	Plane           string            `json:"plane"`
-	Pilot           string            `json:"pilot"`
-	Runway          string            `json:"runway"`
+	Project         string            `json:"project"`
+	Agent           string            `json:"agent"`
+	Provider        string            `json:"provider"`
 	TS              string            `json:"ts"`
 	TLDR            string            `json:"tldr"`
 	Learned         []string          `json:"learned,omitempty"`
@@ -26,15 +26,15 @@ type Record struct {
 	Next            []string          `json:"next,omitempty"`
 }
 
-var runways = map[string]bool{"local": true, "flash": true, "pro": true, "dsh": true}
+var providers = map[string]bool{"local": true, "flash": true, "pro": true, "dsh": true}
 
 // Validate checks a record against the schema in english/LEARNING.md.
 func Validate(r Record) error {
-	if r.Session == "" || r.Plane == "" || r.Pilot == "" || r.Runway == "" || r.TS == "" || r.TLDR == "" {
-		return fmt.Errorf("missing required field (session/plane/pilot/runway/ts/tldr)")
+	if r.Session == "" || r.Project == "" || r.Agent == "" || r.Provider == "" || r.TS == "" || r.TLDR == "" {
+		return fmt.Errorf("missing required field (session/project/agent/provider/ts/tldr)")
 	}
-	if !runways[r.Runway] {
-		return fmt.Errorf("bad runway %q (local|flash|pro|dsh)", r.Runway)
+	if !providers[r.Provider] {
+		return fmt.Errorf("bad provider %q (local|flash|pro|dsh)", r.Provider)
 	}
 	if _, err := time.Parse(time.RFC3339, r.TS); err != nil {
 		return fmt.Errorf("bad ts %q: %w", r.TS, err)

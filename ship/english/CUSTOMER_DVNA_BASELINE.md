@@ -1,14 +1,14 @@
-# First customer baseline — DVNA (stand-in for CEO vibe code)
+# First customer baseline â€” DVNA (stand-in for CEO vibe code)
 
 **Customer fixture:** [appsecco/dvna](https://github.com/appsecco/dvna) (Damn Vulnerable NodeJS Application)  
-**Local path:** `D:\frontier\projects\dvna-customer`  
+**Local path:** `./projects/dvna-customer`  
 **Branch:** `frontier/customer-baseline`  
 **Date:** 2026-08-18
 
 ## Story
 
-Treat DVNA as a product that “works in the demo” and is full of intentional (or vibe-shaped) hazards.  
-Frontier’s job is not to become a full pentest suite on day one. It is to **stop careless shipping** until High/Critical under current `V` are examined.
+Treat DVNA as a product that â€œworks in the demoâ€ and is full of intentional (or vibe-shaped) hazards.  
+Frontierâ€™s job is not to become a full pentest suite on day one. It is to **stop careless shipping** until High/Critical under current `V` are examined.
 
 ## What we ran
 
@@ -27,9 +27,9 @@ git frontier ledger
 | demo on `master` | F1 boundary | Gate would fail: refuse ship to main/master |
 | gate start | F0 | Ledger opened before any remote mutate |
 | exam | F4 | OWASP Top 10 `V` scan at least once / at maximum for this tool |
-| findings | F4 | High matches → block |
+| findings | F4 | High matches â†’ block |
 | seal | F0 | `exam.owasp` + `gate.failed` |
-| continuity | F3 | No bypass — gate stays failed |
+| continuity | F3 | No bypass â€” gate stays failed |
 
 ## Findings under V (after ignoring `*.min.js` noise)
 
@@ -38,14 +38,14 @@ Real app code (representative; from first scan of `core/appHandler.js`):
 | Severity | OWASP | Signal |
 |----------|-------|--------|
 | High | A03 | SQL string concat from `req.body.login` |
-| High | A03 | `exec('ping …' + req.body.address)` |
+| High | A03 | `exec('ping â€¦' + req.body.address)` |
 | High | A03 | `mathjs.eval(req.body.eqn)` |
 
-Minified vendor JS initially produced false positives → **minimality fix:** skip `*.min.js` in the scanner (customer taught us).
+Minified vendor JS initially produced false positives â†’ **minimality fix:** skip `*.min.js` in the scanner (customer taught us).
 
 ## Customer outcome
 
-- **Gate failed** — correct for a first “real rules” day.  
+- **Gate failed** â€” correct for a first â€œreal rulesâ€ day.  
 - CEO/vibe workflow cannot `git push` this tree until High/Critical under `V` are fixed or formally triaged (future).  
 - Next customer steps: minimal patches **or** delete unused dangerous routes; re-gate; push only to **their** remote.
 
@@ -59,4 +59,4 @@ Minified vendor JS initially produced false positives → **minimality fix:** sk
 ## Efficiency lesson
 
 We did **not** ask anyone to rewrite DVNA.  
-We made shipping **expensive** until the smallest clear hazards under `V` are faced — that is how Frontier manages vibe code volume.
+We made shipping **expensive** until the smallest clear hazards under `V` are faced â€” that is how Frontier manages vibe code volume.

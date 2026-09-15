@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	DefaultAllowlist = `D:\frontier\runtime\allowlist.json`
+	DefaultAllowlist = `$FRONTIER_RUNTIME/runtime/allowlist.json`
 	DefaultTokenPct  = 5
 	HTTPTimeout      = 8 * time.Second
 )
@@ -95,9 +95,9 @@ func ReportTokens(al *Allowlist, consumedPct float64) TokenReport {
 	if rem < 0 {
 		rem = 0
 	}
-	note := "reporting only — cap is off. A later runner records spend here."
+	note := "reporting only â€” cap is off. A later runner records spend here."
 	if TokenCapEnabled() {
-		note = "cap ON — jobs must stay at or under configured_pct"
+		note = "cap ON â€” jobs must stay at or under configured_pct"
 	}
 	return TokenReport{
 		CapEnabled:    TokenCapEnabled(),

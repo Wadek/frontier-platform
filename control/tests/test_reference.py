@@ -1,4 +1,4 @@
-"""Tests for the tower Python reference — the deterministic core of frontier-control.
+"""Tests for the control Python reference — the deterministic core of frontier-control.
 
 Run: python -m unittest discover -s control/tests -v   (from the repo root)
 """
@@ -12,14 +12,14 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "reference"))
 
-import tower_ref as t
+import control_ref as t
 
 
 def utc(y, mo, d, h, mi=0):
     return datetime(y, mo, d, h, mi, tzinfo=timezone.utc)
 
 
-class TestWeather(unittest.TestCase):
+class TestPricing(unittest.TestCase):
     # 2026-09-14 is a Monday; 2026-09-12/13 are Saturday/Sunday.
     def test_peak_windows(self):
         self.assertTrue(t.is_peak(utc(2026, 9, 14, 1, 0)))    # Mon 01:00
@@ -33,8 +33,6 @@ class TestWeather(unittest.TestCase):
         self.assertFalse(t.is_peak(utc(2026, 9, 13, 23, 59)))  # Sunday all off
 
     def test_now_matches_official_clock(self):
-        # Clock check, not a window check: the official page said the window;
-        # this only proves is_peak() answers consistently with route().
         now = datetime.now(timezone.utc)
         self.assertEqual(t.is_peak(now), t.route("teacher", now)["peak"])
 
@@ -62,41 +60,41 @@ class TestRoute(unittest.TestCase):
         self.assertEqual(t.route("nonsense", utc(2026, 9, 14, 10, 0))["target"], "local")
 
 
-class TestFlightPlan(unittest.TestCase):
+class TestWorkflow(unittest.TestCase):
     def test_happy_path(self):
-        path = ["queued", "review", "taxiing", "airborne", "landed", "debriefed", "filed"]
+        path = ["queued", "review", "preparing", "running", "completed", "debriefed", "closed"]
         for a, b in zip(path, path[1:]):
             self.assertTrue(t.next_ok(a, b), f"{a} -> {b}")
 
-    def test_holding_path(self):
-        self.assertTrue(t.next_ok("review", "holding"))
-        self.assertTrue(t.next_ok("holding", "review"))
+    def test_deferred_path(self):
+        self.assertTrue(t.next_ok("review", "deferred"))
+        self.assertTrue(t.next_ok("deferred", "review"))
 
-    def test_handoff_path(self):
-        self.assertTrue(t.next_ok("airborne", "handed_off"))
-        self.assertTrue(t.next_ok("handed_off", "airborne"))
+    def test_transfer_path(self):
+        self.assertTrue(t.next_ok("running", "transferred"))
+        self.assertTrue(t.next_ok("transferred", "running"))
 
     def test_rejections_and_retry(self):
         self.assertTrue(t.next_ok("review", "rejected"))
-        self.assertTrue(t.next_ok("airborne", "failed"))
+        self.assertTrue(t.next_ok("running", "failed"))
         self.assertTrue(t.next_ok("failed", "review"))
 
     def test_illegal_transitions_denied(self):
-        self.assertFalse(t.next_ok("queued", "airborne"))      # no clearance skip
-        self.assertFalse(t.next_ok("landed", "filed"))         # debrief mandatory (T4)
-        self.assertFalse(t.next_ok("taxiing", "filed"))
-        self.assertFalse(t.next_ok("filed", "review"))         # terminal
-        self.assertFalse(t.next_ok("rejected", "airborne"))
+        self.assertFalse(t.next_ok("queued", "running"))       # no clearance skip
+        self.assertFalse(t.next_ok("completed", "closed"))     # debrief mandatory (T4)
+        self.assertFalse(t.next_ok("preparing", "closed"))
+        self.assertFalse(t.next_ok("closed", "review"))        # terminal
+        self.assertFalse(t.next_ok("rejected", "running"))
 
     def test_terminal(self):
-        self.assertIn("filed", t.TERMINAL)
+        self.assertIn("closed", t.TERMINAL)
         self.assertIn("rejected", t.TERMINAL)
 
 
 class TestLearning(unittest.TestCase):
     def make(self, **kw):
-        rec = {"session": "2026-09-14-x", "plane": "food", "pilot": "p1",
-               "runway": "local", "ts": "2026-09-14T08:30:00Z", "tldr": "t"}
+        rec = {"session": "2026-09-14-x", "project": "alpha", "agent": "a1",
+               "provider": "local", "ts": "2026-09-14T08:30:00Z", "tldr": "t"}
         rec.update(kw)
         return rec
 
@@ -108,8 +106,8 @@ class TestLearning(unittest.TestCase):
         ok, why = t.validate_record({"session": "x"})
         self.assertFalse(ok)
 
-    def test_bad_runway(self):
-        self.assertFalse(t.validate_record(self.make(runway="grok"))[0])
+    def test_bad_provider(self):
+        self.assertFalse(t.validate_record(self.make(provider="grok"))[0])
 
     def test_bad_ts(self):
         self.assertFalse(t.validate_record(self.make(ts="not-a-time"))[0])
@@ -127,30 +125,30 @@ class TestLearning(unittest.TestCase):
         with tempfile.TemporaryDirectory() as d:
             p = Path(d) / "learn.jsonl"
             with self.assertRaises(ValueError):
-                t.append_record(p, self.make(runway="claude"))
+                t.append_record(p, self.make(provider="claude"))
 
 
 class TestRegistry(unittest.TestCase):
     def test_scan(self):
         with tempfile.TemporaryDirectory() as d:
             root = Path(d)
-            (root / "food").mkdir()
-            (root / "opengym").mkdir()
-            (root / ".agent_food").mkdir()
+            (root / "alpha").mkdir()
+            (root / "beta").mkdir()
+            (root / ".agent_alpha").mkdir()
             (root / ".hidden").mkdir()
-            (root / "ollama-data").mkdir()
-            planes = t.scan_planes(root)
-            names = {p["plane"] for p in planes}
-            self.assertEqual(names, {"food", "opengym"})
-            by_name = {p["plane"]: p for p in planes}
-            self.assertTrue(by_name["food"]["has_pilot"])
-            self.assertFalse(by_name["opengym"]["has_pilot"])
+            (root / "runtime").mkdir()
+            projects = t.scan_projects(root)
+            names = {p["project"] for p in projects}
+            self.assertEqual(names, {"alpha", "beta"})
+            by_name = {p["project"]: p for p in projects}
+            self.assertTrue(by_name["alpha"]["has_agent"])
+            self.assertFalse(by_name["beta"]["has_agent"])
 
 
-class TestHandoffCard(unittest.TestCase):
+class TestTransferCard(unittest.TestCase):
     def test_valid(self):
         card = {"specversion": "1.0", "type": "handoff.request",
-                "source": ".agent_opengym", "id": "h1", "data": {"task": "x"}}
+                "source": ".agent_beta", "id": "h1", "data": {"task": "x"}}
         self.assertTrue(t.valid_card(card))
 
     def test_invalid(self):

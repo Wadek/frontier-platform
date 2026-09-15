@@ -37,9 +37,9 @@ Alpha tags (`v0.1.0-alpha.1`) create a **prerelease**.
 From a clean tree (or with `FRONTIER_SOFT=1` if your Frontier `git` blocks tagging habits):
 
 ```powershell
-cd C:\Users\waka\src\frontier-ship
+cd path\to\frontier-platform\ship
 # use real git for the tag push if the shim fights you:
-$env:FRONTIER_GIT_BIN = "C:\Program Files\Git\cmd\git.exe"
+$env:FRONTIER_GIT_BIN = (Get-Command git).Source
 
 git tag -a v0.1.0-alpha.1 -m "Frontier alpha: git shim + CLI with SLSA3 provenance"
 git push origin v0.1.0-alpha.1

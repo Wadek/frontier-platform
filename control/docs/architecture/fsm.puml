@@ -1,18 +1,21 @@
-@startuml
+﻿@startuml
+title workflow FSM
+
 [*] --> queued
-queued --> review : dispatch
-review --> holding : pro runway @ peak
-holding --> review : off-peak fires (job service)
-review --> taxiing : cleared
-review --> rejected : refused (human)
+queued --> review
+review --> deferred : expensive provider at peak
+deferred --> review : off-peak fires
+review --> preparing : cleared
+review --> rejected
+preparing --> running : context hydrated
+preparing --> rejected
+running --> transferred : crosses project boundary
+transferred --> running : target agent returns result
+running --> completed : done
+running --> failed : error / egress-refused
+failed --> review
+completed --> debriefed : learning record appended
+debriefed --> closed : ledger sealed
+closed --> [*]
 rejected --> [*]
-taxiing --> airborne : context hydrated
-airborne --> handed_off : crosses plane boundary
-handed_off --> airborne : target pilot returns result
-airborne --> landed : done
-airborne --> failed : error / egress-refused
-failed --> review : retry (human)
-landed --> debriefed : .agent_learning appended
-debriefed --> filed : ledger sealed
-filed --> [*]
 @enduml

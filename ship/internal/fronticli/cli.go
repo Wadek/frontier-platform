@@ -72,7 +72,7 @@ func RunGitPassthrough(git string, args []string) int {
 
 func guardPush(soft bool) error {
 	cwd, _ := os.Getwd()
-	axiom("F0", "push.start", "push requested — evidence + gate required")
+	axiom("F0", "push.start", "push requested â€” evidence + gate required")
 	repo := gitx.Repo{Dir: cwd}
 	branch, err := repo.Branch()
 	if err != nil {
@@ -97,8 +97,8 @@ func guardPush(soft bool) error {
 		axiom("F0", "push.deny", strings.Join(g.Reasons, "; "))
 		msg := fmt.Sprintf("frontier deny push: %s", strings.Join(g.Reasons, "; "))
 		if soft {
-			fmt.Fprintln(os.Stderr, "WARNING:", msg, "(FRONTIER_SOFT=1 — allowing)")
-			axiom("F3", "soft_allow", "learning mode weakens continuity — turn FRONTIER_SOFT off")
+			fmt.Fprintln(os.Stderr, "WARNING:", msg, "(FRONTIER_SOFT=1 â€” allowing)")
+			axiom("F3", "soft_allow", "learning mode weakens continuity â€” turn FRONTIER_SOFT off")
 			return nil
 		}
 		return fmt.Errorf("%s\nhint: use a feature branch, commit cleanly, or: git frontier gate", msg)
@@ -117,7 +117,7 @@ func guardPush(soft bool) error {
 		axiom("F0", "push.deny", detail)
 		msg := fmt.Sprintf("frontier deny push: %s", detail)
 		if soft {
-			fmt.Fprintln(os.Stderr, "WARNING:", msg, "(FRONTIER_SOFT=1 — allowing)")
+			fmt.Fprintln(os.Stderr, "WARNING:", msg, "(FRONTIER_SOFT=1 â€” allowing)")
 			_, _ = led.Append("frontier-git", "push.soft_allow", map[string]any{"branch": branch, "head": head})
 			return nil
 		}
@@ -143,9 +143,9 @@ func guardCommit(args []string, soft, strict bool) error {
 	onMain := strings.EqualFold(branch, "main") || strings.EqualFold(branch, "master")
 	if onMain {
 		axiom("F1", "commit.deny_main", "direct commits on main expand blast radius")
-		msg := "frontier deny commit on main/master — create a feature branch first (git checkout -b frontier/...)"
+		msg := "frontier deny commit on main/master â€” create a feature branch first (git checkout -b frontier/...)"
 		if soft {
-			fmt.Fprintln(os.Stderr, "WARNING:", msg, "(FRONTIER_SOFT=1 — allowing)")
+			fmt.Fprintln(os.Stderr, "WARNING:", msg, "(FRONTIER_SOFT=1 â€” allowing)")
 			return nil
 		}
 		return fmt.Errorf("%s", msg)
@@ -164,7 +164,7 @@ func guardCommit(args []string, soft, strict bool) error {
 
 func handleMeta(args []string) {
 	if len(args) == 0 {
-		fmt.Println(`git frontier commands (Terraform-like: plan → apply → push):
+		fmt.Println(`git frontier commands (Terraform-like: plan â†’ apply â†’ push):
 
   git frontier plan         preview Guard (note Slim); FAIL stops the world
   git frontier apply        seal push authorization only if plan passed
@@ -172,15 +172,15 @@ func handleMeta(args []string) {
 
   Words (preferred)     Letter aliases
   -------------------   --------------
-  frontier learn        L   — Learn / Landscape (classify before change)
-  frontier guard        G   — Guard / security exam (OWASP + secret surfaces)
-  frontier hygiene      H   — Hygiene / AI provenance (watermarks-remover)
-  frontier runtime      R   — Runtime / probe + bounded chaos (allowlist)
-  frontier slim         S   — Slim / vibe-bloat (PLANNED — not enforced)
-  frontier optimize     O   — Optimize report (behavior-preserving speed; advise)
+  frontier learn        L   â€” Learn / Landscape (classify before change)
+  frontier guard        G   â€” Guard / security exam (OWASP + secret surfaces)
+  frontier hygiene      H   â€” Hygiene / AI provenance (watermarks-remover)
+  frontier runtime      R   â€” Runtime / probe + bounded chaos (allowlist)
+  frontier slim         S   â€” Slim / vibe-bloat (PLANNED â€” not enforced)
+  frontier optimize     O   â€” Optimize report (behavior-preserving speed; advise)
 
   Onboarding (no letter):  frontier scm status|init|connect
-  Supervision (no letter): frontier monitor  — audit agent behavior vs directives
+  Supervision (no letter): frontier monitor  â€” audit agent behavior vs directives
 
   git frontier learn classify [path]
   git frontier guard list|checkov
@@ -197,8 +197,8 @@ func handleMeta(args []string) {
 
 Letter notes (avoid shell pain):
   Prefer full words in scripts. Single letters are aliases only.
-  g is sometimes aliased to git in zsh — use "frontier guard" or "frontier G".
-  Avoid overlapping common tools: ls, cd, ps, rm, git, go, gh, …
+  g is sometimes aliased to git in zsh â€” use "frontier guard" or "frontier G".
+  Avoid overlapping common tools: ls, cd, ps, rm, git, go, gh, â€¦
 
 Env: FRONTIER_SOFT=1  FRONTIER_VERBOSE=1  FRONTIER_GIT_BIN  FRONTIER_LEDGER
      FRONTIER_V_AUTO=1  also run available adapters during enhance/guard pack
@@ -206,7 +206,7 @@ Env: FRONTIER_SOFT=1  FRONTIER_VERBOSE=1  FRONTIER_GIT_BIN  FRONTIER_LEDGER
 Nothing remote goes if plan/apply fails (like terraform).
 
 Same as standalone:  frontier scm | learn | guard | hygiene | runtime | slim | optimize | plan | apply
-(Not \"go frontier\" — go is the Go toolchain)`)
+(Not \"go frontier\" â€” go is the Go toolchain)`)
 		return
 	}
 	cwd, _ := os.Getwd()
@@ -227,7 +227,7 @@ Same as standalone:  frontier scm | learn | guard | hygiene | runtime | slim | o
 			return
 		}
 		runExam(cwd, true)
-	case "V", "v": // temporary aliases → guard
+	case "V", "v": // temporary aliases â†’ guard
 		fmt.Fprintln(os.Stderr, "note: frontier V is now frontier guard (G)")
 		if len(args) > 1 {
 			runGuardSub(cwd, args[1:])
@@ -272,32 +272,32 @@ Same as standalone:  frontier scm | learn | guard | hygiene | runtime | slim | o
 		fmt.Printf("frontier-git %s (%s)\n\n", version, commit)
 		fmt.Println(`You are talking to Frontier through the git interface.
 
-  Type:  git …
+  Type:  git â€¦
   Engine: FRONTIER_GIT_BIN (real git)
 
 Terraform-like flow:
-  git frontier plan    # preview — fails closed
-  git frontier apply   # authorize — only if plan passed
+  git frontier plan    # preview â€” fails closed
+  git frontier apply   # authorize â€” only if plan passed
   git push             # only if apply/gate sealed
 
 Onboarding:
   frontier scm         # VCS detect/init/connect (before Learn if needed)
 
 Policy families (word = primary, letter = alias):
-  Learn     (L)  — ingest + classify before change
-  Guard     (G)  — security + secret surfaces; enforced at changeset
-  Hygiene   (H)  — AI provenance (watermarks-remover); advise
-  Runtime   (R)  — post-ship probe + bounded chaos (allowlist)
-  Slim      (S)  — vibe-code bloat; PLANNED
-  Optimize  (O)  — behavior-preserving speed; report + small PRs
-  Monitor        — audit ledgered agent behavior vs ship directives (frontier monitor)
+  Learn     (L)  â€” ingest + classify before change
+  Guard     (G)  â€” security + secret surfaces; enforced at changeset
+  Hygiene   (H)  â€” AI provenance (watermarks-remover); advise
+  Runtime   (R)  â€” post-ship probe + bounded chaos (allowlist)
+  Slim      (S)  â€” vibe-code bloat; PLANNED
+  Optimize  (O)  â€” behavior-preserving speed; report + small PRs
+  Monitor        â€” audit ledgered agent behavior vs ship directives (frontier monitor)
 
 Enhance:
   frontier enhance guard | optimize
 
 Control points: changeset | review | runtime | engagement
-Languages: English · Haskell · Go
-State: ledger (like terraform state) — evidence of plan/apply`)
+Languages: English Â· Haskell Â· Go
+State: ledger (like terraform state) â€” evidence of plan/apply`)
 	default:
 		fmt.Fprintf(os.Stderr, "unknown frontier subcommand %q\n", args[0])
 		os.Exit(2)
@@ -305,26 +305,26 @@ State: ledger (like terraform state) — evidence of plan/apply`)
 }
 
 func printSlimStub() {
-	fmt.Println(`╔══════════════════════════════════════════════╗
-║  Slim (S) — PLANNED, not enforced yet        ║
-╚══════════════════════════════════════════════╝
+	fmt.Println(`â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
+â•‘  Slim (S) â€” PLANNED, not enforced yet        â•‘
+â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
   Purpose: manage vibe-code bloat (least code that still works)
-  Control: changeset (advise→block later) + review (intent)
+  Control: changeset (adviseâ†’block later) + review (intent)
   Today:   use frontier guard (G) for security baseline
   Later:   frontier slim   will report budgets / dead code
   First:   frontier learn classify   (learn before slim)
   After:   frontier optimize (O)     (speed without behavior change)
 
   Stick with:  frontier learn | guard | hygiene | plan | apply | push
-╚══════════════════════════════════════════════╝`)
+â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•`)
 }
 
 func printOptimizeStub() {
-	fmt.Println(`╔══════════════════════════════════════════════╗
-║  Optimize (O) — behavior-preserving speed    ║
-╚══════════════════════════════════════════════╝
+	fmt.Println(`â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
+â•‘  Optimize (O) â€” behavior-preserving speed    â•‘
+â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
   Purpose: simplest correct change; intended behavior unchanged
-  After:   learn → guard → slim
+  After:   learn â†’ guard â†’ slim
   Output:  .frontier/optimize/O-*  (PR body = Opt section)
   Docs:    english/O_OPTIMIZE.md
 
@@ -334,14 +334,14 @@ func printOptimizeStub() {
   frontier optimize pr-body Opt-001
   frontier enhance optimize      # residual CS fill (planned depth)
 
-  One Opt-ID per small PR. Advise-only — does not block gate.
-╚══════════════════════════════════════════════╝`)
+  One Opt-ID per small PR. Advise-only â€” does not block gate.
+â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•`)
 }
 
 func printHygieneStub() {
-	fmt.Println(`╔══════════════════════════════════════════════╗
-║  Hygiene (H) — AI provenance marks           ║
-╚══════════════════════════════════════════════╝
+	fmt.Println(`â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
+â•‘  Hygiene (H) â€” AI provenance marks           â•‘
+â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
   Word:    frontier hygiene   aliases: watermarks, H
   Service: watermarks-remover  http://127.0.0.1:8765
   Docs:    english/H_HYGIENE.md
@@ -357,8 +357,9 @@ func printHygieneStub() {
   WATERMARKS_SERVICE_URL    override (default loopback :8765)
 
   Start service:
-    python D:\wakalabs\watermarks-remover\service\scripts\server.py --host 127.0.0.1 --port 8765
-╚══════════════════════════════════════════════╝`)
+    docker run -d -p 127.0.0.1:8765:8765 frontier-hygiene
+    # or: python hygiene/service/scripts/server.py --host 127.0.0.1 --port 8765
+â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•`)
 }
 
 func runHygiene(cwd string, args []string) {
@@ -399,15 +400,15 @@ func runHygiene(cwd string, args []string) {
 }
 
 func runHygieneStatus() {
-	fmt.Println(`╔══════════════════════════════════════════════╗
-║  HYGIENE (H) — service status                ║
-╚══════════════════════════════════════════════╝`)
+	fmt.Println(`â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
+â•‘  HYGIENE (H) â€” service status                â•‘
+â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•`)
 	base := hygiene.ServiceURL()
 	fmt.Printf("url: %s\n", base)
 	ver, err := hygiene.Health(base)
 	if err != nil {
 		fmt.Printf("healthy: no\nerror:   %s\n", err)
-		fmt.Println("start:   python D:\\wakalabs\\watermarks-remover\\service\\scripts\\server.py --host 127.0.0.1 --port 8765")
+		fmt.Println("start:   docker run -d -p 127.0.0.1:8765:8765 frontier-hygiene")
 		return
 	}
 	fmt.Printf("healthy: yes\nversion: %s\n", ver)
@@ -426,14 +427,14 @@ func hygieneTargets(cwd string, extra []string) []string {
 }
 
 func runHygieneInspect(cwd string, extra []string, seal bool) *hygiene.Report {
-	fmt.Println(`╔══════════════════════════════════════════════╗
-║  HYGIENE (H) — changeset inspect             ║
-╚══════════════════════════════════════════════╝`)
+	fmt.Println(`â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
+â•‘  HYGIENE (H) â€” changeset inspect             â•‘
+â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•`)
 	axiom("F0", "hygiene.start", "inspect AI provenance on the changeset")
 	targets := hygieneTargets(cwd, extra)
 	rep := hygiene.InspectFiles(hygiene.ServiceURL(), cwd, targets)
 	fmt.Print(hygiene.FormatReport(rep))
-	fmt.Println("╚══════════════════════════════════════════════╝")
+	fmt.Println("â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•")
 	if seal {
 		led, err := ledger.Open(findLedger(cwd))
 		if err == nil {
@@ -455,9 +456,9 @@ func runHygieneInspect(cwd string, extra []string, seal bool) *hygiene.Report {
 }
 
 func runHygieneClean(cwd, path string, inPlace bool) {
-	fmt.Println(`╔══════════════════════════════════════════════╗
-║  HYGIENE (H) — clean                         ║
-╚══════════════════════════════════════════════╝`)
+	fmt.Println(`â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
+â•‘  HYGIENE (H) â€” clean                         â•‘
+â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•`)
 	axiom("F0", "hygiene.clean", "explicit strip; not silent on plan")
 	base := hygiene.ServiceURL()
 	if _, err := hygiene.Health(base); err != nil {
@@ -491,9 +492,9 @@ func inspectHygieneQuiet(cwd string) *hygiene.Report {
 }
 
 func printRuntimeStub() {
-	fmt.Println(`╔══════════════════════════════════════════════╗
-║  Runtime (R) — probe + bounded chaos         ║
-╚══════════════════════════════════════════════╝
+	fmt.Println(`â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
+â•‘  Runtime (R) â€” probe + bounded chaos         â•‘
+â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
   Word:    frontier runtime   aliases: probe, chaos, R
   Docs:    english/R_RUNTIME.md
 
@@ -502,11 +503,11 @@ func printRuntimeStub() {
   frontier runtime chaos        # dry-run inject plan (v1 does not inject)
   frontier runtime budget       # report configured vs consumed token %
 
-  Allowlist: FRONTIER_RUNTIME_ALLOWLIST  (default D:\frontier\runtime\allowlist.json)
+  Allowlist: FRONTIER_RUNTIME_ALLOWLIST  (default $FRONTIER_RUNTIME/runtime/allowlist.json)
   Token %:   FRONTIER_RUNTIME_TOKEN_PCT  (default 5)
-  Inject:    FRONTIER_RUNTIME_CHAOS=1    (still dry in v1 — no network mutate)
+  Inject:    FRONTIER_RUNTIME_CHAOS=1    (still dry in v1 â€” no network mutate)
   v1 HTTP targets: 127.0.0.1 / localhost only.
-╚══════════════════════════════════════════════╝`)
+â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•`)
 }
 
 func runRuntime(cwd string, args []string) {
@@ -536,9 +537,9 @@ func runRuntime(cwd string, args []string) {
 }
 
 func runRuntimeStatus(cwd string) {
-	fmt.Println(`╔══════════════════════════════════════════════╗
-║  RUNTIME (R) — status                        ║
-╚══════════════════════════════════════════════╝`)
+	fmt.Println(`â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
+â•‘  RUNTIME (R) â€” status                        â•‘
+â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•`)
 	path := fruntime.AllowlistPath()
 	fmt.Printf("allowlist: %s\n", path)
 	al, err := fruntime.LoadAllowlist(path)
@@ -564,9 +565,9 @@ func runRuntimeStatus(cwd string) {
 }
 
 func runRuntimeScan(cwd string) {
-	fmt.Println(`╔══════════════════════════════════════════════╗
-║  RUNTIME (R) — scan                          ║
-╚══════════════════════════════════════════════╝`)
+	fmt.Println(`â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
+â•‘  RUNTIME (R) â€” scan                          â•‘
+â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•`)
 	axiom("F0", "runtime.scan", "allowlisted loopback only")
 	al, err := fruntime.LoadAllowlist(fruntime.AllowlistPath())
 	if err != nil {
@@ -594,9 +595,9 @@ func runRuntimeScan(cwd string) {
 }
 
 func runRuntimeChaos(cwd string) {
-	fmt.Println(`╔══════════════════════════════════════════════╗
-║  RUNTIME (R) — chaos                         ║
-╚══════════════════════════════════════════════╝`)
+	fmt.Println(`â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
+â•‘  RUNTIME (R) â€” chaos                         â•‘
+â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•`)
 	al, err := fruntime.LoadAllowlist(fruntime.AllowlistPath())
 	if err != nil {
 		fail(err)
@@ -629,9 +630,9 @@ func runRuntimeChaos(cwd string) {
 }
 
 func runRuntimeBudget(cwd string) {
-	fmt.Println(`╔══════════════════════════════════════════════╗
-║  RUNTIME (R) — token consumption report      ║
-╚══════════════════════════════════════════════╝`)
+	fmt.Println(`â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
+â•‘  RUNTIME (R) â€” token consumption report      â•‘
+â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•`)
 	axiom("F0", "runtime.tokens", "report configured vs consumed share (cap off by default)")
 	path := fruntime.AllowlistPath()
 	al, err := fruntime.LoadAllowlist(path)
@@ -658,16 +659,16 @@ func runRuntimeBudget(cwd string) {
 }
 
 func printMonitorStub() {
-	fmt.Println(`╔══════════════════════════════════════════════╗
-║  MONITOR — audit agent behavior vs directives ║
-╚══════════════════════════════════════════════╝
+	fmt.Println(`â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
+â•‘  MONITOR â€” audit agent behavior vs directives â•‘
+â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
   Purpose: examine ledgered agent behavior and verify the ship
            directives (F0-F4, plan -> apply -> push, feature branches).
   Evidence: every consequential action is sealed in the ledger (F0).
   Docs: english/MONITOR.md
 
   frontier monitor             # audit this repo's ledger
-  frontier monitor all         # audit every ledger under D:\frontier\ledgers
+  frontier monitor all         # audit every ledger under $FRONTIER_RUNTIME/ledgers
   frontier monitor status      # recent monitor.* seals
   frontier monitor directives  # print the D0-D7 reference set
 
@@ -676,7 +677,7 @@ func printMonitorStub() {
   violation/tampered verdicts.
 
   Watcher: scripts\frontier-monitor-watch.ps1  (event-driven; no poll)
-╚══════════════════════════════════════════════╝`)
+â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•`)
 }
 
 func monitorBlock() bool {
@@ -685,13 +686,13 @@ func monitorBlock() bool {
 }
 
 func printMonitorDirectives() {
-	fmt.Println(`╔══════════════════════════════════════════════╗
-║  MONITOR — directive reference (v0)           ║
-╚══════════════════════════════════════════════╝`)
+	fmt.Println(`â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
+â•‘  MONITOR â€” directive reference (v0)           â•‘
+â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•`)
 	for _, d := range monitor.Directives {
 		fmt.Printf("  %s  %s\n", d.ID, d.Text)
 	}
-	fmt.Println("╚══════════════════════════════════════════════╝")
+	fmt.Println("â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•")
 }
 
 func runMonitor(cwd string, args []string) {
@@ -710,9 +711,9 @@ func runMonitor(cwd string, args []string) {
 		runMonitorStatus(cwd)
 		return
 	}
-	fmt.Println(`╔══════════════════════════════════════════════╗
-║  MONITOR — directive audit of ledger evidence ║
-╚══════════════════════════════════════════════╝`)
+	fmt.Println(`â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
+â•‘  MONITOR â€” directive audit of ledger evidence â•‘
+â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•`)
 	axiom("F0", "monitor.start", "examine ledgered agent behavior against ship directives")
 	var reps []*monitor.Report
 	var err error
@@ -730,7 +731,7 @@ func runMonitor(cwd string, args []string) {
 		return
 	}
 	if len(reps) == 0 {
-		fmt.Println("no ledgers found — run frontier plan/apply/push somewhere first")
+		fmt.Println("no ledgers found â€” run frontier plan/apply/push somewhere first")
 		reps = nil
 	}
 	rows, findings := 0, 0
@@ -775,7 +776,7 @@ func runMonitorStatus(cwd string) {
 		}
 	}
 	if n == 0 {
-		fmt.Println("no monitor.* seals yet — run: frontier monitor")
+		fmt.Println("no monitor.* seals yet â€” run: frontier monitor")
 	}
 }
 
@@ -832,7 +833,7 @@ func runCatalog(kind, root string, args []string) {
 		fail(fmt.Errorf("%s root %s: %w (skills/agents live in the frontier-ship source tree)", kind, root, err))
 		return
 	}
-	fmt.Printf("%s (%d) — %s\n", strings.ToUpper(kind), len(entries), root)
+	fmt.Printf("%s (%d) â€” %s\n", strings.ToUpper(kind), len(entries), root)
 	for _, e := range entries {
 		fmt.Printf("  %-36s %s\n", e.Name, e.Title)
 	}
@@ -864,9 +865,9 @@ func runOptimize(cwd string, args []string) {
 }
 
 func runOptimizeReport(cwd string) {
-	fmt.Println(`╔══════════════════════════════════════════════╗
-║  OPTIMIZE (O) — report (advise, no mutate)   ║
-╚══════════════════════════════════════════════╝`)
+	fmt.Println(`â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
+â•‘  OPTIMIZE (O) â€” report (advise, no mutate)   â•‘
+â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•`)
 	axiom("F0", "optimize.start", "programmatic hotspots; behavior must stay equivalent")
 	r, err := optimize.BuildReport(cwd)
 	if err != nil {
@@ -884,7 +885,7 @@ func runOptimizeReport(cwd string) {
 		fmt.Printf("  - %s  %s  %s\n", f.ID, f.Path, f.Title)
 	}
 	fmt.Printf("\nbrief:  %s\njson:   %s\n", art.Markdown, art.JSON)
-	fmt.Println("Next: frontier optimize pr-body Opt-001  → paste into a small PR")
+	fmt.Println("Next: frontier optimize pr-body Opt-001  â†’ paste into a small PR")
 
 	led, err := ledger.Open(findLedger(cwd))
 	if err != nil {
@@ -943,11 +944,11 @@ func runOptimizePRBody(cwd, id string) {
 		fail(err)
 		return
 	}
-	fmt.Println("<!-- frontier optimize — paste as PR body; one Opt-ID per PR -->")
+	fmt.Println("<!-- frontier optimize â€” paste as PR body; one Opt-ID per PR -->")
 	fmt.Printf("## Optimize: %s\n\n", f.ID)
 	fmt.Println(optimize.FormatFinding(*f))
 	fmt.Println("---")
-	fmt.Println("Branch suggestion: `frontier/opt-" + strings.ToLower(strings.ReplaceAll(f.ID, "Opt-", "")) + "-…`")
+	fmt.Println("Branch suggestion: `frontier/opt-" + strings.ToLower(strings.ReplaceAll(f.ID, "Opt-", "")) + "-â€¦`")
 	fmt.Println("Remember: behavior-preserving only; run tests covering this function.")
 }
 
@@ -966,28 +967,28 @@ func runSCM(cwd string, args []string) {
 }
 
 func printSCMStub(cwd, sub string) {
-	fmt.Println(`╔══════════════════════════════════════════════╗
-║  SCM — onboarding (separate from Learn)      ║
-╚══════════════════════════════════════════════╝
+	fmt.Println(`â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
+â•‘  SCM â€” onboarding (separate from Learn)      â•‘
+â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
   Purpose: how code is managed (git / GitHub / none)
   When:    BEFORE learn if the customer has no VCS
   Docs:    english/SCM.md
 
   Planned:
-    frontier scm status   — detect git + remotes + host
-    frontier scm init     — local git init (human confirm)
-    frontier scm connect  — guide remote setup (human auth)
+    frontier scm status   â€” detect git + remotes + host
+    frontier scm init     â€” local git init (human confirm)
+    frontier scm connect  â€” guide remote setup (human auth)
 
   Never create remotes silently.`)
-	fmt.Printf("\n  cwd: %s\n  requested: scm %s  (stub — detect coming next)\n", cwd, sub)
+	fmt.Printf("\n  cwd: %s\n  requested: scm %s  (stub â€” detect coming next)\n", cwd, sub)
 	// Light detect for dogfood visibility (read-only).
 	repo := gitx.Repo{Dir: cwd}
 	if b, err := repo.Branch(); err == nil && b != "" {
 		fmt.Printf("  hint: git branch = %s (work tree looks present)\n", b)
 	} else {
-		fmt.Println("  hint: no git branch detected here — scm init may be needed")
+		fmt.Println("  hint: no git branch detected here â€” scm init may be needed")
 	}
-	fmt.Println("╚══════════════════════════════════════════════╝")
+	fmt.Println("â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•")
 }
 
 func runLearn(cwd string, args []string) {
@@ -1011,9 +1012,9 @@ func runLearn(cwd string, args []string) {
 }
 
 func runLearnClassify(root string) {
-	fmt.Println(`╔══════════════════════════════════════════════╗
-║  L CLASSIFY — learn before change (no mutate)║
-╚══════════════════════════════════════════════╝`)
+	fmt.Println(`â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
+â•‘  L CLASSIFY â€” learn before change (no mutate)â•‘
+â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•`)
 	axiom("F0", "learn.start", "programmatic landscape; no remote mutate")
 	ls, err := learn.Classify(root)
 	if err != nil {
@@ -1073,7 +1074,7 @@ func runLearnStatus(cwd string) {
 		fmt.Printf("LATEST artifacts: %s\n", strings.TrimSpace(string(b)))
 	}
 	if n == 0 {
-		fmt.Println("no learn.* seals yet — run: frontier L classify")
+		fmt.Println("no learn.* seals yet â€” run: frontier L classify")
 	}
 }
 
@@ -1086,11 +1087,11 @@ func verbose() bool {
 }
 
 func runExam(cwd string, seal bool) ([]owasp.Finding, error) {
-	fmt.Println(`╔══════════════════════════════════════════════╗
-║  FRONTIER GUARD (G) — control=changeset      ║
-╚══════════════════════════════════════════════╝`)
+	fmt.Println(`â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
+â•‘  FRONTIER GUARD (G) â€” control=changeset      â•‘
+â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•`)
 	axiom("F0", "exam.ledger", "evidence path open")
-	axiom("F4", "exam.start", "Guard policy = OWASP Top 10 v0 (English→Haskell→Go)")
+	axiom("F4", "exam.start", "Guard policy = OWASP Top 10 v0 (Englishâ†’Haskellâ†’Go)")
 
 	findings, err := owasp.ScanTree(cwd)
 	if err != nil {
@@ -1102,9 +1103,9 @@ func runExam(cwd string, seal bool) ([]owasp.Finding, error) {
 
 	surfaces, _ := vscan.ListSecretSurfaces(cwd)
 	if len(surfaces) == 0 {
-		fmt.Println("secret surfaces: none named (.env/.pem/credentials…)")
+		fmt.Println("secret surfaces: none named (.env/.pem/credentialsâ€¦)")
 	} else {
-		fmt.Printf("secret surfaces: %d (names only — review under Guard)\n", len(surfaces))
+		fmt.Printf("secret surfaces: %d (names only â€” review under Guard)\n", len(surfaces))
 		for _, s := range surfaces {
 			fmt.Printf("  - %s\n", s)
 		}
@@ -1116,12 +1117,12 @@ func runExam(cwd string, seal bool) ([]owasp.Finding, error) {
 	switch {
 	case block:
 		disposition = "block"
-		axiom("F4", "disposition", "block — High/Critical under Guard")
+		axiom("F4", "disposition", "block â€” High/Critical under Guard")
 	case len(findings) > 0 || len(surfaces) > 0:
 		disposition = "advise"
-		axiom("F4", "disposition", "advise — findings or secret surfaces present")
+		axiom("F4", "disposition", "advise â€” findings or secret surfaces present")
 	default:
-		axiom("F4", "disposition", "record — Clean under current Guard")
+		axiom("F4", "disposition", "record â€” Clean under current Guard")
 	}
 
 	fmt.Printf("control_point: changeset\n")
@@ -1129,7 +1130,7 @@ func runExam(cwd string, seal bool) ([]owasp.Finding, error) {
 	fmt.Printf("guard_policy:  OWASP-Top10-2021-v0\n")
 	fmt.Printf("findings:      %d\n", len(findings))
 	fmt.Printf("secret_paths:  %d\n", len(surfaces))
-	fmt.Println("╚══════════════════════════════════════════════╝")
+	fmt.Println("â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•")
 
 	if seal {
 		led, err := ledger.Open(findLedger(cwd))
@@ -1158,9 +1159,9 @@ func runGuardSub(cwd string, args []string) {
 	sub := strings.ToLower(args[0])
 	switch sub {
 	case "list":
-		fmt.Println(`╔══════════════════════════════════════════════╗
-║     FRONTIER GUARD — programmatic scanners   ║
-╚══════════════════════════════════════════════╝
+		fmt.Println(`â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
+â•‘     FRONTIER GUARD â€” programmatic scanners   â•‘
+â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 name        builtin  available  notes
 ----        -------  ---------  -----`)
 		for _, s := range vscan.Registry() {
@@ -1184,14 +1185,14 @@ name        builtin  available  notes
 		fmt.Println(`
 Gate/plan still hard-block only on built-in owasp-v0 High/Critical.
 Adapters enrich Guard / enhance briefs without burning model tokens.
-Secret surfaces (.env, keys, …) are listed by: frontier guard`)
+Secret surfaces (.env, keys, â€¦) are listed by: frontier guard`)
 	default:
 		sc, ok := vscan.Lookup(sub)
 		if !ok {
 			fmt.Fprintf(os.Stderr, "unknown Guard scanner %q (try: frontier guard list)\n", sub)
 			os.Exit(2)
 		}
-		fmt.Printf("╔══════════════════════════════════════════════╗\n║   FRONTIER GUARD — adapter %-12s     ║\n╚══════════════════════════════════════════════╝\n", sc.Name())
+		fmt.Printf("â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—\nâ•‘   FRONTIER GUARD â€” adapter %-12s     â•‘\nâ•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•\n", sc.Name())
 		axiom("F4", "exam.adapter", sc.Name())
 		res, err := sc.Scan(cwd)
 		if err != nil {
@@ -1246,9 +1247,9 @@ func runEnhance(cwd string, args []string) {
 }
 
 func runEnhanceGuard(cwd string) {
-	fmt.Println(`╔══════════════════════════════════════════════╗
-║  ENHANCE GUARD — programmatic first, host    ║
-╚══════════════════════════════════════════════╝`)
+	fmt.Println(`â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
+â•‘  ENHANCE GUARD â€” programmatic first, host    â•‘
+â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•`)
 	axiom("F0", "enhance.start", "build pack without tokens; hand residual to host model")
 	opts := vscan.Options{}
 	for _, name := range []string{"checkov", "gitleaks", "trivy"} {
@@ -1271,7 +1272,7 @@ func runEnhanceGuard(cwd string) {
 	fmt.Printf("adapters: %s\n", strings.Join(pack.AdaptersRun, ", "))
 	fmt.Printf("scope: %s\n", pack.ScopeMode)
 	fmt.Printf("\nbrief:  %s\njson:   %s\n", art.Markdown, art.JSON)
-	fmt.Println("\nHost (Grok / Fable / …): read the brief. Do residual work only. Then:")
+	fmt.Println("\nHost (Grok / Fable / â€¦): read the brief. Do residual work only. Then:")
 	fmt.Println("  frontier enhance seal .frontier/enhance/<result>.json")
 	led, err := ledger.Open(findLedger(cwd))
 	if err != nil {
@@ -1292,7 +1293,7 @@ func runEnhanceGuard(cwd string) {
 		},
 	})
 	axiom("F0", "ledger.append", "enhance.requested sealed")
-	axiom("F4", "enhance.handoff", "waiting on host model — no gate change")
+	axiom("F4", "enhance.handoff", "waiting on host model â€” no gate change")
 }
 
 func runEnhanceStatus(cwd string) {
@@ -1310,7 +1311,7 @@ func runEnhanceStatus(cwd string) {
 		}
 	}
 	if n == 0 {
-		fmt.Println("no enhance.* seals yet — run: frontier enhance V")
+		fmt.Println("no enhance.* seals yet â€” run: frontier enhance V")
 	}
 }
 
@@ -1324,7 +1325,7 @@ func runEnhanceSeal(cwd, path string) {
 	if disp == "" || disp == "block" {
 		// Enhance never auto-blocks gate; promote into V definitions instead.
 		if disp == "block" {
-			axiom("F4", "enhance.advise_only", "host suggested block — sealed as advise until V promotion")
+			axiom("F4", "enhance.advise_only", "host suggested block â€” sealed as advise until V promotion")
 		}
 		disp = "advise"
 	}
@@ -1344,18 +1345,18 @@ func runEnhanceSeal(cwd, path string) {
 	})
 	axiom("F0", "ledger.append", "enhance.completed sealed (advise)")
 	fmt.Printf("enhance sealed: disposition=%s findings=%d\n", disp, len(payload.Findings))
-	fmt.Println("note: does not change gate — promote durable rules into V to block.")
+	fmt.Println("note: does not change gate â€” promote durable rules into V to block.")
 }
 
 func printMockImport() {
-	fmt.Println(`╔══════════════════════════════════════════════╗
-║   MOCK V-IMPORTER (discussion → visible)     ║
-║   Source seed: cyber skill table + OWASP     ║
-╚══════════════════════════════════════════════╝
+	fmt.Println(`â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
+â•‘   MOCK V-IMPORTER (discussion â†’ visible)     â•‘
+â•‘   Source seed: cyber skill table + OWASP     â•‘
+â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 id                        control_point   disposition  note
 ------------------------  --------------  -----------  ----
-CAPEC-66                  changeset       block        SQLi — gateable now (in Go V)
-CAPEC-63                  changeset       block        XSS — partially gateable
+CAPEC-66                  changeset       block        SQLi â€” gateable now (in Go V)
+CAPEC-63                  changeset       block        XSS â€” partially gateable
 OWASP-A01..A10            changeset       block/advise Top10 v0 implemented
 PENT-DOMAIN-WEB           catalog         record       umbrella; speciate later
 PENT-DOMAIN-API           catalog         record       umbrella
@@ -1377,8 +1378,8 @@ Legend:
   engagement = offensive confirm (Argus-style later)
   catalog    = in V as knowledge only until materialized
 
-Next real importer: harvest MITRE/CWE/CAPEC → same columns → Haskell V.
-╚══════════════════════════════════════════════╝`)
+Next real importer: harvest MITRE/CWE/CAPEC â†’ same columns â†’ Haskell V.
+â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•`)
 }
 
 func evaluateForShip(cwd string) (policy.GateResult, []owasp.Finding, error) {
@@ -1414,10 +1415,10 @@ func evaluateForShip(cwd string) (policy.GateResult, []owasp.Finding, error) {
 
 // runPlan = terraform plan: preview only; nothing remote; fail closed.
 func runPlan(cwd string, exitNonZero bool) {
-	fmt.Println(`╔══════════════════════════════════════════════╗
-║  PLAN (like terraform plan) — V enforced     ║
-║  S (Slim): not enforced yet                  ║
-╚══════════════════════════════════════════════╝`)
+	fmt.Println(`â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
+â•‘  PLAN (like terraform plan) â€” V enforced     â•‘
+â•‘  S (Slim): not enforced yet                  â•‘
+â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•`)
 	axiom("F0", "plan.start", "preview ship decision; no remote mutate")
 	g, _, err := evaluateForShip(cwd)
 	if err != nil {
@@ -1436,16 +1437,16 @@ func runPlan(cwd string, exitNonZero bool) {
 	}
 	fmt.Println()
 	if sealed.OK {
-		fmt.Println("Plan: OK — may run: git frontier apply")
+		fmt.Println("Plan: OK â€” may run: git frontier apply")
 		axiom("F0", "plan.passed", sealed.SealHash)
 	} else {
-		fmt.Println("Plan: FAILED — fix issues; nothing will apply/push")
+		fmt.Println("Plan: FAILED â€” fix issues; nothing will apply/push")
 		fmt.Printf("Reasons: %v\n", sealed.Reasons)
 		axiom("F0", "plan.failed", strings.Join(sealed.Reasons, "; "))
-		axiom("F3", "continuity", "fail closed — like terraform")
+		axiom("F3", "continuity", "fail closed â€” like terraform")
 	}
 	fmt.Printf("ok=%v seal=%s branch=%s head=%s\n", sealed.OK, sealed.SealHash, sealed.Branch, sealed.Head)
-	fmt.Println("╚══════════════════════════════════════════════╝")
+	fmt.Println("â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•")
 	if !sealed.OK && exitNonZero {
 		os.Exit(2)
 	}
@@ -1453,9 +1454,9 @@ func runPlan(cwd string, exitNonZero bool) {
 
 // runApply = terraform apply: only if fresh plan.passed; seals gate.passed.
 func runApply(cwd string, exitNonZero bool) {
-	fmt.Println(`╔══════════════════════════════════════════════╗
-║  APPLY (like terraform apply)                ║
-╚══════════════════════════════════════════════╝`)
+	fmt.Println(`â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
+â•‘  APPLY (like terraform apply)                â•‘
+â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•`)
 	axiom("F0", "apply.start", "authorize push only from successful plan")
 	repo := gitx.Repo{Dir: cwd}
 	b, _ := repo.Branch()
@@ -1496,9 +1497,9 @@ func runApply(cwd string, exitNonZero bool) {
 	}
 	axiom("F0", "gate.passed", sealed.SealHash)
 	axiom("F2", "ready", "authorized human may git push")
-	fmt.Printf("Apply: OK — sealed gate.passed\nplan_seal=%s gate_seal=%s\n", detail, sealed.SealHash)
+	fmt.Printf("Apply: OK â€” sealed gate.passed\nplan_seal=%s gate_seal=%s\n", detail, sealed.SealHash)
 	fmt.Println("Next: git push")
-	fmt.Println("╚══════════════════════════════════════════════╝")
+	fmt.Println("â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•")
 }
 
 func printDemo(cwd string) {
@@ -1523,9 +1524,9 @@ func printDemo(cwd string) {
 	}
 
 	onMain := strings.EqualFold(b, "main") || strings.EqualFold(b, "master")
-	fmt.Println(`╔══════════════════════════════════════════════╗
-║           FRONTIER  —  visible test          ║
-╚══════════════════════════════════════════════╝`)
+	fmt.Println(`â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—
+â•‘           FRONTIER  â€”  visible test          â•‘
+â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•`)
 	fmt.Printf("  branch     %s\n", nz(b, "(none)"))
 	fmt.Printf("  HEAD       %s\n", short(h))
 	fmt.Printf("  dirty      %v\n", dirty)
@@ -1534,9 +1535,9 @@ func printDemo(cwd string) {
 	fmt.Printf("  last_seal  %s\n", lastGate)
 	fmt.Printf("  ledger     %s\n", ledPath)
 	fmt.Println()
-	fmt.Println("  ladder     Observer → Analyst → Operator → Executor")
+	fmt.Println("  ladder     Observer â†’ Analyst â†’ Operator â†’ Executor")
 	fmt.Println("  push?      only Executor + fresh gate.passed + feature branch")
-	fmt.Println("  languages  English · Haskell · Go   (draft in any, prove in Haskell)")
+	fmt.Println("  languages  English Â· Haskell Â· Go   (draft in any, prove in Haskell)")
 	fmt.Println("  minimality least code that still proves the result")
 	fmt.Println()
 	if g.OK {
@@ -1544,7 +1545,7 @@ func printDemo(cwd string) {
 	} else {
 		fmt.Println("  SEE: gate would FAIL right now. Fix reasons, then: git frontier gate")
 	}
-	fmt.Println("╚══════════════════════════════════════════════╝")
+	fmt.Println("â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•")
 }
 
 func short(h string) string {
@@ -1585,13 +1586,16 @@ func findLedger(cwd string) string {
 		dir = parent
 	}
 	// Default: ledger OUTSIDE the work tree so evidence never dirties the diff.
-	// (Local-first, still on disk — not cloud.)
+	// (Local-first, still on disk â€” not cloud.)
 	sum := sha256Short(cwd)
-	root := os.Getenv("FRONTIER_HOME")
+	root := os.Getenv("FRONTIER_RUNTIME")
 	if root == "" {
-		root = filepath.Join("D:\\frontier", "ledgers")
+		root = os.Getenv("FRONTIER_HOME")
 	}
-	return filepath.Join(root, sum, "ledger.jsonl")
+	if root == "" {
+		root = "runtime"
+	}
+	return filepath.Join(root, "ledgers", sum, "ledger.jsonl")
 }
 
 func sha256Short(s string) string {

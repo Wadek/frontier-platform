@@ -1,20 +1,20 @@
 <#
 .SYNOPSIS
-    frontier-monitor-watch.ps1 — event-driven watcher over the Frontier
-    ledgers. Whenever an agent appends evidence (plan/apply/push/…), this
+    frontier-monitor-watch.ps1 Ã¢â‚¬â€ event-driven watcher over the Frontier
+    ledgers. Whenever an agent appends evidence (plan/apply/push/Ã¢â‚¬Â¦), this
     runs `frontier monitor all` once and prints one line per examined event.
 
-    Cheap watcher, one-shot work, no polling loop of the model — the same
-    doctrine as the waka-agents team. Logs to D:\frontier\ledgers\monitor\watch.log.
+    Cheap watcher, one-shot work, no polling loop of the model Ã¢â‚¬â€ the same
+    doctrine as the ship monitor skills. Logs to $FRONTIER_RUNTIME/ledgers/monitor/watch.log.
 
 .PARAMETER Path
-    Ledger root to watch (default: D:\frontier\ledgers).
+    Ledger root to watch (default: $FRONTIER_RUNTIME/ledgers).
 
 .PARAMETER Once
     Run a single sweep and exit (no watcher).
 
 .PARAMETER FrontierExe
-    frontier.exe to invoke (default: D:\frontier\bin\frontier.exe).
+    frontier.exe to invoke (default: $FRONTIER_RUNTIME/bin\frontier.exe).
 
 .EXAMPLE
     powershell -ExecutionPolicy Bypass -File scripts\frontier-monitor-watch.ps1
@@ -23,9 +23,9 @@
     powershell -ExecutionPolicy Bypass -File scripts\frontier-monitor-watch.ps1 -Once
 #>
 param(
-    [string]$Path = "D:\frontier\ledgers",
+    [string]$Path = $(if ($env:FRONTIER_RUNTIME) { Join-Path $env:FRONTIER_RUNTIME "ledgers" } else { ".\runtime\ledgers" }),
     [switch]$Once,
-    [string]$FrontierExe = "D:\frontier\bin\frontier.exe"
+    [string]$FrontierExe = "$FRONTIER_RUNTIME/bin\frontier.exe"
 )
 
 $ErrorActionPreference = "SilentlyContinue"
@@ -56,7 +56,7 @@ if ($Once) {
 
 if (-not (Test-Path $Path)) {
     Write-WatchLog "MONITOR ledger root missing: $Path (nothing to watch yet)"
-    Write-WatchLog "MONITOR watcher armed — it will pick up events when ledgers exist"
+    Write-WatchLog "MONITOR watcher armed Ã¢â‚¬â€ it will pick up events when ledgers exist"
 }
 
 $watcher = New-Object System.IO.FileSystemWatcher

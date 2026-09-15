@@ -4,14 +4,14 @@ Read this in order. Simple English only here.
 
 ## What you are installing
 
-1. **Laws** (English + Haskell) — what is allowed  
-2. **`git` + `frontier`** (Go) — how you talk to the machine every day  
+1. **Laws** (English + Haskell) â€” what is allowed  
+2. **`git` + `frontier`** (Go) â€” how you talk to the machine every day  
 
 You do **not** install a new operating system.
 
 ---
 
-## Step 0 — Tools on your PC
+## Step 0 â€” Tools on your PC
 
 - Git for Windows (real engine)  
 - Go 1.22+ (to build the runtime)  
@@ -19,7 +19,7 @@ You do **not** install a new operating system.
 
 ---
 
-## Step 1 — Get the code
+## Step 1 â€” Get the code
 
 ```text
 git clone https://github.com/Wadek/frontier-ship.git
@@ -34,11 +34,11 @@ If Frontier `git` is already on your PATH, and it blocks cloning quirks, use the
 
 ---
 
-## Step 2 — Build the Go runtime
+## Step 2 â€” Build the Go runtime
 
 ```text
-go build -o D:\frontier\bin\git.exe ./cmd/frontier-git
-go build -o D:\frontier\bin\frontier.exe ./cmd/frontier
+go build -o $FRONTIER_RUNTIME/bin\git.exe ./cmd/frontier-git
+go build -o $FRONTIER_RUNTIME/bin\frontier.exe ./cmd/frontier
 ```
 
 Or:
@@ -57,11 +57,11 @@ git frontier explain
 git --version
 ```
 
-You should see `D:\frontier\bin\git.exe` and a normal git version string.
+You should see `$FRONTIER_RUNTIME/bin\git.exe` and a normal git version string.
 
 ---
 
-## Step 3 — Learn mode (first week)
+## Step 3 â€” Learn mode (first week)
 
 ```text
 $env:FRONTIER_SOFT = "1"
@@ -75,7 +75,7 @@ $env:FRONTIER_SOFT = "0"
 
 ---
 
-## Step 4 — First safe drill (Terraform-like)
+## Step 4 â€” First safe drill (Terraform-like)
 
 ```text
 cd <some-repo>
@@ -87,7 +87,7 @@ git commit -m "frontier: first sealed change"
 git frontier demo
 git frontier learn         # classify project (L)
 git frontier guard         # security exam (G)
-git frontier plan          # must succeed — fail closed
+git frontier plan          # must succeed â€” fail closed
 git frontier apply         # only works after plan.passed
 git push -u origin HEAD    # only works after apply/gate.passed
 ```
@@ -97,7 +97,7 @@ Ledger is state (like Terraform state).
 
 ---
 
-## Step 5 — Optional Haskell check
+## Step 5 â€” Optional Haskell check
 
 ```text
 cd haskell
@@ -108,7 +108,7 @@ If you have no GHC yet, skip this. The English + Go path still works. Install GH
 
 ---
 
-## Step 6 — Agents use the same CLI
+## Step 6 â€” Agents use the same CLI
 
 Coding agents run `frontier` and `git` like a human. There is no separate host protocol.
 

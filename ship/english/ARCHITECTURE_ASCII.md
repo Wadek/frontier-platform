@@ -1,10 +1,10 @@
-# Frontier — what we have (ASCII)
+# Frontier â€” what we have (ASCII)
 
 Snapshot of the system as built. Simple English labels.
 
 ```
                          HUMANS / AI HOSTS
-                    (read English · call tools)
+                    (read English Â· call tools)
                                |
          +---------------------+---------------------+
          |                                           |
@@ -51,22 +51,22 @@ Snapshot of the system as built. Simple English labels.
                |  evidence (default OUTSIDE tree)          |
                v                                         |
   +------------------------+                             |
-  | D:\frontier\ledgers\   |  append-only JSONL          |
-  |   <repo-id>/ledger…    |  gate.passed / push.*       |
+  | $FRONTIER_RUNTIME/ledgers\   |  append-only JSONL          |
+  |   <repo-id>/ledgerâ€¦    |  gate.passed / push.*       |
   +------------------------+                             |
                                                          |
   STUDY ONLY (not required to run)                       |
-  D:\frontier\src\git   <--- upstream git/git clone ------+
+  $FRONTIER_RUNTIME/src/git   <--- upstream git/git clone ------+
 
 
   -------------------- CONTROL FLOW (push) --------------------
 
-    git status / diff     ≈  Observer / Analyst
-    git commit            ≈  Operator   (deny on main/master)
-    git frontier gate     ≈  seal Clean(C) + feature branch
-    git push              ≈  Executor   (needs fresh gate.passed)
+    git status / diff     â‰ˆ  Observer / Analyst
+    git commit            â‰ˆ  Operator   (deny on main/master)
+    git frontier gate     â‰ˆ  seal Clean(C) + feature branch
+    git push              â‰ˆ  Executor   (needs fresh gate.passed)
 
-    git frontier demo     ≈  SEE branch/dirty/gate/ledger/ladder
+    git frontier demo     â‰ˆ  SEE branch/dirty/gate/ledger/ladder
 
 
   -------------------- LANGUAGE RULE --------------------
@@ -100,7 +100,7 @@ Snapshot of the system as built. Simple English labels.
                |
           ledger (disk)
 
-   demo → gate → push
-   F0 evidence · F1–F4 laws · F5 English+Haskell+Go
+   demo â†’ gate â†’ push
+   F0 evidence Â· F1â€“F4 laws Â· F5 English+Haskell+Go
    minimality: least code that proves the result
 ```

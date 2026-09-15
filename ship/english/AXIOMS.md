@@ -263,7 +263,7 @@ We do not add random human languages. See [`LANGUAGE.md`](LANGUAGE.md).
 
 - Formalize `Harm` for cyber-physical vs informational injury.  
 - Dual-control `Authorized(H)` for Executor.  
-- Speciation: child skills inherit F0–F4 with *narrower* scope (never wider).  
+- Child-agent forking: child skills inherit F0–F4 with *narrower* scope (never wider).  
 - On-disk schema for `V` (append-only defs, same as ledger spirit).  
 - When `V` grows, batch re-exam policy for previously Clean artifacts (lazy vs eager).  
 - Keep Go gate/role in sync with `Frontier.Gate` / `Frontier.Role` tests.  

@@ -1,9 +1,5 @@
 # Dogfood: plan → apply → push (fail closed). Refuses main/master.
 $ErrorActionPreference = "Stop"
-$env:Path = "D:\frontier\bin;C:\Users\waka\sdk\go\bin;C:\Program Files\Git\cmd;" + $env:Path
-if (-not $env:FRONTIER_GIT_BIN) {
-  $env:FRONTIER_GIT_BIN = "C:\Program Files\Git\cmd\git.exe"
-}
 $env:FRONTIER_SOFT = "0"
 $env:FRONTIER_VERBOSE = "1"
 

@@ -77,7 +77,7 @@ func TestNestedGroupsAndUniqueSuffix(t *testing.T) {
 	root := t.TempDir()
 	writeSkill(t, root, "grok/dogfood", "# dogfood\nbody")
 	writeSkill(t, root, "grok/regular-git", "# regular-git\nbody")
-	writeSkill(t, root, "wakagym/wakagym-400m", "# wakagym-400m\nbody")
+	writeSkill(t, root, "examples/sample-skill", "# sample-skill\nbody")
 
 	entries, err := List(root)
 	if err != nil {
@@ -86,7 +86,7 @@ func TestNestedGroupsAndUniqueSuffix(t *testing.T) {
 	if len(entries) != 3 {
 		t.Fatalf("entries = %d, want 3: %+v", len(entries), entries)
 	}
-	want := []string{"grok/dogfood", "grok/regular-git", "wakagym/wakagym-400m"}
+	want := []string{"examples/sample-skill", "grok/dogfood", "grok/regular-git"}
 	for i, e := range entries {
 		if e.Name != want[i] {
 			t.Errorf("entry[%d] = %s, want %s", i, e.Name, want[i])

@@ -93,7 +93,7 @@ frontier runtime           # R — allowlisted probe + chaos dry-run
 frontier slim              # S — planned
 frontier optimize          # O — report (hotspots → Opt-*; pr-body for PRs)
 frontier monitor           # audit agent behavior vs ship directives (all|status|directives)
-frontier skills|agents     # wakalabs skills/agents imported into frontier-ship
+frontier skills|agents     # list skills/agents bundled with frontier-ship
 frontier mock-import       # mock importer
 git frontier demo|ledger|status|explain
 ```

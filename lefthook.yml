@@ -1,22 +1,13 @@
-# Local git hooks for the frontier-fleet monorepo.
-#
-# The habitat sets a global core.hooksPath (D:/wakalabs/frontier-fleet/runtime/hooks) whose
-# hook files are lefthook dispatchers, so a repo only runs hooks if it ships this file.
-# Without it the Frontier gate silently never runs. See scripts/frontier-gate.ps1.
-#
-# Doctrine: D:\wakalabs\frontier-fleet\PIPELINE.md
+# Local git hooks for the frontier-platform monorepo.
+# pre-commit: refuse main/master only (plan requires a clean tree after commit).
+# pre-push: full frontier plan → apply.
 
 pre-commit:
-  jobs:
-    - name: frontier pre-commit (no commits on main/master)
-      run: powershell -NoProfile -ExecutionPolicy Bypass -File D:/wakalabs/frontier-fleet/runtime/hooks/pre-commit.ps1
+  commands:
+    deny-main:
+      run: powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/deny-main.ps1
 
 pre-push:
-  jobs:
-    - name: frontier gate (plan -> apply; GitHub remotes only)
-      # Unconditional. Lefthook skips a job whose file list is empty, and a metadata-only
-      # push produces exactly that - the gate would silently not run. The gate inspects
-      # the whole tree, so hand it a list that is always non-empty.
-      files: git ls-files
-      use_stdin: true
-      run: powershell -NoProfile -ExecutionPolicy Bypass -File scripts/frontier-gate.ps1
+  commands:
+    frontier-pre-push:
+      run: powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/frontier-gate.ps1 -Hook pre-push

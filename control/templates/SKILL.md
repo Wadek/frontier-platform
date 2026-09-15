@@ -4,10 +4,10 @@ name: <skill-slug>
 task_description: |
   Prescriptive description of what this skill does — enough detail that a
   teacher model could generate new examples from it (InstructLab standard).
-created_by: <pilot-id>
-grounded: true            # false when the skill never references plane docs
+created_by: <agent-id>
+grounded: true            # false when the skill never references project docs
 seed_examples:
-  - context: |            # grounded skills only: copy-paste from the plane docs
+  - context: |            # grounded skills only: copy-paste from the project docs
       …
     question: …
     answer: …

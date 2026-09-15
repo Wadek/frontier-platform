@@ -1,4 +1,4 @@
-# Monitor — audit agent behavior against the ship directives
+# Monitor â€” audit agent behavior against the ship directives
 
 `frontier monitor` is the supervision family of Frontier Ship. Whenever an
 agent uses frontier-ship (shim, hooks, or the CLI), every consequential action
@@ -7,9 +7,9 @@ the agent followed the directives. It never rewrites history; it reads the
 ledger and reports.
 
 ```
-  English  →  this file + the directive list below
-  Haskell  →  haskell/src/Frontier/Monitor.hs   (pure witness of the replay)
-  Go       →  internal/monitor/monitor.go       (what runs)
+  English  â†’  this file + the directive list below
+  Haskell  â†’  haskell/src/Frontier/Monitor.hs   (pure witness of the replay)
+  Go       â†’  internal/monitor/monitor.go       (what runs)
 ```
 
 ---
@@ -18,7 +18,7 @@ ledger and reports.
 
 ```powershell
 frontier monitor             # audit this repo's ledger
-frontier monitor all         # audit every ledger under D:\frontier\ledgers
+frontier monitor all         # audit every ledger under $FRONTIER_RUNTIME/ledgers
 frontier monitor status      # recent monitor.* seals
 frontier monitor directives  # print the D0-D7 reference set
 ```
@@ -57,33 +57,28 @@ the Haskell layer witnesses the state machine of D1-D5.
 
 ## Watching the ledgers (event-driven, not polling)
 
-`scripts/frontier-monitor-watch.ps1` watches `D:\frontier\ledgers` with a
+`scripts/frontier-monitor-watch.ps1` watches `$FRONTIER_RUNTIME/ledgers` with a
 PowerShell `FileSystemWatcher` and runs `frontier monitor all` after each new
 or changed `ledger.jsonl`. It prints one line per examined event and logs to
-`D:\frontier\ledgers\monitor\watch.log`. Cheap watcher, one-shot work — the
-same doctrine as the waka-agents team. Install it as a logon scheduled task
+`$FRONTIER_RUNTIME/ledgers/monitor/watch.log`. Cheap watcher, one-shot work â€” the
+same doctrine as the ship monitor skills. Install it as a logon scheduled task
 only with operator confirmation:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File C:\Users\waka\src\frontier-ship\scripts\frontier-monitor-watch.ps1 -Once
+powershell -ExecutionPolicy Bypass -File ./scripts/frontier-monitor-watch.ps1 -Once
 ```
 
-## Wakalabs skills and agents (imported)
+## Skills and agents
 
-The habitat's agent and skill inventory now ships inside frontier-ship so it
-can be used through the same CLI:
+Bundled skills and agents ship inside frontier-ship and are available through the same CLI:
 
 ```powershell
-frontier skills            # list imported skills (grok, wakagym, watermarks, github)
+frontier skills
 frontier skills show dogfood
-frontier agents            # list imported agents (waka-agents team, github profiles)
-frontier agents show monitor-agent
+frontier agents
 ```
 
-Trees: `skills/` and `agents/` (catalogs: `skills/README.md`, `agents/README.md`).
-The monitor's directive checks D1-D5 are the machine-checkable subset of the
-same rules those skills teach (`dogfood`, `regular-git`, `test-as-you-go`,
-`local-first`, and the `git-agent` profile).
+Trees: `skills/` and `agents/` (see their README files). Monitor directives D1â€“D5 are the machine-checkable subset of rules those skills teach (`dogfood`, `regular-git`, `test-as-you-go`, `local-first`).
 
 ## What the monitor is not
 

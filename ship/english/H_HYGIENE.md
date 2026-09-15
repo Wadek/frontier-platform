@@ -2,7 +2,7 @@
 
 **Word:** `frontier hygiene`  
 **Aliases:** `watermarks`, `marks`, letter **`H`**  
-**Backend:** local [watermarks-remover](https://github.com/guillaumemeyer/watermarks-remover) HTTP service (`D:\wakalabs\watermarks-remover`)
+**Backend:** optional local HTTP service (see `hygiene/` in this monorepo; compatible with the upstream [watermarks-remover](https://github.com/guillaumemeyer/watermarks-remover) protocol)
 
 Hygiene inspects the **changeset** for multi-vendor AI provenance marks (invisible Unicode, C2PA / EXIF / XMP, container metadata) and can strip them. It does **not** replace Guard.
 
@@ -42,8 +42,9 @@ Env: `WATERMARKS_SERVICE_URL` or `FRONTIER_HYGIENE_URL`.
 Start:
 
 ```powershell
-python D:\wakalabs\watermarks-remover\service\scripts\server.py --host 127.0.0.1 --port 8765
-# or: docker compose up -d   (in D:\wakalabs\watermarks-remover)
+docker build -t frontier-hygiene ./hygiene/service
+docker run -d -p 127.0.0.1:8765:8765 frontier-hygiene
+# or run hygiene/service/scripts/server.py --host 127.0.0.1 --port 8765
 ```
 
 If the service is down, Hygiene **records** that fact and does not fail the ship (unless you set the block flag and expected it up).

@@ -7,8 +7,8 @@ import (
 
 func sample() Record {
 	return Record{
-		Session: "2026-09-14-x", Plane: "food", Pilot: "p1",
-		Runway: "local", TS: "2026-09-14T08:30:00Z", TLDR: "t",
+		Session: "2026-09-14-x", Project: "demo", Agent: "a1",
+		Provider: "local", TS: "2026-09-14T08:30:00Z", TLDR: "t",
 		Learned: []string{"a"}, Next: []string{"b"},
 	}
 }
@@ -18,9 +18,9 @@ func TestValidate(t *testing.T) {
 		t.Fatalf("valid record rejected: %v", err)
 	}
 	bad := sample()
-	bad.Runway = "claude"
+	bad.Provider = "claude"
 	if err := Validate(bad); err == nil {
-		t.Error("claude runway accepted (T7: no non-DeepSeek cloud)")
+		t.Error("claude provider accepted (no non-DeepSeek cloud)")
 	}
 	bad = sample()
 	bad.TS = "not-a-time"

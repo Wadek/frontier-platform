@@ -3,7 +3,7 @@ name:               frontier-laws
 version:            0.1.0.0
 synopsis:           Frontier AI laws as pure Haskell (compute / AI layer)
 license:            MIT
-author:             Wade Kariniemi
+author:             frontier-platform contributors
 maintainer:         Wadek@users.noreply.github.com
 build-type:         Simple
 category:           Logic

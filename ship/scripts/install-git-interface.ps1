@@ -1,23 +1,24 @@
 # Install Frontier so the interface is plain `git`.
-# Run once in an elevated-enough user PowerShell (no admin required).
+# Requires Go and Git on PATH (or set GO_BIN / FRONTIER_RUNTIME).
 
 $ErrorActionPreference = "Stop"
-$GoBin = "C:\Users\waka\sdk\go\bin"
 $Repo = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
-$Bin = "D:\frontier\bin"
-$RealGit = "C:\Program Files\Git\cmd\git.exe"
+$GoBin = if ($env:GO_BIN) { $env:GO_BIN } else { Split-Path -Parent (Get-Command go -ErrorAction Stop).Source }
+$Bin = if ($env:FRONTIER_RUNTIME) { Join-Path $env:FRONTIER_RUNTIME 'bin' } else { Join-Path $Repo 'runtime\bin' }
+$RealGit = if ($env:FRONTIER_GIT_BIN) { $env:FRONTIER_GIT_BIN } else { (Get-Command git -ErrorAction Stop).Source }
 
-if (-not (Test-Path $RealGit)) { throw "Real git not found at $RealGit" }
-if (-not (Test-Path "$GoBin\go.exe")) { throw "Go not found at $GoBin\go.exe" }
+if (-not (Test-Path $RealGit)) { throw "Real git not found" }
+if (-not (Test-Path (Join-Path $GoBin 'go.exe')) -and -not (Get-Command go -ErrorAction SilentlyContinue)) {
+  throw "Go not found (set GO_BIN or put go on PATH)"
+}
 
 New-Item -ItemType Directory -Force -Path $Bin | Out-Null
 $env:Path = "$GoBin;" + $env:Path
-$env:GOROOT = "C:\Users\waka\sdk\go"
 
 Push-Location $Repo
-go build -o "$Bin\frontier-git.exe" ./cmd/frontier-git
-go build -o "$Bin\frontier.exe" ./cmd/frontier
-Copy-Item -Force "$Bin\frontier-git.exe" "$Bin\git.exe"
+go build -o (Join-Path $Bin 'frontier-git.exe') ./cmd/frontier-git
+go build -o (Join-Path $Bin 'frontier.exe') ./cmd/frontier
+Copy-Item -Force (Join-Path $Bin 'frontier-git.exe') (Join-Path $Bin 'git.exe')
 Pop-Location
 
 [Environment]::SetEnvironmentVariable("FRONTIER_GIT_BIN", $RealGit, "User")
@@ -27,8 +28,8 @@ $newPath = ($Bin + ';' + ($parts -join ';')).TrimEnd(';')
 [Environment]::SetEnvironmentVariable("Path", $newPath, "User")
 
 Write-Host "Installed."
-Write-Host "  git shim:  $Bin\git.exe"
-Write-Host "  frontier:  $Bin\frontier.exe   (standalone: frontier V | plan | apply)"
+Write-Host "  git shim:  $(Join-Path $Bin 'git.exe')"
+Write-Host "  frontier:  $(Join-Path $Bin 'frontier.exe')"
 Write-Host "  engine:    $RealGit"
 Write-Host "Open a NEW terminal, then run:"
 Write-Host "  git frontier explain"
