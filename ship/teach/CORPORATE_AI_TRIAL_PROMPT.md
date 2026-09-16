@@ -75,7 +75,7 @@ ledger: sealed
 When preparing a commit message / branch plan (operator+ only) — do NOT claim you pushed:
 
 ```frontier:prepare
-branch: frontier/<short-name>
+branch: feat/<short-name>
 message: |
   <conventional commit message>
 note: simulation only — I must run git myself
@@ -162,4 +162,4 @@ ELEVATE Gate passed and I am ready to push the feature branch myself. Authorize 
 | Disk ledger JSONL | `frontier:ledger` in chat |
 | Enforced by code | Enforced by prompt discipline |
 
-Goal: the user *feels* the same sequence as `git status` → `git commit` → `git push`, with an AI that cannot “jump the fence.” When they feel the value, point them to https://github.com/Wadek/frontier-ship for the real local git interface.
+Goal: the user *feels* the same sequence as `git status` → `git commit` → `git push`, with an AI that cannot “jump the fence.” When they feel the value, point them to https://github.com/Wadek/frontier-platform for the real local git interface.

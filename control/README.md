@@ -3,10 +3,8 @@
 Coordination layer for **frontier-platform**. It routes work, enforces review gates, and records outcomes. It never performs the work itself.
 
 ```
-English  →  english/          doctrine and vocabulary
-Haskell  →  haskell/          proof surface (witnesses)
-Go       →  cmd/, internal/   runtime (builds where Go is available)
-Python   →  reference/        stdlib reference of the same logic — runs on any host
+English  →  english/          policy (what we mean)
+Go       →  cmd/, internal/   runtime + `_test.go` witness (what is enforced)
 ```
 
 - Doctrine: [english/CONTROL.md](english/CONTROL.md)
@@ -17,11 +15,19 @@ Python   →  reference/        stdlib reference of the same logic — runs on a
 
 ## Command surface
 
+Implemented today:
+
+```
+control pricing show|verify                      control roster [ROOT]
+control transfer validate <file|->               control check
+```
+
+Reserved — these exit non-zero rather than pretend to run:
+
 ```
 control taxonomy init|diff|add|approve|retire   control data generate --project <p>
-control workflow run|status|review|list         control roster
-control ai audit|improve <project>              control ops health|docker|ip|decommission|jobs
-control providers list|test                     control pricing show|check
+control workflow run|status|review|list         control ai audit|improve <project>
+control ops health|docker|ip|decommission|jobs   control providers list|test
 control monitor                                 control prove
 ```
 
@@ -30,8 +36,6 @@ control monitor                                 control prove
 | Layer | State |
 |---|---|
 | English doctrine | complete (this tree) |
-| Python reference (`reference/control_ref.py`) | complete; tests pass on Python 3 stdlib |
-| Go runtime | authored; `go test ./...` where Go is installed |
-| Haskell witnesses | authored; builds where GHC/cabal exist |
+| Go runtime | authored; `go test ./...` from the repo root |
 | Provider adapters (`providers.yaml`) | config complete; local + cloud providers documented |
 | Pricing (`pricing.yaml`) | peak/off-peak windows aligned with the official DeepSeek schedule |

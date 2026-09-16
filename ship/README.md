@@ -6,9 +6,8 @@ Manage code in a frontier-AI landscape — **ship safely** (V) and **stay slim**
 **Humans keep control at push.**
 
 ```
-  English  →  what we mean
-  Haskell  →  what is true
-  Go       →  what runs
+  English  →  what we mean   (policy)
+  Go       →  what runs      (implementation + `_test.go` witness)
 ```
 
 Local first. Simple is better. Fail closed — like Terraform: **nothing goes if plan/apply fails.**  
@@ -23,7 +22,7 @@ Local first. Simple is better. Fail closed — like Terraform: **nothing goes if
 | **L** | **Learn** | Ingest + classify a project before change (first phase of Slim). |
 | **G** | **Guard** | Security (OWASP / secret surfaces / adapters). Examined at **changeset**. High/Critical → **block**. |
 | **S** | **Slim** | **Planned:** reduce vibe-code bloat. Advise first; optional block later. |
-| **H** | **Hygiene** | AI-provenance marks (Unicode / C2PA / metadata) via local watermarks-remover. Advise; optional clean (`frontier hygiene`). |
+| **H** | **Hygiene** | AI-provenance marks (Unicode / C2PA / metadata) via the external watermarks-remover service. Advise; optional clean (`frontier hygiene`). |
 | **R** | **Runtime** | Post-ship probe + bounded chaos on an allowlist, token-capped (`frontier runtime`). |
 | **O** | **Optimize** | Behavior-preserving speed; report in `.frontier/optimize` + small PRs (`frontier optimize`). |
 
@@ -39,8 +38,8 @@ Prefer full words in scripts; letters are aliases. See [english/O_OPTIMIZE.md](e
 Full steps: **[english/INIT.md](english/INIT.md)**
 
 ```powershell
-git clone https://github.com/Wadek/frontier-ship.git
-cd frontier-ship
+git clone https://github.com/Wadek/frontier-platform.git
+cd frontier-platform
 powershell -File scripts\install-git-interface.ps1
 # new terminal
 git frontier explain
@@ -63,7 +62,7 @@ During development you *may* run `go run ./cmd/frontier guard` (that means “ru
 ## Terraform-like flow
 
 ```powershell
-git checkout -b frontier/topic
+git checkout -b feat/<slug>
 # edit…
 git add -A
 git commit -m "msg"
@@ -93,7 +92,7 @@ frontier runtime           # R — allowlisted probe + chaos dry-run
 frontier slim              # S — planned
 frontier optimize          # O — report (hotspots → Opt-*; pr-body for PRs)
 frontier monitor           # audit agent behavior vs ship directives (all|status|directives)
-frontier skills|agents     # list skills/agents bundled with frontier-ship
+frontier skills|agents     # list skills/agents bundled with frontier-platform
 frontier mock-import       # mock importer
 git frontier demo|ledger|status|explain
 ```
@@ -116,7 +115,7 @@ git frontier demo|ledger|status|explain
 | [english/SECURITY_POLICY_OWASP.md](english/SECURITY_POLICY_OWASP.md) | Guard policy (OWASP) |
 | [english/CUSTOMER_JOURNEY.md](english/CUSTOMER_JOURNEY.md) | Takeover / vibe-code use |
 | [english/SCORING_AND_BENCHMARKS.md](english/SCORING_AND_BENCHMARKS.md) | Official score meaning |
-| [haskell/](haskell/) | Proof form of laws + OWASP |
+| [internal/](internal/) | Go checks + `_test.go` witness of laws and OWASP |
 | [cmd/frontier-git](cmd/frontier-git) | `git` interface |
 
 ---

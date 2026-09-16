@@ -35,7 +35,7 @@ Operational (for gates / reviews):
 |-------|---------|
 | LOC budget | Prefer diffs under a stated max (default soft: 400 lines net; hard later) |
 | File budget | Prefer fewer new files |
-| Dup budget | Do not re-implement what Haskell already states |
+| Dup budget | Do not re-implement what a Go check already enforces |
 | Token budget | AI authors should stop when the gate can pass — not when the model is bored |
 
 These numbers are **policy knobs**, not moral absolutes. Start soft (`FRONTIER_SOFT`), then tighten.
@@ -44,7 +44,7 @@ These numbers are **policy knobs**, not moral absolutes. Start soft (`FRONTIER_S
 
 ## Principle M2 — Any language at the edge; one language at the core
 
-We were wrong to say “contributors may only write Go/Haskell.”
+We were wrong to say “contributors may only write Go.”
 
 **Contribute in whatever language you can.**  
 **Admit into Frontier only after reverse-engineering into the core.**
@@ -56,10 +56,10 @@ We were wrong to say “contributors may only write Go/Haskell.”
   Reverse-engineer  →  base math / logic claim
            │
            ▼
-  Write / update Haskell (pure proof form)
+  English policy line (simple)
            │
            ▼
-  English note (simple) + Go runtime only if something must run
+  Go code + `_test.go` witness (runtime only if something must run)
            │
            ▼
   Admit (F5)
@@ -70,12 +70,11 @@ So:
 | Layer | Language rule |
 |-------|----------------|
 | Edge contribution | **Open** (Python, Rust, C, scripts, …) |
-| Human meaning | **English** (simple) |
-| Universal compute / proof | **Haskell** (for now) |
-| Local runner / git / CLI | **Go** (for now) |
+| Human meaning / policy | **English** (simple) |
+| Implementation + witness | **Go** (code and its `_test.go`) |
 
-Haskell is not a clubhouse. It is the **proof shelf**.  
-Go is not holy. It is the **tool that talks to git today**.
+Go is not holy. It is the **tool that talks to git today** — and the only place
+we keep the witness, so there is no second shelf to maintain.
 
 ---
 
@@ -84,11 +83,11 @@ Go is not holy. It is the **tool that talks to git today**.
 For *this* project, a push is incomplete until:
 
 1. **Claim** — one English sentence: what became true  
-2. **Proof surface** — Haskell types/functions (or a clear “no new law; runtime only”)  
-3. **Witness** — how to *see* it (command output, ledger rows, test)  
+2. **Proof surface** — the English policy line + the Go check + `_test.go` that enforces it (or a clear “no new law; runtime only”)  
+3. **Witness** — how to *see* it (command output, ledger rows, `go test`)  
 4. **Delta size** — LOC called out; justify if over budget  
 
-If the change cannot be reduced to a small claim + Haskell, it is probably vibe bloat. Refuse or shrink.
+If the change cannot be reduced to a small claim + a Go test, it is probably vibe bloat. Refuse or shrink.
 
 ---
 

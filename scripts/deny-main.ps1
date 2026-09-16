@@ -1,4 +1,4 @@
-# Refuse commits on main/master.
+# Refuse commits on protected branches (main, master).
 $ErrorActionPreference = 'Stop'
 $branch = (& git branch --show-current | Out-String).Trim()
 if ($branch -eq 'main' -or $branch -eq 'master') {

@@ -14,7 +14,7 @@ package main
 import (
 	"os"
 
-	"github.com/Wadek/frontier-ship/internal/fronticli"
+	"github.com/Wadek/frontier-platform/ship/internal/fronticli"
 )
 
 // Set by release ldflags.

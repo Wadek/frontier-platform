@@ -1,5 +1,5 @@
 // Package catalog lists the skills and agents imported into
-// frontier-ship (skills/ and agents/ in the source tree) so they can be used
+// frontier-platform (skills/ and agents/ in the source tree) so they can be used
 // through `frontier skills` / `frontier agents`.
 //
 // Entry semantics (bounded walk):

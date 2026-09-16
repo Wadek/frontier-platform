@@ -2,7 +2,7 @@
 
 **Word:** `frontier hygiene`  
 **Aliases:** `watermarks`, `marks`, letter **`H`**  
-**Backend:** optional local HTTP service (see `hygiene/` in this monorepo; compatible with the upstream [watermarks-remover](https://github.com/guillaumemeyer/watermarks-remover) protocol)
+**Backend:** optional loopback HTTP service, provided by the external [watermarks-remover](https://github.com/guillaumemeyer/watermarks-remover) project. Frontier ships only the Go client (`ship/internal/hygiene`).
 
 Hygiene inspects the **changeset** for multi-vendor AI provenance marks (invisible Unicode, C2PA / EXIF / XMP, container metadata) and can strip them. It does **not** replace Guard.
 
@@ -41,10 +41,11 @@ Env: `WATERMARKS_SERVICE_URL` or `FRONTIER_HYGIENE_URL`.
 
 Start:
 
-```powershell
-docker build -t frontier-hygiene ./hygiene/service
-docker run -d -p 127.0.0.1:8765:8765 frontier-hygiene
-# or run hygiene/service/scripts/server.py --host 127.0.0.1 --port 8765
+```text
+# Frontier has no in-repo service. Get it from the upstream project:
+#   https://github.com/guillaumemeyer/watermarks-remover
+# Build and run it there (Docker image or its own server script),
+# bound to 127.0.0.1:8765.
 ```
 
 If the service is down, Hygiene **records** that fact and does not fail the ship (unless you set the block flag and expected it up).

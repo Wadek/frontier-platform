@@ -1,13 +1,13 @@
 package vscan
 
-import "github.com/Wadek/frontier-ship/internal/owasp"
+import "github.com/Wadek/frontier-platform/ship/internal/owasp"
 
 // OWASPScanner wraps the built-in OWASP Top10 v0 regex ScanTree.
 type OWASPScanner struct{}
 
-func (OWASPScanner) Name() string     { return "owasp-v0" }
-func (OWASPScanner) Available() bool  { return true }
-func (OWASPScanner) Builtin() bool    { return true }
+func (OWASPScanner) Name() string    { return "owasp-v0" }
+func (OWASPScanner) Available() bool { return true }
+func (OWASPScanner) Builtin() bool   { return true }
 
 func (OWASPScanner) Scan(root string) (Result, error) {
 	fs, err := owasp.ScanTree(root)

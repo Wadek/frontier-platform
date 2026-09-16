@@ -4,7 +4,7 @@
 
 | Question | Answer |
 |----------|--------|
-| **How do people contribute *to* Frontier?** | Draft anywhere → reverse-engineer to English + Haskell proof → Go only if runtime must change → keep it small ([CONTRIBUTING.md](CONTRIBUTING.md), [MINIMALITY.md](MINIMALITY.md)) |
+| **How do people contribute *to* Frontier?** | Draft anywhere → reverse-engineer to an English policy line → Go code + `_test.go` witness only if the runtime must change → keep it small ([CONTRIBUTING.md](CONTRIBUTING.md), [MINIMALITY.md](MINIMALITY.md)) |
 | **How do people *use* Frontier on a codebase?** | Install `git` shim → point it at the project → gate/exam before push → grow `V` as you learn → fix High/Critical under `V` before ship |
 
 Contributors improve the **tool**.  
@@ -35,7 +35,7 @@ It makes **shipping** obey rules: evidence, roles, examination against a supplie
      - Never “fix” upstream intentional-vuln remotes in place of learning
 
   3. BASELINE exam (F4)
-     - git checkout -b frontier/baseline
+     - git checkout -b feat/baseline
      - git frontier demo
      - git frontier gate
      - Read OWASP findings under current V
@@ -56,7 +56,7 @@ It makes **shipping** obey rules: evidence, roles, examination against a supplie
      - main stays protected
 
   7. GROW V as you learn
-     - New failure modes → English policy line → Haskell rule → Go check
+     - New failure modes → English policy line → Go check + `_test.go`
      - Old Clean(C,V) invalid when V grows (re-exam)
 ```
 

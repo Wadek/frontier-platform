@@ -13,10 +13,10 @@ func TestHappyPath(t *testing.T) {
 
 func TestGates(t *testing.T) {
 	illegal := [][2]string{
-		{"queued", "running"},    // no review skip
-		{"completed", "closed"},  // debrief mandatory (C4)
+		{"queued", "running"},   // no review skip
+		{"completed", "closed"}, // debrief mandatory (C4)
 		{"preparing", "closed"},
-		{"closed", "review"},     // terminal
+		{"closed", "review"}, // terminal
 		{"rejected", "running"},
 	}
 	for _, p := range illegal {

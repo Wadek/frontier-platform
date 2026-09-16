@@ -5,7 +5,7 @@ You do need to respect people who have Linus-level patience for noise.
 
 ## 0. Dogfood
 
-Changes to **this** repo use Frontier on ourselves: `plan → apply → push` on a `frontier/…` branch — not soft-bypass to `main`.  
+Changes to **this** repo use Frontier on ourselves: `plan → apply → push` on a `feat/…` branch — not soft-bypass to `main`.  
 See [DOGFOOD.md](DOGFOOD.md).
 
 ## 1. Make it small
@@ -24,13 +24,13 @@ Reverse-engineer your change:
 | Step | Output |
 |------|--------|
 | Claim | One English sentence in the PR / commit body |
-| Proof | Haskell update under `haskell/` **or** “no new law” |
-| Witness | Paste of `git frontier demo` / `gate` / `ledger` / `cabal test` |
+| Policy | English line under `english/` **or** “no new law” |
+| Witness | Go `_test.go` for the check, plus a paste of `git frontier demo` / `gate` / `ledger` |
 | Size | Rough LOC; if large, say why |
 
 ## 4. Do not
 
-- Add a fourth “official” runtime language without rewriting LANGUAGE.md  
+- Add a second “official” implementation language without rewriting LANGUAGE.md  
 - Dump generated trees, vendor blobs, or copy-pasted framework apps  
 - Expand scope “while we’re here”
 

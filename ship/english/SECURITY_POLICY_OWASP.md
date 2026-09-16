@@ -1,8 +1,9 @@
 # Security as policy — OWASP Top 10 (first version)
 
 This is the **human** policy document.  
-It becomes **Haskell** definitions in `V` (vuln set).  
+It becomes named rules in `V` (vuln set) in Go.  
 At `git frontier gate` / push, Go runs those checks against the change-set.
+Each rule carries a `_test.go` witness in `internal/owasp`.
 
 `V` starts from these named rules. Empty matches ⇒ clean under current `V`.
 
@@ -38,11 +39,11 @@ Untriaged **built-in** High/Critical under `V` blocks plan/apply (F4). Adapter C
   english/SECURITY_POLICY_OWASP.md
             │
             v
-  haskell/src/Frontier/OWASP.hs     (named rules in V)
+  internal/owasp (rule ids named in V) + _test.go witness
             │
             v
-  Go internal/owasp (pattern scan on C)
+  git frontier gate  →  Go pattern scan on C
             │
             v
-  git frontier gate  →  ledger: exam.owasp + gate.passed|failed
+  ledger: exam.owasp + gate.passed|failed
 ```

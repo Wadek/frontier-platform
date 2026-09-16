@@ -1,6 +1,6 @@
 # Release process — feat → dev → alpha → main
 
-Habitat path: see `D:\wakalabs\docs\CODE_TO_PRODUCTION_PLAN.md` (verbose). This file is the platform short form.
+This file is the platform short form; the verbose plan lives outside this repository.
 
 ## Branches
 

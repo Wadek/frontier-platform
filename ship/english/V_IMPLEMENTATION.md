@@ -5,11 +5,11 @@ CLI: **`frontier guard`** (letter alias **`G`**). Formal definition-set in axiom
 ## Shape
 
 ```
-  english/SECURITY_POLICY_OWASP.md     what humans mean
+  english/SECURITY_POLICY_OWASP.md     what humans mean (policy)
            │
-  haskell/src/Frontier/OWASP.hs        proof shelf (rule ids)
+  internal/owasp                       rule ids named in V + _test.go witness
            │
-  internal/owasp + internal/vscan      programmatic checks (no tokens)
+  internal/vscan + adapters            programmatic checks (no tokens)
            │
   frontier guard | gate | push         control_point = changeset
            │
@@ -30,7 +30,7 @@ CLI: **`frontier guard`** (letter alias **`G`**). Formal definition-set in axiom
 
 Secret **surfaces** are Guard (security), not Learn.
 
-Gate/plan still **hard-block only** on built-in OWASP High/Critical. Adapter + enhance findings default to **advise** until promoted into English→Haskell→Go definitions.
+Gate/plan still **hard-block only** on built-in OWASP High/Critical. Adapter + enhance findings default to **advise** until promoted into an English line plus a Go check with its `_test.go`.
 
 ## Commands
 

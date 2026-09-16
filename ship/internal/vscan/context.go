@@ -116,7 +116,7 @@ func changedPaths(root string) ([]string, string) {
 		if len(lines) == 0 {
 			continue
 		}
-		return lines, "diff:"+base
+		return lines, "diff:" + base
 	}
 	return nil, "full"
 }

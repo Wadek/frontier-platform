@@ -6,7 +6,7 @@ That is how we test the tool: if we cannot ship our own changes through `plan �
 
 ## Rules for this repo
 
-1. **No casual push to `main`.** Work on `frontier/…` branches.  
+1. **No casual push to `main`.** Work on `feat/…` branches.  
 2. **`FRONTIER_SOFT=0`** for real ship attempts (soft is for learning only).  
 3. Always:
 

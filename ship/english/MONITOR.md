@@ -1,15 +1,15 @@
-# Monitor â€” audit agent behavior against the ship directives
+# Monitor — audit agent behavior against the ship directives
 
 `frontier monitor` is the supervision family of Frontier Ship. Whenever an
-agent uses frontier-ship (shim, hooks, or the CLI), every consequential action
-is sealed into the ledger (F0). The monitor replays that evidence and verifies
-the agent followed the directives. It never rewrites history; it reads the
-ledger and reports.
+agent uses frontier-platform (shim, hooks, or the CLI), every consequential
+action is sealed into the ledger (F0). The monitor replays that evidence and
+verifies the agent followed the directives. It never rewrites history; it reads
+the ledger and reports.
 
 ```
-  English  â†’  this file + the directive list below
-  Haskell  â†’  haskell/src/Frontier/Monitor.hs   (pure witness of the replay)
-  Go       â†’  internal/monitor/monitor.go       (what runs)
+  English  →  this file + the directive list below      (policy)
+  Go       →  internal/monitor/monitor.go               (what runs)
+  Witness  →  internal/monitor/monitor_test.go          (replay rules, checked)
 ```
 
 ---
@@ -53,14 +53,14 @@ verdict is `violation` or `tampered`.
 | D7 | Runtime chaos stays dry: chaos injection is not implemented; `chaos_denied` is an advisory |
 
 D0 and the time-based freshness window (15 min) are verified in the Go runtime;
-the Haskell layer witnesses the state machine of D1-D5.
+`internal/monitor/monitor_test.go` witnesses the state machine of D1-D5.
 
 ## Watching the ledgers (event-driven, not polling)
 
 `scripts/frontier-monitor-watch.ps1` watches `$FRONTIER_RUNTIME/ledgers` with a
 PowerShell `FileSystemWatcher` and runs `frontier monitor all` after each new
 or changed `ledger.jsonl`. It prints one line per examined event and logs to
-`$FRONTIER_RUNTIME/ledgers/monitor/watch.log`. Cheap watcher, one-shot work â€” the
+`$FRONTIER_RUNTIME/ledgers/monitor/watch.log`. Cheap watcher, one-shot work — the
 same doctrine as the ship monitor skills. Install it as a logon scheduled task
 only with operator confirmation:
 
@@ -70,7 +70,7 @@ powershell -ExecutionPolicy Bypass -File ./scripts/frontier-monitor-watch.ps1 -O
 
 ## Skills and agents
 
-Bundled skills and agents ship inside frontier-ship and are available through the same CLI:
+Bundled skills and agents ship inside frontier-platform and are available through the same CLI:
 
 ```powershell
 frontier skills
@@ -78,7 +78,7 @@ frontier skills show dogfood
 frontier agents
 ```
 
-Trees: `skills/` and `agents/` (see their README files). Monitor directives D1â€“D5 are the machine-checkable subset of rules those skills teach (`dogfood`, `regular-git`, `test-as-you-go`, `local-first`).
+Trees: `skills/` and `agents/` (see their README files). Monitor directives D1–D5 are the machine-checkable subset of rules those skills teach (`dogfood`, `regular-git`, `test-as-you-go`, `local-first`).
 
 ## What the monitor is not
 

@@ -19,20 +19,20 @@ const (
 
 // Finding is one Opt-* review unit for a developer / PR.
 type Finding struct {
-	ID                 string `json:"id"` // Opt-001
-	Title              string `json:"title"`
-	Path               string `json:"path"`
-	Function           string `json:"function,omitempty"`
-	StartLine          int    `json:"start_line,omitempty"`
-	EndLine            int    `json:"end_line,omitempty"`
-	IntendedBehavior   string `json:"intended_behavior"`
-	WhyWasteful        string `json:"why_wasteful"`
-	SuggestedChange    string `json:"suggested_change"`
-	SnippetBefore      string `json:"snippet_before,omitempty"`
-	SnippetAfter       string `json:"snippet_after,omitempty"`
-	RiskEquivalence    string `json:"risk_equivalence"`
-	Disposition        string `json:"disposition"` // advise default
-	Source             string `json:"source"`      // hotspot|enhance|manual
+	ID               string `json:"id"` // Opt-001
+	Title            string `json:"title"`
+	Path             string `json:"path"`
+	Function         string `json:"function,omitempty"`
+	StartLine        int    `json:"start_line,omitempty"`
+	EndLine          int    `json:"end_line,omitempty"`
+	IntendedBehavior string `json:"intended_behavior"`
+	WhyWasteful      string `json:"why_wasteful"`
+	SuggestedChange  string `json:"suggested_change"`
+	SnippetBefore    string `json:"snippet_before,omitempty"`
+	SnippetAfter     string `json:"snippet_after,omitempty"`
+	RiskEquivalence  string `json:"risk_equivalence"`
+	Disposition      string `json:"disposition"` // advise default
+	Source           string `json:"source"`      // hotspot|enhance|manual
 }
 
 // Report is one Optimize pass over a project root.
@@ -72,7 +72,7 @@ func BuildReport(root string) (*Report, error) {
 		Root:  root,
 		Name:  filepath.Base(root),
 		Stamp: time.Now().UTC().Format("20060102T150405Z"),
-		PRProcess: "One Opt-ID per branch (frontier/opt-<id>-…). PR body = this report section. " +
+		PRProcess: "One Opt-ID per branch (perf/opt-<id>-…). PR body = this report section. " +
 			"Behavior must stay equivalent. Advise-only until promoted.",
 		Notes: []string{
 			"Programmatic pass: large-function hotspots only (heuristic).",
@@ -104,8 +104,8 @@ func BuildReport(root string) (*Report, error) {
 				"Function spans ~%d lines (threshold %d). Large routines often hide repeated work, "+
 					"poor data-structure fit, or mixed hot/cold paths (CS: locality, complexity, SRP).",
 				h.End-h.Start+1, MaxFuncLines),
-			SuggestedChange: "Read for algorithmic waste; extract cold paths; replace nested scans with "+
-				"appropriate structures only when equality/ordering semantics match. Prefer the simplest "+
+			SuggestedChange: "Read for algorithmic waste; extract cold paths; replace nested scans with " +
+				"appropriate structures only when equality/ordering semantics match. Prefer the simplest " +
 				"equivalent transform.",
 			SnippetBefore:   h.Snippet,
 			SnippetAfter:    "(propose in PR after human/enhance review — no auto-rewrite in Phase B)",
@@ -175,7 +175,7 @@ func RenderMarkdown(r *Report) string {
 		b.WriteString("\n")
 	}
 	b.WriteString("## Commands\n\n")
-	b.WriteString("```text\nfrontier optimize pr-body Opt-001\n# branch: frontier/opt-001-<short>\n# PR body <- printed markdown\n```\n")
+	b.WriteString("```text\nfrontier optimize pr-body Opt-001\n# branch: perf/opt-001-<short>\n# PR body <- printed markdown\n```\n")
 	return b.String()
 }
 

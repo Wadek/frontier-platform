@@ -1,20 +1,20 @@
-# Runtime (R) â€” post-ship probe and bounded chaos
+# Runtime (R) — post-ship probe and bounded chaos
 
 **Word:** `frontier runtime`  
 **Aliases:** `probe`, `chaos`, letter **`R`**
 
 Guard examines the **changeset** before GitHub. Runtime examines **what is actually running** (loopback / habitat network), on a budget, with a sealed allowlist. It is not a second push gate.
 
-## Map from common â€œdefense in depthâ€ write-ups
+## Map from common “defense in depth” write-ups
 
 Those write-ups assume Kubernetes + a public cloud account. Frontier does not. Same *jobs*, different tools, same control points we already named.
 
 | Job in the write-up | Their tools | Frontier control point | What we run |
 |---------------------|-------------|------------------------|-------------|
-| Pre-deploy gate | Checkov, Trivy, Gitleaks in CI, block Critical | **changeset** â€” Guard | Built-in OWASP (already blocks High/Critical). Checkov / Gitleaks / Trivy **adapters** when on PATH. Advise until a rule is promoted into Englishâ†’Haskellâ†’Go. CI should run the same `frontier guard` + named adapters, not a parallel zoo. |
-| Post-deploy validation | Prowler, â€œAI scansâ€ off-peak | **runtime** | `frontier runtime scan` against the **allowlist only** (health/config). No account-wide cloud auditor unless that cloud is later a declared target. |
-| Chaos / detection / auto-remediate | Chaos Mesh, Falco, GuardDuty, Lambda, K8s operators | **engagement** (subset of Runtime) | `frontier runtime chaos` â€” dry-run default, inject only with an explicit env flag, short TTL, ledgered. Detection is compose/container logs + the scan, not a cloud SIEM we do not operate. Auto-remediate is **out of v1** (too much blast radius). |
-| Feedback into IaC policy | Custom Checkov policies | **Grow V** (F4) | Chaos or scan findings become an English policy line, then a Haskell rule, then a Go/Checkov check. Do not silently mutate Checkov YAML from a model. |
+| Pre-deploy gate | Checkov, Trivy, Gitleaks in CI, block Critical | **changeset** — Guard | Built-in OWASP (already blocks High/Critical). Checkov / Gitleaks / Trivy **adapters** when on PATH. Advise until a rule is promoted into an English line plus a Go check. CI should run the same `frontier guard` + named adapters, not a parallel zoo. |
+| Post-deploy validation | Prowler, “AI scans” off-peak | **runtime** | `frontier runtime scan` against the **allowlist only** (health/config). No account-wide cloud auditor unless that cloud is later a declared target. |
+| Chaos / detection / auto-remediate | Chaos Mesh, Falco, GuardDuty, Lambda, K8s operators | **engagement** (subset of Runtime) | `frontier runtime chaos` — dry-run default, inject only with an explicit env flag, short TTL, ledgered. Detection is compose/container logs + the scan, not a cloud SIEM we do not operate. Auto-remediate is **out of v1** (too much blast radius). |
+| Feedback into IaC policy | Custom Checkov policies | **Grow V** (F4) | Chaos or scan findings become an English policy line, then a Go check with its `_test.go`. Do not silently mutate Checkov YAML from a model. |
 
 Do **not** put Trivy image rebuilds, DAST, or chaos on `git push`. Push stays cheap: OWASP + (optional) adapter advise.
 
