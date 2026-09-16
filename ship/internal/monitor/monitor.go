@@ -1,14 +1,14 @@
 // Package monitor audits Frontier ledger evidence against the ship directives.
 //
 // It is the examination engine behind `frontier monitor`: whenever an agent uses
-// frontier-ship, its consequential actions are sealed into the ledger (F0), and
+// frontier-platform, its consequential actions are sealed into the ledger (F0), and
 // the monitor replays those rows to verify the agent followed the directives
 // (feature branch, plan -> apply -> push, no soft bypass, no blocked ship).
 //
-// Language layers (F5):
-//   - English:  english/MONITOR.md            (what we mean)
-//   - Haskell:  haskell/src/Frontier/Monitor.hs (pure witness of the replay rules)
-//   - Go:       this package                   (what runs)
+// Layers (F5):
+//   - English:  english/MONITOR.md      (what we mean)
+//   - Go:       this package            (what runs)
+//   - Witness:  monitor_test.go         (the replay rules, table-checked)
 //
 // Read-only over ledger files; the CLI seals one monitor.audited row per run.
 package monitor
@@ -22,8 +22,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Wadek/frontier-ship/internal/ledger"
-	"github.com/Wadek/frontier-ship/internal/policy"
+	"github.com/Wadek/frontier-platform/ship/internal/ledger"
+	"github.com/Wadek/frontier-platform/ship/internal/policy"
 )
 
 // Severity orders findings: tamper > violation > incident > advisory.
@@ -57,7 +57,7 @@ type Directive struct {
 }
 
 // Directives is the v0 reference set. D0 (cryptographic chain integrity) is
-// checked here in Go; the Haskell layer witnesses D1-D4 in pure form.
+// checked here in Go; monitor_test.go witnesses D1-D4 as table-driven cases.
 var Directives = []Directive{
 	{ID: "D0", Text: "F0 evidence: ledger hash chain is intact (prev_hash links, entry_hash recomputes)"},
 	{ID: "D1", Text: "no remote effect without a fresh sealed gate: push.authorized needs a fresh gate.passed that itself follows a fresh plan.passed (same branch+HEAD, 15 min TTL)"},

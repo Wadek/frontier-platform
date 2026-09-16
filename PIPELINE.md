@@ -2,7 +2,7 @@
 
 This is the **only** ship process. It applies to every repo, every branch, every client. Nothing goes to GitHub until it passes.
 
-Canonical code: `ship/` (history from frontier-ship)  
+Canonical code: `ship/`  
 Runtime: `$FRONTIER_RUNTIME` (defaults to `./runtime` in this repo)  
 Enforcement: set `core.hooksPath` to `$FRONTIER_RUNTIME/hooks` (or use lefthook in-repo)
 

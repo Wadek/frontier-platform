@@ -225,7 +225,7 @@ Expanding `V` is how the Frontier gets stricter without rewriting F1–F3.
   Vulnerabilities := what we define in V.
   Learning grows V; it does not invent an infinite outside set.
 
-  F5  CONSILIENCE  English + Haskell + Go must agree.
+  F5  CONSILIENCE  English policy + Go witness must agree.
   Simple models keep left. Elevate only when needed.
   =================================
 ```
@@ -243,17 +243,18 @@ Expanding `V` is how the Frontier gets stricter without rewriting F1–F3.
 
 ---
 
-## Frontier Meta-Axiom F5 — Consilience (English · Haskell · Go)
+## Frontier Meta-Axiom F5 — Consilience (English · Go)
 
-**A new Frontier behavior is not admitted until the same meaning exists in all three Frontier languages:**
+**A new Frontier behavior is not admitted until the same meaning exists in both Frontier layers:**
 
-1. **English** — human can read it (`english/`)  
-2. **Haskell** — pure compute form (`haskell/`)  
-3. **Go** — local runtime (`cmd/`, `internal/`)
+1. **English** — the policy a human can read (`english/`)  
+2. **Go** — the implementation plus its `_test.go` witness (`cmd/`, `internal/`)
 
 ```
-Admit(B) ⇒ English(B) ∧ Haskell(B) ∧ Go(B) ∧ Agree(B)
+Admit(B) ⇒ English(B) ∧ Go(B) ∧ Agree(B)
 ```
+
+Agreement is machine-checked: table-driven Go tests in CI are the witness that Go still means what English says. Where they disagree, the test suite is right about what runs and English is wrong about what we mean — fix one, then re-run.
 
 We do not add random human languages. See [`LANGUAGE.md`](LANGUAGE.md).
 
@@ -266,7 +267,7 @@ We do not add random human languages. See [`LANGUAGE.md`](LANGUAGE.md).
 - Child-agent forking: child skills inherit F0–F4 with *narrower* scope (never wider).  
 - On-disk schema for `V` (append-only defs, same as ledger spirit).  
 - When `V` grows, batch re-exam policy for previously Clean artifacts (lazy vs eager).  
-- Keep Go gate/role in sync with `Frontier.Gate` / `Frontier.Role` tests.  
+- Keep Go gate/role in sync with the `internal/policy` + `internal/role` tests.  
 - Grow vuln definition set `V` as data, not as new languages.
 
-These axioms are part of the Frontier teaching universe: models recite F0–F4 before elevate/push; F5 binds *us* as builders (English + Haskell + Go).
+These axioms are part of the Frontier teaching universe: models recite F0–F4 before elevate/push; F5 binds *us* as builders (English + Go).

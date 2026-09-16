@@ -1,10 +1,10 @@
 <#
 .SYNOPSIS
-    frontier-monitor-watch.ps1 Ã¢â‚¬â€ event-driven watcher over the Frontier
-    ledgers. Whenever an agent appends evidence (plan/apply/push/Ã¢â‚¬Â¦), this
+    frontier-monitor-watch.ps1 — event-driven watcher over the Frontier
+    ledgers. Whenever an agent appends evidence (plan/apply/push/…), this
     runs `frontier monitor all` once and prints one line per examined event.
 
-    Cheap watcher, one-shot work, no polling loop of the model Ã¢â‚¬â€ the same
+    Cheap watcher, one-shot work, no polling loop of the model — the same
     doctrine as the ship monitor skills. Logs to $FRONTIER_RUNTIME/ledgers/monitor/watch.log.
 
 .PARAMETER Path
@@ -56,7 +56,7 @@ if ($Once) {
 
 if (-not (Test-Path $Path)) {
     Write-WatchLog "MONITOR ledger root missing: $Path (nothing to watch yet)"
-    Write-WatchLog "MONITOR watcher armed Ã¢â‚¬â€ it will pick up events when ledgers exist"
+    Write-WatchLog "MONITOR watcher armed — it will pick up events when ledgers exist"
 }
 
 $watcher = New-Object System.IO.FileSystemWatcher

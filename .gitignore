@@ -1,8 +1,23 @@
-runtime/
-node_modules/
+# Build output
+/frontier
+/frontier.exe
+/frontier-git
+/frontier-git.exe
+/frontier-mcp
+/frontier-mcp.exe
+dist/
 *.exe
+*.o
+*.hi
 
+# Frontier runtime (ledgers, hooks, installed binaries) — never commit
+runtime/
+
+# Local scratch
+.frontier/
+node_modules/
 __pycache__/
+.DS_Store
 
+# Local cleanup working list
 .cleanup-terms.md
-

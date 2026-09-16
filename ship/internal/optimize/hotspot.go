@@ -17,11 +17,11 @@ type hotspot struct {
 }
 
 var (
-	reGoFunc    = regexp.MustCompile(`^func\s+(\([^)]+\)\s*)?([A-Za-z0-9_]+)\s*\(`)
-	rePyDef     = regexp.MustCompile(`^(\s*)def\s+([A-Za-z0-9_]+)\s*\(`)
-	reJSFunc    = regexp.MustCompile(`^\s*(async\s+)?function\s+([A-Za-z0-9_]+)\s*\(`)
-	reJSMethod  = regexp.MustCompile(`^\s*(async\s+)?([A-Za-z0-9_]+)\s*\([^)]*\)\s*\{`)
-	reJSArrow   = regexp.MustCompile(`^\s*(?:export\s+)?(?:const|let|var)\s+([A-Za-z0-9_]+)\s*=\s*(async\s*)?\(`)
+	reGoFunc   = regexp.MustCompile(`^func\s+(\([^)]+\)\s*)?([A-Za-z0-9_]+)\s*\(`)
+	rePyDef    = regexp.MustCompile(`^(\s*)def\s+([A-Za-z0-9_]+)\s*\(`)
+	reJSFunc   = regexp.MustCompile(`^\s*(async\s+)?function\s+([A-Za-z0-9_]+)\s*\(`)
+	reJSMethod = regexp.MustCompile(`^\s*(async\s+)?([A-Za-z0-9_]+)\s*\([^)]*\)\s*\{`)
+	reJSArrow  = regexp.MustCompile(`^\s*(?:export\s+)?(?:const|let|var)\s+([A-Za-z0-9_]+)\s*=\s*(async\s*)?\(`)
 )
 
 func scanLargeFunctions(root string) ([]hotspot, error) {
@@ -82,8 +82,8 @@ func findHotspotsInFile(abs, rel, ext string) ([]hotspot, error) {
 	}
 
 	type start struct {
-		name string
-		line int // 1-based
+		name   string
+		line   int // 1-based
 		indent int
 	}
 	var opens []start

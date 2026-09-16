@@ -1,0 +1,74 @@
+name: CI
+
+# GitHub only reads workflows from /.github/workflows at the REPOSITORY ROOT.
+# These previously lived under ship/.github/workflows/ and therefore never ran.
+#
+# The default branch of this repository is frontier/public-root, not main, so it
+# is listed explicitly: a push to the default branch must be gated too.
+
+on:
+  push:
+    branches: [main, master, frontier/public-root]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  go:
+    name: go build · vet · test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-go@f111f3307d8850f501ac008e886eec1fd1932a34 # v5.3.0
+        with:
+          go-version-file: go.mod
+          cache: true
+      - name: Verify go.mod is tidy
+        run: |
+          go mod tidy
+          git diff --exit-code -- go.mod go.sum
+      - name: Build
+        run: go build ./...
+      - name: Vet
+        run: go vet ./...
+      - name: Test
+        # Includes the public-tree policy test in ship/internal/repo, which fails
+        # if habitat-local paths, stale repo identities, or cp1252 mojibake
+        # reappear anywhere in the tracked tree.
+        run: go test ./... -count=1
+
+  binaries:
+    name: cross-build frontier binaries
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { goos: linux, goarch: amd64 }
+          - { goos: linux, goarch: arm64 }
+          - { goos: darwin, goarch: arm64 }
+          - { goos: windows, goarch: amd64 }
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-go@f111f3307d8850f501ac008e886eec1fd1932a34 # v5.3.0
+        with:
+          go-version-file: go.mod
+          cache: true
+      - name: Build
+        env:
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+          CGO_ENABLED: "0"
+        run: |
+          set -euo pipefail
+          ext=""
+          if [ "${GOOS}" = "windows" ]; then ext=".exe"; fi
+          go build -trimpath -o "dist/frontier-${GOOS}-${GOARCH}${ext}" ./ship/cmd/frontier
+          go build -trimpath -o "dist/frontier-git-${GOOS}-${GOARCH}${ext}" ./ship/cmd/frontier-git
+          ls -l dist

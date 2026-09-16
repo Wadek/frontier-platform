@@ -62,8 +62,7 @@ Secondary (customer apps):
 
   B. Freeze policy version
      - english/SECURITY_POLICY_OWASP.md @ commit
-     - haskell Frontier.OWASP @ commit
-     - Go scanner @ commit
+     - Go scanner + `_test.go` @ commit
      - Call this V_rev
 
   C. For each case
@@ -76,7 +75,7 @@ Secondary (customer apps):
      - publish english/scores/V_rev.md (simple English)
 
   E. Improve
-     - FN → strengthen Haskell rule + Go check (and English line)
+     - FN → strengthen the Go check + `_test.go` (and English line)
      - FP → narrow pattern / skip vendor (minimality)
      - Re-run until F1 = 1.0 on that suite
 ```

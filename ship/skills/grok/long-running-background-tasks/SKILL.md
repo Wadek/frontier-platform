@@ -148,7 +148,7 @@ You can find the example script bundled with this skill at watch_pr.py. It needs
 
 ```
 monitor(
-  command='python C:\\Users\\waka\\.grok\\bundled\\skills\\long-running-background-tasks\\watch_pr.py "https://github.com/xai-org/grok-build/pull/123"',
+  command='python ~/.grok/bundled/skills/long-running-background-tasks/watch_pr.py "https://github.com/xai-org/grok-build/pull/123"',
   description="Watch PR 123"
 )
 ```
@@ -162,7 +162,7 @@ The script below is bundled with this skill as watch_training.py. Run it with `-
 ```md
 Keep an eye on the nanoGPT run nanogpt_owt_124m_r1 (slurm job 1234567) and tell me what changed since last time. Worktree ~/worktrees/nanogpt-owt-124m.
 
-1. python C:\\Users\\waka\\.grok\\bundled\\skills\\long-running-background-tasks\\watch_training.py --run-name nanogpt_owt_124m_r1 --job-id 1234567 --target-val 3.00
+1. python ~/.grok/bundled/skills/long-running-background-tasks/watch_training.py --run-name nanogpt_owt_124m_r1 --job-id 1234567 --target-val 3.00
 
 How to report:
 - Start with the job's state and if it changed, e.g. "still RUNNING" or "PENDING -> RUNNING".

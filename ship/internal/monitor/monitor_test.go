@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Wadek/frontier-ship/internal/ledger"
+	"github.com/Wadek/frontier-platform/ship/internal/ledger"
 )
 
 // mkRow builds one hand-crafted row with a valid evidence hash.

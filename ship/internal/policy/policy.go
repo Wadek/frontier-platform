@@ -5,8 +5,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Wadek/frontier-ship/internal/ledger"
-	"github.com/Wadek/frontier-ship/internal/role"
+	"github.com/Wadek/frontier-platform/ship/internal/ledger"
+	"github.com/Wadek/frontier-platform/ship/internal/role"
 )
 
 // Deny > Ask > Allow evaluated in Require.
