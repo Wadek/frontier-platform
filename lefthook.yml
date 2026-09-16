@@ -1,6 +1,7 @@
 # Local git hooks for frontier-platform.
-# Note: default branch is frontier/public-root (no main). Do not let lefthook
-# diff against main — that fails with exit 128 and blocks push.
+# Note: the default branch is main (protected; humans merge, nobody pushes).
+# Do not let lefthook diff against main — `git diff HEAD main` fails with exit
+# 128 on this set-up and blocks push, so the pre-push job uses `files: git ls-files`.
 
 pre-commit:
   jobs:

@@ -72,7 +72,7 @@ func BuildReport(root string) (*Report, error) {
 		Root:  root,
 		Name:  filepath.Base(root),
 		Stamp: time.Now().UTC().Format("20060102T150405Z"),
-		PRProcess: "One Opt-ID per branch (frontier/opt-<id>-…). PR body = this report section. " +
+		PRProcess: "One Opt-ID per branch (perf/opt-<id>-…). PR body = this report section. " +
 			"Behavior must stay equivalent. Advise-only until promoted.",
 		Notes: []string{
 			"Programmatic pass: large-function hotspots only (heuristic).",
@@ -175,7 +175,7 @@ func RenderMarkdown(r *Report) string {
 		b.WriteString("\n")
 	}
 	b.WriteString("## Commands\n\n")
-	b.WriteString("```text\nfrontier optimize pr-body Opt-001\n# branch: frontier/opt-001-<short>\n# PR body <- printed markdown\n```\n")
+	b.WriteString("```text\nfrontier optimize pr-body Opt-001\n# branch: perf/opt-001-<short>\n# PR body <- printed markdown\n```\n")
 	return b.String()
 }
 

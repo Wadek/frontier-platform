@@ -35,7 +35,7 @@ It makes **shipping** obey rules: evidence, roles, examination against a supplie
      - Never “fix” upstream intentional-vuln remotes in place of learning
 
   3. BASELINE exam (F4)
-     - git checkout -b frontier/baseline
+     - git checkout -b feat/baseline
      - git frontier demo
      - git frontier gate
      - Read OWASP findings under current V

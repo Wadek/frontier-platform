@@ -56,7 +56,7 @@ Each finding is one review unit (**one small PR** preferred):
 
 ## Small PRs
 
-Never one mega Optimize PR. One Opt-ID (or tight cluster) per branch: `frontier/opt-<id>-…`.
+Never one mega Optimize PR. One Opt-ID (or tight cluster) per branch: `perf/opt-<id>-…`.
 
 ## Commands (now)
 

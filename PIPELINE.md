@@ -11,7 +11,7 @@ Enforcement: set `core.hooksPath` to `$FRONTIER_RUNTIME/hooks` (or use lefthook 
 ## The process (do not skip, do not soften)
 
 ```text
-1. Work on a feature branch   (never main / master)
+1. Work on a feat/<slug> branch   (never main / master)
 2. Commit a clean tree
 3. frontier hygiene           (optional: AI provenance on the changeset)
 4. frontier plan              (OWASP Guard + Hygiene line + push rules; fail closed)
@@ -23,7 +23,7 @@ Enforcement: set `core.hooksPath` to `$FRONTIER_RUNTIME/hooks` (or use lefthook 
 Same commands:
 
 ```powershell
-git checkout -b frontier/topic
+git checkout -b feat/<slug>
 git add -A
 git commit -m "msg"
 frontier hygiene   # advise; FRONTIER_HYGIENE_BLOCK=1 to fail closed

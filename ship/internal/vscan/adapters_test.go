@@ -45,7 +45,7 @@ func TestAdapterSkipTestdata(t *testing.T) {
 	}
 	in := []Finding{
 		{Path: "testdata/owasp/a06_pos/Dockerfile", RuleID: "DS-0002"},
-		{Path: "cmd/frontier/main.go", RuleID: "keep"},
+		{Path: "ship/cmd/frontier/main.go", RuleID: "keep"},
 	}
 	got := DropSkippedPaths(in)
 	if len(got) != 1 || got[0].RuleID != "keep" {

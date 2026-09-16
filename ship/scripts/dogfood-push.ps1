@@ -5,7 +5,7 @@ $env:FRONTIER_VERBOSE = "1"
 
 $branch = (& git branch --show-current).Trim()
 if ($branch -eq "main" -or $branch -eq "master") {
-  Write-Error "Dogfood refuses to push from $branch. Use: git checkout -b frontier/…"
+  Write-Error "Dogfood refuses to push from $branch. Use: git checkout -b feat/…"
 }
 
 Write-Host "=== DOGFOOD on $branch ===" -ForegroundColor Cyan

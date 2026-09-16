@@ -5,7 +5,7 @@ You do need to respect people who have Linus-level patience for noise.
 
 ## 0. Dogfood
 
-Changes to **this** repo use Frontier on ourselves: `plan → apply → push` on a `frontier/…` branch — not soft-bypass to `main`.  
+Changes to **this** repo use Frontier on ourselves: `plan → apply → push` on a `feat/…` branch — not soft-bypass to `main`.  
 See [DOGFOOD.md](DOGFOOD.md).
 
 ## 1. Make it small

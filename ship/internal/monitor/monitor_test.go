@@ -56,9 +56,9 @@ func TestAuditCompliantFlow(t *testing.T) {
 	path := filepath.Join(dir, "ledger.jsonl")
 	now := time.Now()
 	rows := chainOf([]ledger.Entry{
-		{Seq: 1, TS: ts(now), Actor: "frontier-git", Action: "plan.passed", Payload: map[string]any{"branch": "frontier/x", "head": "h1"}},
-		{Seq: 2, TS: ts(now.Add(time.Second)), Actor: "frontier-git", Action: "gate.passed", Payload: map[string]any{"branch": "frontier/x", "head": "h1"}},
-		{Seq: 3, TS: ts(now.Add(2 * time.Second)), Actor: "frontier-git", Action: "push.authorized", Payload: map[string]any{"branch": "frontier/x", "head": "h1"}},
+		{Seq: 1, TS: ts(now), Actor: "frontier-git", Action: "plan.passed", Payload: map[string]any{"branch": "feat/x", "head": "h1"}},
+		{Seq: 2, TS: ts(now.Add(time.Second)), Actor: "frontier-git", Action: "gate.passed", Payload: map[string]any{"branch": "feat/x", "head": "h1"}},
+		{Seq: 3, TS: ts(now.Add(2 * time.Second)), Actor: "frontier-git", Action: "push.authorized", Payload: map[string]any{"branch": "feat/x", "head": "h1"}},
 	})
 	writeRows(t, path, rows)
 
@@ -81,7 +81,7 @@ func TestAuditPushWithoutGate(t *testing.T) {
 	dir := t.TempDir()
 	path := filepath.Join(dir, "ledger.jsonl")
 	writeRows(t, path, chainOf([]ledger.Entry{
-		{Seq: 1, TS: ts(time.Now()), Actor: "frontier-git", Action: "push.authorized", Payload: map[string]any{"branch": "frontier/x", "head": "h1"}},
+		{Seq: 1, TS: ts(time.Now()), Actor: "frontier-git", Action: "push.authorized", Payload: map[string]any{"branch": "feat/x", "head": "h1"}},
 	}))
 
 	rep, err := AuditLedger(path)
@@ -101,8 +101,8 @@ func TestAuditGateWithoutPlan(t *testing.T) {
 	path := filepath.Join(dir, "ledger.jsonl")
 	now := time.Now()
 	writeRows(t, path, chainOf([]ledger.Entry{
-		{Seq: 1, TS: ts(now), Actor: "frontier-git", Action: "gate.passed", Payload: map[string]any{"branch": "frontier/x", "head": "h1"}},
-		{Seq: 2, TS: ts(now.Add(time.Second)), Actor: "frontier-git", Action: "push.authorized", Payload: map[string]any{"branch": "frontier/x", "head": "h1"}},
+		{Seq: 1, TS: ts(now), Actor: "frontier-git", Action: "gate.passed", Payload: map[string]any{"branch": "feat/x", "head": "h1"}},
+		{Seq: 2, TS: ts(now.Add(time.Second)), Actor: "frontier-git", Action: "push.authorized", Payload: map[string]any{"branch": "feat/x", "head": "h1"}},
 	}))
 
 	rep, err := AuditLedger(path)
@@ -127,7 +127,7 @@ func TestAuditSoftAllow(t *testing.T) {
 	dir := t.TempDir()
 	path := filepath.Join(dir, "ledger.jsonl")
 	writeRows(t, path, chainOf([]ledger.Entry{
-		{Seq: 1, TS: ts(time.Now()), Actor: "frontier-git", Action: "push.soft_allow", Payload: map[string]any{"branch": "frontier/x", "head": "h1"}},
+		{Seq: 1, TS: ts(time.Now()), Actor: "frontier-git", Action: "push.soft_allow", Payload: map[string]any{"branch": "feat/x", "head": "h1"}},
 	}))
 
 	rep, err := AuditLedger(path)
@@ -146,8 +146,8 @@ func TestAuditDeniedAttemptsAreWatch(t *testing.T) {
 	dir := t.TempDir()
 	path := filepath.Join(dir, "ledger.jsonl")
 	writeRows(t, path, chainOf([]ledger.Entry{
-		{Seq: 1, TS: ts(time.Now()), Actor: "frontier-git", Action: "plan.failed", Payload: map[string]any{"branch": "frontier/x", "head": "h1", "reasons": []string{"working tree dirty"}}},
-		{Seq: 2, TS: ts(time.Now()), Actor: "frontier-git", Action: "push.deny", Payload: map[string]any{"branch": "frontier/x", "head": "h1", "reason": "no gate"}},
+		{Seq: 1, TS: ts(time.Now()), Actor: "frontier-git", Action: "plan.failed", Payload: map[string]any{"branch": "feat/x", "head": "h1", "reasons": []string{"working tree dirty"}}},
+		{Seq: 2, TS: ts(time.Now()), Actor: "frontier-git", Action: "push.deny", Payload: map[string]any{"branch": "feat/x", "head": "h1", "reason": "no gate"}},
 	}))
 
 	rep, err := AuditLedger(path)
@@ -188,9 +188,9 @@ func TestAuditExamBlockThenGate(t *testing.T) {
 	path := filepath.Join(dir, "ledger.jsonl")
 	now := time.Now()
 	writeRows(t, path, chainOf([]ledger.Entry{
-		{Seq: 1, TS: ts(now), Actor: "frontier-git", Action: "plan.passed", Payload: map[string]any{"branch": "frontier/x", "head": "h1"}},
-		{Seq: 2, TS: ts(now.Add(time.Second)), Actor: "frontier-git", Action: "exam.owasp", Payload: map[string]any{"branch": "frontier/x", "head": "h1", "blocks_gate": true}},
-		{Seq: 3, TS: ts(now.Add(2 * time.Second)), Actor: "frontier-git", Action: "gate.passed", Payload: map[string]any{"branch": "frontier/x", "head": "h1"}},
+		{Seq: 1, TS: ts(now), Actor: "frontier-git", Action: "plan.passed", Payload: map[string]any{"branch": "feat/x", "head": "h1"}},
+		{Seq: 2, TS: ts(now.Add(time.Second)), Actor: "frontier-git", Action: "exam.owasp", Payload: map[string]any{"branch": "feat/x", "head": "h1", "blocks_gate": true}},
+		{Seq: 3, TS: ts(now.Add(2 * time.Second)), Actor: "frontier-git", Action: "gate.passed", Payload: map[string]any{"branch": "feat/x", "head": "h1"}},
 	}))
 
 	rep, err := AuditLedger(path)
@@ -216,9 +216,9 @@ func TestAuditExpiredGate(t *testing.T) {
 	path := filepath.Join(dir, "ledger.jsonl")
 	now := time.Now()
 	writeRows(t, path, chainOf([]ledger.Entry{
-		{Seq: 1, TS: ts(now), Actor: "frontier-git", Action: "plan.passed", Payload: map[string]any{"branch": "frontier/x", "head": "h1"}},
-		{Seq: 2, TS: ts(now.Add(time.Second)), Actor: "frontier-git", Action: "gate.passed", Payload: map[string]any{"branch": "frontier/x", "head": "h1"}},
-		{Seq: 3, TS: ts(now.Add(16 * time.Minute)), Actor: "frontier-git", Action: "push.authorized", Payload: map[string]any{"branch": "frontier/x", "head": "h1"}},
+		{Seq: 1, TS: ts(now), Actor: "frontier-git", Action: "plan.passed", Payload: map[string]any{"branch": "feat/x", "head": "h1"}},
+		{Seq: 2, TS: ts(now.Add(time.Second)), Actor: "frontier-git", Action: "gate.passed", Payload: map[string]any{"branch": "feat/x", "head": "h1"}},
+		{Seq: 3, TS: ts(now.Add(16 * time.Minute)), Actor: "frontier-git", Action: "push.authorized", Payload: map[string]any{"branch": "feat/x", "head": "h1"}},
 	}))
 
 	rep, err := AuditLedger(path)
@@ -244,7 +244,7 @@ func TestAuditTamperedChain(t *testing.T) {
 	path := filepath.Join(dir, "ledger.jsonl")
 	now := time.Now()
 	rows := chainOf([]ledger.Entry{
-		{Seq: 1, TS: ts(now), Actor: "frontier-git", Action: "plan.passed", Payload: map[string]any{"branch": "frontier/x", "head": "h1"}},
+		{Seq: 1, TS: ts(now), Actor: "frontier-git", Action: "plan.passed", Payload: map[string]any{"branch": "feat/x", "head": "h1"}},
 	})
 	// Hand-tamper: rewrite the row with broken hashes.
 	rows[0].EntryHash = "deadbeef"
@@ -278,12 +278,12 @@ func TestAuditAllAndLedgersRoot(t *testing.T) {
 		t.Fatal(err)
 	}
 	writeRows(t, good, chainOf([]ledger.Entry{
-		{Seq: 1, TS: ts(now), Actor: "frontier-git", Action: "plan.passed", Payload: map[string]any{"branch": "frontier/x", "head": "h1"}},
-		{Seq: 2, TS: ts(now.Add(time.Second)), Actor: "frontier-git", Action: "gate.passed", Payload: map[string]any{"branch": "frontier/x", "head": "h1"}},
-		{Seq: 3, TS: ts(now.Add(2 * time.Second)), Actor: "frontier-git", Action: "push.authorized", Payload: map[string]any{"branch": "frontier/x", "head": "h1"}},
+		{Seq: 1, TS: ts(now), Actor: "frontier-git", Action: "plan.passed", Payload: map[string]any{"branch": "feat/x", "head": "h1"}},
+		{Seq: 2, TS: ts(now.Add(time.Second)), Actor: "frontier-git", Action: "gate.passed", Payload: map[string]any{"branch": "feat/x", "head": "h1"}},
+		{Seq: 3, TS: ts(now.Add(2 * time.Second)), Actor: "frontier-git", Action: "push.authorized", Payload: map[string]any{"branch": "feat/x", "head": "h1"}},
 	}))
 	writeRows(t, bad, chainOf([]ledger.Entry{
-		{Seq: 1, TS: ts(now), Actor: "frontier-git", Action: "push.soft_allow", Payload: map[string]any{"branch": "frontier/x", "head": "h1"}},
+		{Seq: 1, TS: ts(now), Actor: "frontier-git", Action: "push.soft_allow", Payload: map[string]any{"branch": "feat/x", "head": "h1"}},
 	}))
 
 	reps, err := AuditAll(root)

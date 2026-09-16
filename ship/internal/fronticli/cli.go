@@ -143,7 +143,7 @@ func guardCommit(args []string, soft, strict bool) error {
 	onMain := strings.EqualFold(branch, "main") || strings.EqualFold(branch, "master")
 	if onMain {
 		axiom("F1", "commit.deny_main", "direct commits on main expand blast radius")
-		msg := "frontier deny commit on main/master — create a feature branch first (git checkout -b frontier/...)"
+		msg := "frontier deny commit on main/master — create a feature branch first (git checkout -b feat/...)"
 		if soft {
 			fmt.Fprintln(os.Stderr, "WARNING:", msg, "(FRONTIER_SOFT=1 — allowing)")
 			return nil
@@ -206,7 +206,7 @@ Env: FRONTIER_SOFT=1  FRONTIER_VERBOSE=1  FRONTIER_GIT_BIN  FRONTIER_LEDGER
 Nothing remote goes if plan/apply fails (like terraform).
 
 Same as standalone:  frontier scm | learn | guard | hygiene | runtime | slim | optimize | plan | apply
-(Not \"go frontier\" — go is the Go toolchain)`)
+(Not "go frontier" — go is the Go toolchain)`)
 		return
 	}
 	cwd, _ := os.Getwd()
@@ -950,7 +950,7 @@ func runOptimizePRBody(cwd, id string) {
 	fmt.Printf("## Optimize: %s\n\n", f.ID)
 	fmt.Println(optimize.FormatFinding(*f))
 	fmt.Println("---")
-	fmt.Println("Branch suggestion: `frontier/opt-" + strings.ToLower(strings.ReplaceAll(f.ID, "Opt-", "")) + "-…`")
+	fmt.Println("Branch suggestion: `perf/opt-" + strings.ToLower(strings.ReplaceAll(f.ID, "Opt-", "")) + "-…`")
 	fmt.Println("Remember: behavior-preserving only; run tests covering this function.")
 }
 

@@ -3,8 +3,8 @@
 A local, fail-closed pre-push gate. AI-authored code does not reach a remote
 without a machine-checked exam and a human merge path.
 
-Nothing is pushed until `plan` and `apply` both exit 0. `plan` refuses `main`,
-`master`, and this repository's default branch, refuses a dirty tree, and refuses
+Nothing is pushed until `plan` and `apply` both exit 0. `plan` refuses `main`
+(the default branch) and `master`, refuses a dirty tree, and refuses
 a changeset with High/Critical OWASP findings. `apply` seals evidence into a
 hash-chained ledger outside the work tree. The `pre-push` hook re-runs both, so
 `--no-verify` is the only way around it and that is a deliberate act.
@@ -59,7 +59,7 @@ On Windows add the `.exe` suffix. `runtime/` is gitignored.
 ## Use
 
 ```sh
-git checkout -b frontier/topic
+git checkout -b feat/<slug>
 # edit
 git add -A && git commit -m "msg"
 

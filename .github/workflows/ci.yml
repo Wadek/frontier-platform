@@ -3,12 +3,12 @@ name: CI
 # GitHub only reads workflows from /.github/workflows at the REPOSITORY ROOT.
 # These previously lived under ship/.github/workflows/ and therefore never ran.
 #
-# The default branch of this repository is frontier/public-root, not main, so it
-# is listed explicitly: a push to the default branch must be gated too.
+# The default branch of this repository is main, and it is listed explicitly:
+# a push to the default branch must be gated too.
 
 on:
   push:
-    branches: [main, master, frontier/public-root]
+    branches: [main]
   pull_request:
   workflow_dispatch:
 

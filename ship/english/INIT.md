@@ -79,7 +79,7 @@ $env:FRONTIER_SOFT = "0"
 
 ```text
 cd <some-repo>
-git checkout -b frontier/first
+git checkout -b feat/first
 # edit a file
 git add -A
 git commit -m "frontier: first sealed change"

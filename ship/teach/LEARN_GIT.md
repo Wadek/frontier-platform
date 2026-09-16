@@ -59,7 +59,7 @@ git frontier status
 ### Drill 2 — branch (never commit on main)
 
 ```powershell
-git checkout -b frontier/learn-1
+git checkout -b feat/learn-1
 # edit a file
 git add -A
 git commit -m "frontier: learning commit"

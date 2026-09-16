@@ -62,7 +62,7 @@ During development you *may* run `go run ./cmd/frontier guard` (that means “ru
 ## Terraform-like flow
 
 ```powershell
-git checkout -b frontier/topic
+git checkout -b feat/<slug>
 # edit…
 git add -A
 git commit -m "msg"

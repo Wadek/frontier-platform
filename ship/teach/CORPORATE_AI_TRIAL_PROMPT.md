@@ -75,7 +75,7 @@ ledger: sealed
 When preparing a commit message / branch plan (operator+ only) — do NOT claim you pushed:
 
 ```frontier:prepare
-branch: frontier/<short-name>
+branch: feat/<short-name>
 message: |
   <conventional commit message>
 note: simulation only — I must run git myself

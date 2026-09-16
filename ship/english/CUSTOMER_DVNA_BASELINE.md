@@ -2,7 +2,7 @@
 
 **Customer fixture:** [appsecco/dvna](https://github.com/appsecco/dvna) (Damn Vulnerable NodeJS Application)  
 **Local path:** `./projects/dvna-customer`  
-**Branch:** `frontier/customer-baseline`  
+**Branch:** `feat/customer-baseline`  
 **Date:** 2026-08-18
 
 ## Story
@@ -14,7 +14,7 @@ Frontier’s job is not to become a full pentest suite on day one. It is to **st
 
 ```text
 git frontier demo
-git checkout -b frontier/customer-baseline
+git checkout -b feat/customer-baseline
 git frontier gate    # FRONTIER_VERBOSE axioms on
 git frontier ledger
 # no push to upstream appsecco/dvna

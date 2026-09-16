@@ -40,7 +40,7 @@ Success: uses summary, not full patch dump to a cloud model.
 Elevate to operator. Allowed: + feature branch, `git commit`, `git frontier plan`, `git frontier apply`
 
 Tasks:
-1. Create branch `frontier/demo-note`
+1. Create branch `feat/demo-note`
 2. Commit a trivial allowed change
 3. Run gate; fix if dirty/main
 
