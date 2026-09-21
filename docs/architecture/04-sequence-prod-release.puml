@@ -1,0 +1,16 @@
+@startuml
+title Production release (Stage 5)
+
+actor Human
+participant GitHub
+participant "deploy script" as Dep
+participant "frontier release-check" as RC
+participant Compose
+
+Human -> GitHub : merge PR dev to main
+GitHub -> Dep : checkout main (runner or operator)
+Dep -> RC : this commit may go to production
+RC --> Dep : ok or fail
+Dep -> Compose : backup, up, health
+Compose --> Dep : fail -> rollback
+@enduml

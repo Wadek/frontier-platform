@@ -1,0 +1,13 @@
+@startuml
+title Deploy host
+
+rectangle "After main is merged" {
+  [checkout main]
+  [frontier release-check]
+  [backup data]
+  [compose up]
+  [health]
+  [tag release]
+  [rollback on failure]
+}
+@enduml

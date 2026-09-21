@@ -1,0 +1,21 @@
+@startuml
+title Branch flow
+
+rectangle "feat/*" as F
+rectangle "dev" as D
+rectangle "main" as M
+
+F --> D : PR + Stages 1-2
+D --> M : human PR + Stage 5 deploy
+
+note right of F
+  Frontier plan/apply on push
+end note
+note right of D
+  Integration; local serve
+end note
+note right of M
+  Production
+  GitHub: require PR
+end note
+@enduml

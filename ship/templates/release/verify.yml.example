@@ -1,0 +1,47 @@
+# Copy to .github/workflows/verify.yml
+# Scanners start advisory. Tighten exit codes after you have a baseline.
+name: verify
+on:
+  pull_request:
+    branches: [main, dev]
+  push:
+    branches: [dev]
+
+permissions:
+  contents: read
+
+jobs:
+  stage1-static:
+    name: Stage 1 static
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Install Gitleaks Trivy
+        run: |
+          set -eux
+          curl -sSfL -o /tmp/gitleaks.tgz https://github.com/gitleaks/gitleaks/releases/download/v8.24.3/gitleaks_8.24.3_linux_x64.tar.gz
+          tar -xzf /tmp/gitleaks.tgz -C /tmp gitleaks
+          sudo install -m 0755 /tmp/gitleaks /usr/local/bin/gitleaks
+          curl -sSfL -o /tmp/trivy.deb https://github.com/aquasecurity/trivy/releases/download/v0.74.0/trivy_0.74.0_Linux-64bit.deb
+          sudo dpkg -i /tmp/trivy.deb
+          python3 -m pip install --break-system-packages checkov semgrep
+      - name: Gitleaks
+        continue-on-error: true
+        run: gitleaks detect --source . --verbose --exit-code 1
+      - name: Trivy fs
+        run: trivy fs --severity HIGH,CRITICAL --exit-code 0 --ignore-unfixed .
+      - name: Checkov
+        run: checkov -d . --soft-fail
+      - name: Semgrep
+        continue-on-error: true
+        run: semgrep scan --config p/ci --quiet
+
+  stage2-tests:
+    name: Stage 2 tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run the stack test command
+        run: echo "Replace with pytest -v, npm test, or go test ./..."

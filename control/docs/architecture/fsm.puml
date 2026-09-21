@@ -1,0 +1,21 @@
+﻿@startuml
+title workflow FSM
+
+[*] --> queued
+queued --> review
+review --> deferred : expensive provider at peak
+deferred --> review : off-peak fires
+review --> preparing : cleared
+review --> rejected
+preparing --> running : context hydrated
+preparing --> rejected
+running --> transferred : crosses project boundary
+transferred --> running : target agent returns result
+running --> completed : done
+running --> failed : error / egress-refused
+failed --> review
+completed --> debriefed : learning record appended
+debriefed --> closed : ledger sealed
+closed --> [*]
+rejected --> [*]
+@enduml

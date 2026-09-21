@@ -1,0 +1,45 @@
+@startuml
+title frontier-platform - control architecture
+
+package "frontier-platform" {
+  package "frontier-control" {
+    [taxonomist]
+    [data index]
+    [pricing]
+    [job service]
+    [workflow engine]
+    [review policy]
+    [provider adapters]
+    [monitor]
+    [prove]
+  }
+  package "frontier-platform" {
+    [plan/apply gate]
+    [ledger]
+    [hygiene]
+  }
+}
+
+package "projects" {
+  [project-a]
+  [project-b]
+}
+
+package "agents" {
+  [.agent_project-a]
+  [.agent_project-b]
+}
+
+package "providers" {
+  [local]
+  [deepseek-flash]
+  [deepseek-v4-pro]
+  [dsh]
+}
+
+[workflow engine] --> [provider adapters]
+[provider adapters] --> [local]
+[provider adapters] --> [deepseek-flash]
+[review policy] --> [workflow engine]
+[agents] --> [projects]
+@enduml

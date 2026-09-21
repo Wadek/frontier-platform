@@ -1,0 +1,32 @@
+@startuml
+title Stages 0-5 tool map
+
+rectangle "Stage0 laptop" {
+  [frontier plan/apply]
+}
+rectangle "Stage1 static" {
+  [Gitleaks]
+  [Semgrep]
+  [Trivy fs]
+  [Checkov]
+  [linters]
+}
+rectangle "Stage2 unit" {
+  [stack tests]
+}
+rectangle "Stage3 image" {
+  [container build]
+  [Trivy image]
+}
+rectangle "Stage4 optional" {
+  [Playwright]
+  [ZAP]
+  [k6]
+}
+rectangle "Stage5 prod" {
+  [release-check]
+  [deploy script]
+  [smoke]
+  [rollback]
+}
+@enduml

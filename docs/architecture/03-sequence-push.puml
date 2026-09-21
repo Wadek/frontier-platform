@@ -1,0 +1,17 @@
+@startuml
+title Laptop push (Stage 0)
+
+actor Dev
+participant "frontier plan" as Plan
+participant "frontier apply" as Apply
+participant Git
+participant GitHub
+
+Dev -> Plan : exam (OWASP, dirty tree)
+Plan --> Dev : plan.passed or fail
+Dev -> Apply : seal gate.passed
+Apply --> Dev : ok
+Dev -> Git : git push (feature branch)
+Git -> Git : hook re-runs plan/apply
+Git -> GitHub : refs/heads/feat/...
+@enduml

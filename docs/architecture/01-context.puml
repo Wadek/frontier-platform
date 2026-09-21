@@ -1,0 +1,31 @@
+@startuml
+title Context — code to production (generic)
+
+actor "Developer / agent" as Dev
+actor "Human merger" as Human
+
+rectangle "Laptop" {
+  component "git + hooks" as Git
+  component "frontier CLI" as Front
+}
+
+cloud "GitHub" {
+  component "PR feat to dev to main" as PR
+  component "verify.yml Stages 1-3" as Ver
+  component "branch protection on main" as Prot
+}
+
+node "Deploy host" {
+  component "deploy script" as Dep
+  component "compose" as Comp
+}
+
+Dev --> Git
+Git --> Front : plan / apply
+Git --> PR : push feature branch
+PR --> Ver
+Prot --> Human
+Human --> PR : merge to main
+Dep --> Front : release-check
+Dep --> Comp
+@enduml
