@@ -31,10 +31,10 @@ frontier hygiene   # advise; FRONTIER_HYGIENE_BLOCK=1 to fail closed
 frontier plan      # must exit 0
 frontier apply     # must exit 0
 git push -u origin HEAD
-gh pr create --fill
+gh pr create --base dev --fill
 ```
 
-Helper (same thing, refuses main):
+Helper (same thing, refuses dev/main):
 
 ```powershell
 powershell -File ./ship/scripts/dogfood-push.ps1

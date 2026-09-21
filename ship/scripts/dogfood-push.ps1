@@ -1,4 +1,4 @@
-# Dogfood: plan → apply → push (fail closed). Refuses main/master.
+# Dogfood: plan → apply → push (fail closed). Refuses dev/main/master.
 $ErrorActionPreference = "Stop"
 $env:FRONTIER_SOFT = "0"
 $env:FRONTIER_VERBOSE = "1"

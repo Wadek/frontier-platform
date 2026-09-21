@@ -58,7 +58,7 @@ go build -o runtime/bin/frontier-git    ./ship/cmd/frontier-git
 go build -o runtime/bin/control         ./control/cmd/control
 ```
 
-On Windows add the `.exe` suffix. `runtime/` is gitignored.
+On Windows add the `.exe` suffix. The habitat directory `/runtime/` at the repository root is gitignored.
 
 ## Use
 
@@ -70,7 +70,7 @@ git add -A && git commit -m "msg"
 frontier plan            # must exit 0   (or: frontier plan --json)
 frontier apply           # must exit 0
 git push -u origin HEAD
-gh pr create --fill
+gh pr create --base dev --fill
 ```
 
 Production deploys are authorized with `frontier release-check`, then the app's

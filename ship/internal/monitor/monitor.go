@@ -61,10 +61,10 @@ type Directive struct {
 var Directives = []Directive{
 	{ID: "D0", Text: "F0 evidence: ledger hash chain is intact (prev_hash links, entry_hash recomputes)"},
 	{ID: "D1", Text: "no remote effect without a fresh sealed gate: push.authorized needs a fresh gate.passed that itself follows a fresh plan.passed (same branch+HEAD, 15 min TTL)"},
-	{ID: "D2", Text: "no ship from main/master: plan/gate/push/commit rows must be on feature branches"},
+	{ID: "D2", Text: "no ship from protected branches (dev/main/master): plan/gate/push/commit rows must be on feature branches"},
 	{ID: "D3", Text: "no soft bypass: push.soft_allow (FRONTIER_SOFT=1) is forbidden for real ship"},
 	{ID: "D4", Text: "no ship with untriaged High/Critical under V: gate.passed must not follow a blocking exam.owasp for the same branch+HEAD"},
-	{ID: "D5", Text: "denied attempts are incidents: push.deny, apply.deny, commit.deny_main, plan.failed, gate.failed"},
+	{ID: "D5", Text: "denied attempts are incidents: push.deny, apply.deny, commit.deny_main, commit.deny_protected, plan.failed, gate.failed"},
 	{ID: "D6", Text: "hygiene service reachable during inspect: hygiene.service_down is an advisory"},
 	{ID: "D7", Text: "runtime chaos stays dry: chaos injection is not implemented; chaos_denied is an advisory"},
 }
@@ -102,8 +102,7 @@ func LedgersRoot() string {
 }
 
 func isMain(branch string) bool {
-	b := strings.ToLower(strings.TrimSpace(branch))
-	return b == "main" || b == "master"
+	return policy.IsProtected(branch)
 }
 
 // sealKey identifies one branch+HEAD pair.
@@ -242,8 +241,8 @@ func AuditLedger(path string) (*Report, error) {
 			add(SevIncident, "D5", *e, "push denied: "+firstReason(*e))
 		case "apply.deny":
 			add(SevIncident, "D5", *e, "apply denied: "+firstReason(*e))
-		case "commit.deny_main":
-			add(SevIncident, "D5", *e, "commit on main/master attempted and denied")
+		case "commit.deny_main", "commit.deny_protected":
+			add(SevIncident, "D5", *e, "commit on a protected branch attempted and denied")
 		case "commit.attempt":
 			if isMain(branch) {
 				add(SevViolation, "D2", *e, "commit attempted on "+branch)

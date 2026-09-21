@@ -88,7 +88,7 @@ func checkGit(root string) Check {
 		return Check{ID: "git", Title: "Git repository", Status: Pass}
 	}
 	return Check{ID: "git", Title: "Git repository", Status: Fail,
-		Fix: "git init and add a GitHub remote; work on feat/<slug>, never main"}
+		Fix: "git init and add a GitHub remote; work on feat/<slug>, never dev or main"}
 }
 
 func checkTests(root string) Check {
@@ -195,8 +195,8 @@ func checkCompose(root string) Check {
 }
 
 func checkGitHubProtectionHint() Check {
-	return Check{ID: "github_protection", Title: "GitHub branch protection on main", Status: Advise,
-		Fix: "in the GitHub UI: require PR, require CI, deny force-push; Frontier does not replace this"}
+	return Check{ID: "github_protection", Title: "GitHub branch protection on dev and main", Status: Advise,
+		Fix: "in the GitHub UI: require PR into both dev and main, require CI, deny force-push; Frontier does not replace this"}
 }
 
 // RenderText is the short English brief (token-cheap).

@@ -164,6 +164,25 @@ func TestAuditDeniedAttemptsAreWatch(t *testing.T) {
 	}
 }
 
+func TestAuditDevBranchShip(t *testing.T) {
+	dir := t.TempDir()
+	path := filepath.Join(dir, "ledger.jsonl")
+	writeRows(t, path, chainOf([]ledger.Entry{
+		{Seq: 1, TS: ts(time.Now()), Actor: "frontier-git", Action: "plan.passed", Payload: map[string]any{"branch": "dev", "head": "h1"}},
+	}))
+
+	rep, err := AuditLedger(path)
+	if err != nil {
+		t.Fatalf("audit: %v", err)
+	}
+	if rep.Verdict != "violation" {
+		t.Fatalf("verdict = %s, want violation", rep.Verdict)
+	}
+	if len(rep.Findings) != 1 || rep.Findings[0].Directive != "D2" {
+		t.Errorf("want one D2 finding, got: %+v", rep.Findings)
+	}
+}
+
 func TestAuditMainBranchShip(t *testing.T) {
 	dir := t.TempDir()
 	path := filepath.Join(dir, "ledger.jsonl")

@@ -12,9 +12,13 @@ package repo
 
 import (
 	"bytes"
+	"fmt"
+	"go/parser"
+	"go/token"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"testing"
 	"unicode/utf8"
@@ -187,4 +191,110 @@ func snippet(body string, idx int) string {
 		s = s[:nl]
 	}
 	return strings.TrimSpace(s)
+}
+
+func TestGitignoreAnchorsHabitatRuntime(t *testing.T) {
+	root := repoRoot(t)
+	raw, err := os.ReadFile(filepath.Join(root, ".gitignore"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	var anchored bool
+	for i, line := range strings.Split(string(raw), "\n") {
+		trimmed := strings.TrimSpace(line)
+		if trimmed == "" || strings.HasPrefix(trimmed, "#") {
+			continue
+		}
+		switch trimmed {
+		case "runtime/", "runtime", "**/runtime/", "**/runtime":
+			t.Errorf(".gitignore:%d %q ignores ship/internal/runtime; use /runtime/", i+1, trimmed)
+		case "/runtime/", "/runtime":
+			anchored = true
+		}
+	}
+	if !anchored {
+		t.Fatal(".gitignore must ignore /runtime/ (habitat) without hiding ship/internal/runtime")
+	}
+}
+
+func TestRuntimePackageIsTracked(t *testing.T) {
+	root := repoRoot(t)
+	need := "ship/internal/runtime/runtime.go"
+	for _, f := range trackedFiles(t, root) {
+		if filepath.ToSlash(f) == need {
+			return
+		}
+	}
+	t.Fatalf("%s is not git-tracked; CI cannot import github.com/Wadek/frontier-platform/ship/internal/runtime", need)
+}
+
+func TestTrackedGoImportsResolveInTree(t *testing.T) {
+	root := repoRoot(t)
+	files := trackedFiles(t, root)
+	tracked := make(map[string]bool, len(files))
+	for _, f := range files {
+		tracked[filepath.ToSlash(f)] = true
+	}
+
+	const mod = "github.com/Wadek/frontier-platform"
+	var missing []string
+	for _, rel := range files {
+		if !strings.HasSuffix(rel, ".go") {
+			continue
+		}
+		slash := filepath.ToSlash(rel)
+		if strings.Contains(slash, "/testdata/") {
+			continue
+		}
+		fset := token.NewFileSet()
+		f, err := parser.ParseFile(fset, filepath.Join(root, rel), nil, parser.ImportsOnly)
+		if err != nil {
+			t.Fatalf("parse %s: %v", rel, err)
+		}
+		for _, spec := range f.Imports {
+			path, err := strconv.Unquote(spec.Path.Value)
+			if err != nil {
+				continue
+			}
+			if path != mod && !strings.HasPrefix(path, mod+"/") {
+				continue
+			}
+			dir := "."
+			if path != mod {
+				dir = strings.TrimPrefix(path, mod+"/")
+			}
+			found := false
+			for tpath := range tracked {
+				if !strings.HasSuffix(tpath, ".go") {
+					continue
+				}
+				pkgDir := filepath.ToSlash(filepath.Dir(tpath))
+				if pkgDir == dir {
+					found = true
+					break
+				}
+			}
+			if !found {
+				missing = append(missing, fmt.Sprintf("%s imports %s (no tracked .go under %s)", rel, path, dir))
+			}
+		}
+	}
+	if len(missing) > 0 {
+		t.Fatalf("imported packages missing from the published tree:\n  %s", strings.Join(missing, "\n  "))
+	}
+}
+
+func TestCIWorkflowCoversDevAndMain(t *testing.T) {
+	root := repoRoot(t)
+	raw, err := os.ReadFile(filepath.Join(root, ".github/workflows/ci.yml"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	body := string(raw)
+	if !strings.Contains(body, "branches: [main, dev]") && !strings.Contains(body, "branches: [dev, main]") {
+		t.Fatal("CI must run on push to both main and dev")
+	}
+	if !strings.Contains(body, "name: ci") {
+		t.Fatal("CI must expose a concluding job named ci for required status checks")
+	}
 }
