@@ -23,9 +23,12 @@ import (
 	"github.com/Wadek/frontier-platform/ship/internal/vscan"
 )
 
+// ProductVersion is the shipped 4-part version (Windows FileVersion shape).
+const ProductVersion = "1.0.0.0"
+
 // Set by SLSA / release ldflags.
 var (
-	version = "dev"
+	version = ProductVersion
 	commit  = "none"
 )
 
@@ -41,15 +44,18 @@ var (
 
 // Version/Commit set via ldflags from cmd wrappers.
 var (
-	Version = "dev"
+	Version = ProductVersion
 	Commit  = "none"
 )
 
 // Run executes frontier subcommands (V, S, plan, apply, ...).
 // Git passthrough stays in cmd/frontier-git.
 func Run(args []string) {
-	if Version != "dev" || Commit != "none" {
-		version, commit = Version, Commit
+	if Version != "" && Version != version {
+		version = Version
+	}
+	if Commit != "" && Commit != "none" {
+		commit = Commit
 	}
 	handleMeta(args)
 }
@@ -194,6 +200,7 @@ func handleMeta(args []string) {
   git frontier ready [--json]
   git frontier mock-import
 
+  git frontier version
   git frontier status|ledger|demo|explain
 
 Letter notes (avoid shell pain):
@@ -212,6 +219,11 @@ Same as standalone:  frontier scm | learn | guard | hygiene | runtime | slim | o
 	}
 	cwd, _ := os.Getwd()
 	switch args[0] {
+	case "version", "--version", "-version", "-v":
+		fmt.Printf("frontier %s\n", version)
+		if commit != "" && commit != "none" {
+			fmt.Printf("commit %s\n", commit)
+		}
 	case "status":
 		repo := gitx.Repo{Dir: cwd}
 		b, _ := repo.Branch()

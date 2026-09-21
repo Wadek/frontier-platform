@@ -72,8 +72,9 @@ jobs:
           set -euo pipefail
           ext=""
           if [ "${GOOS}" = "windows" ]; then ext=".exe"; fi
-          go build -trimpath -o "dist/frontier-${GOOS}-${GOARCH}${ext}" ./ship/cmd/frontier
-          go build -trimpath -o "dist/frontier-git-${GOOS}-${GOARCH}${ext}" ./ship/cmd/frontier-git
+          ldflags="-s -w -X main.version=1.0.0.0 -X main.commit=${GITHUB_SHA:-none}"
+          go build -trimpath -ldflags "$ldflags" -o "dist/frontier-${GOOS}-${GOARCH}${ext}" ./ship/cmd/frontier
+          go build -trimpath -ldflags "$ldflags" -o "dist/frontier-git-${GOOS}-${GOARCH}${ext}" ./ship/cmd/frontier-git
           ls -l dist
 
   ci:
