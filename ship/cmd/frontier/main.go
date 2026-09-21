@@ -19,7 +19,7 @@ import (
 
 // Set by release ldflags.
 var (
-	version = "dev"
+	version = "1.0.0.0"
 	commit  = "none"
 )
 
