@@ -11,13 +11,14 @@ Enforcement: set `core.hooksPath` to `$FRONTIER_RUNTIME/hooks` (or use lefthook 
 ## The process (do not skip, do not soften)
 
 ```text
-1. Work on a feat/<slug> branch   (never main / master)
+1. Work on a feat/<slug> branch   (never dev / main / master)
 2. Commit a clean tree
 3. frontier hygiene           (optional: AI provenance on the changeset)
 4. frontier plan              (OWASP Guard + Hygiene line + push rules; fail closed)
 5. frontier apply             (seal gate.passed from a fresh plan)
-6. git push                   (hook re-runs plan → apply, then allows the remote)
-7. Open a PR into main        (human merge; do not push main)
+6. git push                   (hook re-runs plan -> apply, then allows the remote)
+7. Open a PR into dev         (human merge; do not push dev directly)
+8. Promote dev to main        (release process; open PR from dev to main)
 ```
 
 Same commands:
