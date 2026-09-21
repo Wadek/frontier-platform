@@ -10,8 +10,10 @@ dist/
 *.o
 *.hi
 
-# Frontier runtime (ledgers, hooks, installed binaries) — never commit
-runtime/
+# Habitat runtime at the repo root (ledgers, hooks, installed binaries).
+# Anchored: an unanchored "runtime/" also hid ship/internal/runtime (Go package)
+# and broke CI (go mod tidy then fetched it as an unpublished module).
+/runtime/
 
 # Local scratch
 .frontier/
@@ -21,3 +23,6 @@ __pycache__/
 
 # Local cleanup working list
 .cleanup-terms.md
+
+# Local security-MCP fixtures; not part of the public tree.
+ship/internal/secmcp/testdata/

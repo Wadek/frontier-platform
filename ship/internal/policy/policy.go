@@ -23,6 +23,7 @@ const (
 	CodeMissingHEAD    = "missing_head"
 	CodeDirtyTree      = "dirty_tree"
 	CodeRefusePushMain = "refuse_push_main"
+	CodeRefusePushDev  = "refuse_push_dev"
 	CodeOWASPBlock     = "owasp_high_or_critical"
 	CodeHygieneBlock   = "hygiene_block"
 )
@@ -30,6 +31,7 @@ const (
 // Legacy human reason strings (still emitted for display / older classifiers).
 const (
 	MsgRefusePushMain = "refusing direct push to main/master (use a feature branch)"
+	MsgRefusePushDev  = "refusing direct push to dev (open a PR from feat/* into dev)"
 	MsgDirtyTree      = "working tree dirty; commit or clean before push"
 	MsgDetachedHEAD   = "detached HEAD or empty branch"
 	MsgMissingHEAD    = "missing HEAD"
@@ -92,9 +94,12 @@ func EvaluatePushGate(branch, head, porcelain string, allowDirty bool) GateResul
 		codes = append(codes, CodeDirtyTree)
 		reasons = append(reasons, MsgDirtyTree)
 	}
-	if strings.EqualFold(branch, "main") || strings.EqualFold(branch, "master") {
+	if IsProduction(branch) {
 		codes = append(codes, CodeRefusePushMain)
 		reasons = append(reasons, MsgRefusePushMain)
+	} else if IsIntegration(branch) {
+		codes = append(codes, CodeRefusePushDev)
+		reasons = append(reasons, MsgRefusePushDev)
 	}
 	ok := len(codes) == 0
 	return GateResult{
@@ -126,6 +131,8 @@ func DeriveCodes(reasons []string) []string {
 		switch {
 		case r == MsgRefusePushMain || strings.Contains(r, "refusing direct push to main"):
 			out = append(out, CodeRefusePushMain)
+		case r == MsgRefusePushDev || strings.Contains(r, "refusing direct push to dev"):
+			out = append(out, CodeRefusePushDev)
 		case r == MsgDirtyTree || strings.Contains(r, "working tree dirty"):
 			out = append(out, CodeDirtyTree)
 		case r == MsgDetachedHEAD || strings.Contains(r, "detached HEAD"):
@@ -143,8 +150,26 @@ func DeriveCodes(reasons []string) []string {
 	return out
 }
 
+// IsProduction is main/master: production deploy is allowed, direct push is not.
+func IsProduction(branch string) bool {
+	b := strings.ToLower(strings.TrimSpace(branch))
+	return b == "main" || b == "master"
+}
+
+// IsIntegration is the integration branch. Code arrives only by PR from feat/*.
+func IsIntegration(branch string) bool {
+	return strings.EqualFold(strings.TrimSpace(branch), "dev")
+}
+
+// IsProtected must only move via pull request (feat -> dev -> main).
+func IsProtected(branch string) bool {
+	return IsProduction(branch) || IsIntegration(branch)
+}
+
 // ReleaseAuthorized reports whether a GateResult may authorize a production deploy.
-// Push to main remains refused; that single refusal is tolerated for release mode.
+// Push to main remains refused; that single refusal is tolerated for release mode
+// (deploy runs from a checkout of main). A refusal to push to dev is not a
+// deploy authorization: integration is not production.
 // Any other code (dirty, OWASP, hygiene, unknown) fails closed.
 func ReleaseAuthorized(g GateResult) bool {
 	codes := g.Codes

@@ -3,12 +3,11 @@ name: CI
 # GitHub only reads workflows from /.github/workflows at the REPOSITORY ROOT.
 # These previously lived under ship/.github/workflows/ and therefore never ran.
 #
-# The default branch of this repository is main, and it is listed explicitly:
-# a push to the default branch must be gated too.
+# feat -> PR -> dev -> PR -> main. Push to either protected branch must be gated.
 
 on:
   push:
-    branches: [main]
+    branches: [main, dev]
   pull_request:
   workflow_dispatch:
 
@@ -76,3 +75,14 @@ jobs:
           go build -trimpath -o "dist/frontier-${GOOS}-${GOARCH}${ext}" ./ship/cmd/frontier
           go build -trimpath -o "dist/frontier-git-${GOOS}-${GOARCH}${ext}" ./ship/cmd/frontier-git
           ls -l dist
+
+  ci:
+    name: ci
+    if: always()
+    needs: [go, binaries]
+    runs-on: ubuntu-latest
+    steps:
+      - name: require go and binaries
+        run: |
+          test "${{ needs.go.result }}" = "success"
+          test "${{ needs.binaries.result }}" = "success"

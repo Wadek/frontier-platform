@@ -18,16 +18,16 @@ On Windows, add `.exe`. Put `runtime/bin` on `PATH`, or set `FRONTIER_RUNTIME` t
 
 Optional: set Git `core.hooksPath` to `$FRONTIER_RUNTIME/hooks` so `git push` re-runs the gate.
 
-## 2. Protect `main` on GitHub (you, in the GitHub UI)
+## 2. Protect `dev` and `main` on GitHub (you, in the GitHub UI)
 
 Frontier does not replace GitHub branch protection. On **this** repo and on each app repo:
 
-- Require a pull request before merging to `main`
+- Require a pull request before merging to `dev` and to `main`
 - Require the CI check (`ci` here, `verify` in apps) to pass
 - Deny force-push and branch deletion
-- Do not allow direct pushes to `main`
+- Do not allow direct pushes to `dev` or `main`
 
-The laptop hook will also refuse to **commit** on `main`. That is a local safety catch, not the source of truth.
+The laptop hook will also refuse to **commit** on `dev` or `main`. That is a local safety catch, not the source of truth.
 
 ## 3. First time you ship **an application**
 

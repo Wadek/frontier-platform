@@ -1,6 +1,6 @@
 # Release process — feat → dev → main
 
-Standard merge and deploy. Open-source tools do the scans. Frontier authorizes the laptop push and the production deploy. GitHub branch protection owns “no direct push to `main`.”
+Standard merge and deploy. Open-source tools do the scans. Frontier authorizes the laptop push and the production deploy. GitHub branch protection owns "no direct push to `dev` or `main`."
 
 ## Branches
 
@@ -20,13 +20,39 @@ There is no alpha channel in this process.
 
 | Concern | Owner |
 |---------|--------|
-| Require PR + checks on `main` | **GitHub** branch protection |
+| Require PR + checks on `dev` and `main` | **GitHub** branch protection |
 | Exam + ledger before a laptop push | Frontier `plan` → `apply` |
 | Secrets / SAST / SCA / IaC / tests | GitHub Actions (`verify.yml`) using OSS CLIs |
 | Mutate production | App `deploy.ps1` (or equivalent) |
 | “This commit may go to production” | Frontier `release-check` inside that deploy |
 
-Laptop deny-commit-on-main is a hook catch, not a separate subsystem.
+Laptop deny-commit-on-dev/main is a hook catch, not a separate subsystem.
+
+## App already using Frontier: new platform version before deploy
+
+Frontier is a **tool plus copied templates**, not a git submodule of the app. When platform changes (feat → dev → main on `Wadek/frontier-platform`), the app does not `git pull` this repo into its tree. Prompt the **app** agent with this, then deploy only after it lands:
+
+```text
+frontier-platform has a new version. Do not deploy this app yet.
+
+1. Work on feat/<slug> in THIS app. Never commit or push dev or main.
+2. Install the new frontier binary (rebuild from Wadek/frontier-platform
+   into $FRONTIER_RUNTIME/bin, or pull the release asset). Confirm:
+   frontier version
+3. From this app tree: frontier ready
+   Apply every fail/advise hint (verify.yml, Gitleaks/Trivy/Semgrep/Checkov,
+   deploy script, compose, GitHub protection on BOTH dev and main).
+4. Diff this app's copied files against frontier-platform
+   ship/templates/release/ and take the new process
+   (feat -> PR -> dev -> PR -> main).
+5. frontier plan && frontier apply && git push
+   gh pr create --base dev --fill
+6. Human merges to dev, then a second PR promotes dev to main.
+   Deploy only from a checkout of main: frontier release-check, then
+   the app deploy script.
+```
+
+`ready` still does not mutate the app. The agent or human applies the hints.
 
 ## Stages (no LLM)
 
