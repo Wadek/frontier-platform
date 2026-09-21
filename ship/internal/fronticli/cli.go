@@ -140,10 +140,9 @@ func guardCommit(args []string, soft, strict bool) error {
 	if err != nil {
 		return nil // let real git error
 	}
-	onMain := strings.EqualFold(branch, "main") || strings.EqualFold(branch, "master")
-	if onMain {
-		axiom("F1", "commit.deny_main", "direct commits on main expand blast radius")
-		msg := "frontier deny commit on main/master — create a feature branch first (git checkout -b feat/...)"
+	if policy.IsProtected(branch) {
+		axiom("F1", "commit.deny_protected", "direct commits on protected branches expand blast radius")
+		msg := fmt.Sprintf("frontier deny commit on %s — create a feature branch first (git checkout -b feat/...)", branch)
 		if soft {
 			fmt.Fprintln(os.Stderr, "WARNING:", msg, "(FRONTIER_SOFT=1 — allowing)")
 			return nil
@@ -1417,8 +1416,8 @@ func evaluateForShipOpts(cwd string, verbose bool) (policy.GateResult, []owasp.F
 		g.AddCode(policy.CodeHygieneBlock, policy.MsgHygieneBlock)
 		axiom("F4", "hygiene.block", "operator asked Hygiene to fail closed")
 	}
-	if strings.EqualFold(b, "main") || strings.EqualFold(b, "master") {
-		axiom("F1", "harm.boundary", "refuse direct ship to main/master")
+	if policy.IsProtected(b) {
+		axiom("F1", "harm.boundary", "refuse direct ship to "+b)
 	}
 	return g, findings, nil
 }
@@ -1611,14 +1610,15 @@ func printDemo(cwd string) {
 		lastGate = "(no ledger)"
 	}
 
-	onMain := strings.EqualFold(b, "main") || strings.EqualFold(b, "master")
+	onProtected := policy.IsProtected(b)
 	fmt.Println(`╔══════════════════════════════════════════════╗
 ║           FRONTIER  —  visible test          ║
 ╚══════════════════════════════════════════════╝`)
 	fmt.Printf("  branch     %s\n", nz(b, "(none)"))
 	fmt.Printf("  HEAD       %s\n", short(h))
 	fmt.Printf("  dirty      %v\n", dirty)
-	fmt.Printf("  on_main    %v\n", onMain)
+	fmt.Printf("  on_main    %v\n", policy.IsProduction(b))
+	fmt.Printf("  protected  %v\n", onProtected)
 	fmt.Printf("  gate_now   ok=%v  %v\n", g.OK, g.Reasons)
 	fmt.Printf("  last_seal  %s\n", lastGate)
 	fmt.Printf("  ledger     %s\n", ledPath)

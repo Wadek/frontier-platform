@@ -12,7 +12,8 @@ note right of F
   Frontier plan/apply on push
 end note
 note right of D
-  Integration; local serve
+  Integration
+  GitHub: require PR
 end note
 note right of M
   Production

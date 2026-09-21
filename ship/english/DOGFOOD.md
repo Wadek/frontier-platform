@@ -6,7 +6,7 @@ That is how we test the tool: if we cannot ship our own changes through `plan �
 
 ## Rules for this repo
 
-1. **No casual push to `main`.** Work on `feat/…` branches.  
+1. **No casual push to `dev` or `main`.** Work on `feat/…` branches.  
 2. **`FRONTIER_SOFT=0`** for real ship attempts (soft is for learning only).  
 3. Always:
 
@@ -19,7 +19,7 @@ git frontier apply      # must exit 0
 git push -u origin HEAD
 ```
 
-4. Open a PR into `main` (human merge). Merging `main` may use GitHub UI / `gh pr merge` so we do not invent a special “commit on main” bypass in the tool.  
+4. Open a PR into `dev` (human merge). Promote `dev` to `main` with a second PR. Merging those PRs may use GitHub UI / `gh pr merge` so we do not invent a special "commit on protected branches" bypass in the tool.  
 5. If plan fails on our own tree (OWASP V), **fix or triage** — do not soft-allow to save time.
 
 ## Why this matters
@@ -34,5 +34,5 @@ git push -u origin HEAD
 
 ```powershell
 powershell -File scripts\dogfood-push.ps1
-# runs plan → apply → push on current branch (refuses main/master)
+# runs plan → apply → push on current branch (refuses dev/main/master)
 ```

@@ -12,6 +12,23 @@ func TestEvaluatePushGate_BlocksMain(t *testing.T) {
 	}
 }
 
+func TestEvaluatePushGate_BlocksDev(t *testing.T) {
+	g := EvaluatePushGate("dev", "abc", "", false)
+	if g.OK {
+		t.Fatal("expected dev push blocked")
+	}
+	if len(g.Codes) != 1 || g.Codes[0] != CodeRefusePushDev {
+		t.Fatalf("codes=%v want [%s]", g.Codes, CodeRefusePushDev)
+	}
+}
+
+func TestReleaseAuthorized_DevRefusalFails(t *testing.T) {
+	g := EvaluatePushGate("dev", "abc", "", false)
+	if ReleaseAuthorized(g) {
+		t.Fatal("dev is integration, not production; release-check must fail")
+	}
+}
+
 func TestReleaseAuthorized_MainRefusalOnly(t *testing.T) {
 	g := EvaluatePushGate("main", "abc", "", false)
 	if !ReleaseAuthorized(g) {
