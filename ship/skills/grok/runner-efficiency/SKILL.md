@@ -21,4 +21,10 @@ When tasked with optimizing or diagnosing slow self-hosted CI/CD runners, apply 
 
 ## 3. Concurrency and Resource Tuning
 *   **Contention Limits:** Diagnose if too many parallel jobs are configured for the runner. Tune the maximum concurrency limits to perfectly match the physical capacity of the machine to prevent CPU/IO starvation.
+*   **Single-runner queues:** One Windows service runner processes **one job at a time**. A long Stage 1 or a backlog makes later PRs look “hung” — check the Actions queue before blaming the service.
 *   **Ephemeral State:** To prevent state pollution and hidden caching bugs, recommend configuring runners to be **ephemeral**. They should handle a single job and self-destruct (using `--ephemeral` flags or containerized scale sets), guaranteeing a pristine clean state for the next build without sacrificing pre-baked tool speed.
+
+## 4. Scanner tooling on the runner
+*   **Pre-bake** gitleaks, trivy, checkov, and semgrep into the runner image or a stable tools dir (e.g. Frontier `runtime/bin`) so Stage 1 does not `pip install` on every job.
+*   After `actions/setup-python`, put `$pythonLocation\Scripts` on PATH (or call `checkov.cmd` / `semgrep.exe` by full path). Never assume a user-profile install exists for LocalSystem.
+*   Split responsibilities: gitleaks → secrets; trivy fs → `--scanners vuln`; checkov → IaC CLI; semgrep → SAST. Persist JSON and open GitHub issues from the workflow — triage with **local** models / humans, not cloud agents in the hot path.
