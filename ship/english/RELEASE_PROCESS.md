@@ -65,7 +65,7 @@ frontier-platform has a new version. Do not deploy this app yet.
 | **4** | optional later | Playwright, ZAP, light k6 |
 | **5** | after human merge to `main` | `deploy.ps1`: backup, up, health, rollback. `frontier release-check` first. |
 
-Copy `ship/templates/release/` into the app on **first deploy**. `frontier ready` lists what is still missing.
+Copy `ship/templates/release/` into the app on **first deploy** (hard-fail `verify.yml.example`, `scripts/ci/report_scanner_issues.py`, PR token-report template, optional `cloud-deploy.yml.example`). Copy `ship/templates/runner-docker/` to `ops/github-runner/` when using a Linux self-hosted runner. `frontier ready` lists what is still missing.
 
 ## CI/CD Runner Decision Matrix
 
@@ -98,7 +98,9 @@ Frontier-platform relies on GitHub Actions (`verify.yml` and deployment workflow
 *   **Autofix loop (local-first):** Issues labeled `autofix:queued` (especially gitleaks/trivy) are picked up by a local-first Frontier agent using skill `scanner-hotfix`: one branch per issue (`fix/vuln-<n>` / `fix/issue-<n>`), PR into `dev` with `hotfix` label and a **token report** (process / laptop Ollama / habitat Qwen mock / DeepSeek). After merge to `dev`, close+delete the issue when allowed and delete the feature branch. Inference cascade: process → laptop Ollama (auto-fallthrough) → habitat Qwen (mock until live) → DeepSeek as Frontier AI. Human still promotes `dev` → `main`.
 *   **Pin Actions `uses:` to full commit SHAs** (with a trailing `# vN` comment). Mutable tags (`@v4`) trip Semgrep `github-actions-mutable-action-tag` and enable supply-chain retargeting.
 *   **YAML `run: |` + bash heredoc:** Never start a heredoc body at column 0 inside a GitHub Actions `run: |` block — YAML ends the literal scalar early and the workflow fails before jobs run. Prefer indented `python3 -c '…'` (or keep every heredoc line indented with the block).
-*   **Docker self-hosted runners:** Prefer Compose on Docker Desktop (no host sudo). Pre-bake scanners into the image. Look for `Runner.Listener` under `/actions-runner` as well as `~/actions-runner`.
+*   **Docker self-hosted runners:** Prefer Compose on Docker Desktop (no host sudo). Template: `ship/templates/runner-docker/` (pre-baked gitleaks/trivy/checkov/semgrep; HEALTHCHECK on `Runner.Listener`; documented CKV_DOCKER_8 skip). Look for `Runner.Listener` under `/actions-runner` as well as `~/actions-runner`.
+*   **App Dockerfile:** non-root `USER` + `HEALTHCHECK` against `/health` (CKV_DOCKER_2 / CKV_DOCKER_3). Mount secrets under `/secrets/` and symlink — never onto `/app`.
+*   **Copyable Stage 1:** `ship/templates/release/verify.yml.example` is the hard-fail contract (JSON reports → issue reporter → gate). Do not ship the old soft-fail / `pip install` every job shape.
 
 ## First deploy (detect, do not mutate)
 

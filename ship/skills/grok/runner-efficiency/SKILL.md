@@ -26,5 +26,7 @@ When tasked with optimizing or diagnosing slow self-hosted CI/CD runners, apply 
 
 ## 4. Scanner tooling on the runner
 *   **Pre-bake** gitleaks, trivy, checkov, and semgrep into the runner image or a stable tools dir (e.g. Frontier `runtime/bin`) so Stage 1 does not `pip install` on every job.
+*   Prefer the Compose template at `ship/templates/runner-docker/` (Docker Desktop, Linux labels, no host sudo). Separate venvs for checkov/semgrep; pin `setuptools==75.8.2` for semgrep `pkg_resources`.
 *   After `actions/setup-python`, put `$pythonLocation\Scripts` on PATH (or call `checkov.cmd` / `semgrep.exe` by full path). Never assume a user-profile install exists for LocalSystem.
 *   Split responsibilities: gitleaks → secrets; trivy fs → `--scanners vuln`; checkov → IaC CLI; semgrep → SAST. Persist JSON and open GitHub issues from the workflow — triage with **local** models / humans, not cloud agents in the hot path.
+*   Copy `ship/templates/release/verify.yml.example` + `scripts/ci/report_scanner_issues.py` so the gate matches the baked scanners.
