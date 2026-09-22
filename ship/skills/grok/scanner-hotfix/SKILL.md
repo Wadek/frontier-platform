@@ -15,7 +15,7 @@ Use when Stage 1 scanners fail and issues are labeled `scanner` + `autofix:queue
 ## Control rules
 
 1. **Human owns merge to `main`.** Hotfix PRs target **`dev`**. Agents may merge into `dev` only if the repo policy allows it.
-2. Prefer **local** models (`local-first` skill / Ollama) for patch drafting. Cloud agents only if local is unavailable and the user opts in.
+2. Prefer **local** models when available (`local-first` / Ollama). If local is down, use **DeepSeek API** for patch drafting. Switch back to local as soon as it is healthy.
 3. Do **not** auto-merge secret redactions to `main`. Do **not** rewrite git history unless the user explicitly orders a history purge.
 4. Frontier ship path still applies: feature branch → `frontier plan` / `apply` → push → PR into `dev`.
 
