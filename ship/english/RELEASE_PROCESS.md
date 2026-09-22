@@ -82,14 +82,17 @@ Frontier-platform relies on GitHub Actions (`verify.yml` and deployment workflow
 *   **Security:** Authenticate via Workload Identity Federation (OIDC) rather than pasting static service account JSON keys into GitHub Secrets.
 
 ### Self-Hosted Runners
-**Specialized Choice.** Use only when network topography or hardware strictly requires it.
+**Specialized Choice.** Use when network, hardware, **or billing** requires it.
 
 *   **When to use:**
     *   **Homelab / On-Premise:** Deploying to local infrastructure (e.g., a local homelab SQLite database, Proxmox cluster, or Raspberry Pi) that sits behind a strict NAT/firewall.
     *   **Heavy Compute:** Running ML/AI model training, GPU compilation, or massive memory jobs that exceed standard GitHub Actions quotas.
     *   **Strict VPC Access:** Connecting to internal databases inside a locked-down VPC without provisioning a VPN tunnel to GitHub's dynamic IP ranges.
+    *   **Hosted minutes exhausted:** Private-repo GitHub-hosted minute caps / billing freezes (example: satokori until Oct). Keep the same workflow YAML; switch `runs-on` to `[self-hosted, Windows, X64]` (or Linux labels). Do **not** keep `ubuntu-latest` jobs running in parallel.
 *   **Security Warning (CRITICAL):** **Never** attach a self-hosted runner to a public repository without requiring manual approval for all outside contributors. Malicious pull requests can execute arbitrary code directly on your internal network.
 *   **State Warning:** Runners are persistent. CI scripts must proactively tear down test containers, dangling volumes, and clear workspaces to prevent state-bleed between pipeline runs.
+*   **Windows service pitfalls:** Prefer `shell: powershell` over `pwsh` when the runner runs as LocalSystem (pwsh is often missing from PATH). Install as a service (`RunnerService.exe` / elevated `config.cmd --runasservice`). Pin scanner CLIs with absolute paths or `setup-python` + `Scripts` on PATH — user-profile installs are invisible to the service account.
+*   **Scanner contract:** Gitleaks = secrets; Trivy fs = `--scanners vuln` when gitleaks already covers secrets; Checkov = `checkov` / `checkov.cmd` CLI (**never** `python -m checkov`). Stage 1 should write JSON reports and open/dedupe GitHub issues on the runner (`issues: write`) so humans (or a later **local** agent) plan fixes — do not burn cloud-agent tokens mid-CI.
 
 ## First deploy (detect, do not mutate)
 

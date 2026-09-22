@@ -100,6 +100,10 @@ Must stay equal: `/health` plus the app’s documented domain invariants (write 
 | FastAPI `BackgroundTasks` freezing on Cloud Run | Serverless drops CPU allocation to zero after HTTP response. Use Google Cloud Tasks Webhooks for background jobs instead |
 | Cloud Run domain mappings failing in new regions | Do not rely on native domain mappings. Standardize on Firebase Hosting `firebase.json` reverse proxies for universal custom domain support |
 | Brittle `.sh` entrypoints breaking deployment | Deprecate `entrypoint.sh` for production containers. Embed execution directly as `CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]` |
+| `python -m checkov` on Windows runners | Checkov has no `__main__`. Install the CLI and run `checkov` / `checkov.cmd` from `pythonLocation\Scripts` |
+| Trivy fs slow + duplicate secrets with gitleaks | Use `--scanners vuln` (and leave secrets to gitleaks). Fail closed with `--exit-code 1` for HIGH/CRITICAL |
+| Self-hosted Stage 1 `pwsh: command not found` | LocalSystem often lacks PowerShell 7. Set `defaults.run.shell: powershell` |
+| Scanner findings lost when CI goes red | Emit JSON reports and create deduped GitHub issues from the runner; local-first agent may plan fixes later under human control |
 
 ## Reference layout
 
