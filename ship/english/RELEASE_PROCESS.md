@@ -101,6 +101,9 @@ Frontier-platform relies on GitHub Actions (`verify.yml` and deployment workflow
 *   **Docker self-hosted runners:** Prefer Compose on Docker Desktop (no host sudo). Template: `ship/templates/runner-docker/` (pre-baked gitleaks/trivy/checkov/semgrep; HEALTHCHECK on `Runner.Listener`; documented CKV_DOCKER_8 skip). Look for `Runner.Listener` under `/actions-runner` as well as `~/actions-runner`.
 *   **App Dockerfile:** non-root `USER` + `HEALTHCHECK` against `/health` (CKV_DOCKER_2 / CKV_DOCKER_3). Mount secrets under `/secrets/` and symlink — never onto `/app`.
 *   **Copyable Stage 1:** `ship/templates/release/verify.yml.example` is the hard-fail contract (JSON reports → issue reporter → gate). Do not ship the old soft-fail / `pip install` every job shape.
+*   **Post-merge cleanup:** `ship/templates/release/cleanup-merged.yml.example` closes/deletes linked issues and deletes the head branch after a PR merges to `dev`.
+*   **Frontier AI:** `frontier ai route|complete|tokens` and `frontier enhance guard --call` use the local-first cascade (Ollama → habitat mock → DeepSeek). Spend is recorded in `.frontier/tokens.jsonl` for PR token reports (`frontier ai tokens`).
+*   **`frontier ready`:** detects reporter script, Stage 1 gate, SHA-pinned Actions, PR token-report template, runner-docker copy, and cleanup-merged workflow.
 
 ## First deploy (detect, do not mutate)
 

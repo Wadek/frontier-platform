@@ -1,6 +1,7 @@
 package fronticli
 
 import (
+	"context"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
@@ -9,8 +10,10 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/Wadek/frontier-platform/ship/internal/catalog"
+	"github.com/Wadek/frontier-platform/ship/internal/frontierai"
 	"github.com/Wadek/frontier-platform/ship/internal/gitx"
 	"github.com/Wadek/frontier-platform/ship/internal/hygiene"
 	"github.com/Wadek/frontier-platform/ship/internal/learn"
@@ -251,6 +254,8 @@ Same as standalone:  frontier scm | learn | guard | hygiene | runtime | slim | o
 		runExam(cwd, true)
 	case "enhance":
 		runEnhance(cwd, args[1:])
+	case "ai":
+		runAI(cwd, args[1:])
 	case "slim", "S", "s":
 		printSlimStub()
 	case "optimize", "O", "o":
@@ -311,6 +316,10 @@ Policy families (word = primary, letter = alias):
 
 Enhance:
   frontier enhance guard | optimize
+  frontier enhance guard --call   # after brief: DeepSeek cascade + token ledger
+
+AI (Frontier AI = DeepSeek; local-first cascade):
+  frontier ai route | complete | tokens
 
 Control points: changeset | review | runtime | engagement
 Layers: English policy · Go code + Go test witness
@@ -1197,6 +1206,9 @@ name        builtin  available  notes
 			if s.Name() == "checkov" && !s.Available() {
 				note = "pip install checkov"
 			}
+			if s.Name() == "semgrep" && !s.Available() {
+				note = "pip install semgrep"
+			}
 			fmt.Printf("%-11s %-7s  %-9s  %s\n", s.Name(), builtin, avail, note)
 		}
 		fmt.Println(`
@@ -1237,15 +1249,21 @@ Secret surfaces (.env, keys, …) are listed by: frontier guard`)
 func runEnhance(cwd string, args []string) {
 	if len(args) == 0 {
 		fmt.Println(`enhance commands:
-  frontier enhance guard     programmatic Guard pack + lean host brief
-  frontier enhance optimize  CS speed residual (PLANNED stub)
-  frontier enhance status    last enhance.* ledger seals
-  frontier enhance seal PATH ingest host-model result JSON (advise)`)
+  frontier enhance guard [--call]  programmatic pack + lean brief; --call runs Frontier AI cascade
+  frontier enhance optimize        CS speed residual (PLANNED stub)
+  frontier enhance status          last enhance.* ledger seals
+  frontier enhance seal PATH       ingest host-model result JSON (advise)`)
 		return
 	}
 	switch strings.ToLower(args[0]) {
 	case "guard", "g", "v":
-		runEnhanceGuard(cwd)
+		call := false
+		for _, a := range args[1:] {
+			if a == "--call" || a == "-call" {
+				call = true
+			}
+		}
+		runEnhanceGuard(cwd, call)
 	case "optimize", "o":
 		fmt.Println("enhance optimize: programmatic report first; host fills residual CS detail in PR.")
 		runOptimizeReport(cwd)
@@ -1263,13 +1281,13 @@ func runEnhance(cwd string, args []string) {
 	}
 }
 
-func runEnhanceGuard(cwd string) {
+func runEnhanceGuard(cwd string, callAI bool) {
 	fmt.Println(`╔══════════════════════════════════════════════╗
 ║  ENHANCE GUARD — programmatic first, host    ║
 ╚══════════════════════════════════════════════╝`)
 	axiom("F0", "enhance.start", "build pack without tokens; hand residual to host model")
 	opts := vscan.Options{}
-	for _, name := range []string{"checkov", "gitleaks", "trivy"} {
+	for _, name := range []string{"checkov", "gitleaks", "trivy", "semgrep"} {
 		if s, ok := vscan.Lookup(name); ok && s.Available() {
 			opts.Adapters = append(opts.Adapters, name)
 		}
@@ -1289,8 +1307,6 @@ func runEnhanceGuard(cwd string) {
 	fmt.Printf("adapters: %s\n", strings.Join(pack.AdaptersRun, ", "))
 	fmt.Printf("scope: %s\n", pack.ScopeMode)
 	fmt.Printf("\nbrief:  %s\njson:   %s\n", art.Markdown, art.JSON)
-	fmt.Println("\nHost (Grok / Fable / …): read the brief. Do residual work only. Then:")
-	fmt.Println("  frontier enhance seal .frontier/enhance/<result>.json")
 	led, err := ledger.Open(findLedger(cwd))
 	if err != nil {
 		fail(err)
@@ -1310,7 +1326,61 @@ func runEnhanceGuard(cwd string) {
 		},
 	})
 	axiom("F0", "ledger.append", "enhance.requested sealed")
-	axiom("F4", "enhance.handoff", "waiting on host model — no gate change")
+	if !callAI {
+		fmt.Println("\nHost: read the brief (or: frontier enhance guard --call). Then:")
+		fmt.Println("  frontier enhance seal .frontier/enhance/<result>.json")
+		axiom("F4", "enhance.handoff", "waiting on host model — no gate change")
+		return
+	}
+	runEnhanceCallAI(cwd, art.Markdown)
+}
+
+func runEnhanceCallAI(cwd, briefPath string) {
+	fmt.Println("\n── Frontier AI cascade (local-first → DeepSeek) ──")
+	raw, err := os.ReadFile(briefPath)
+	if err != nil {
+		fail(err)
+		return
+	}
+	c := frontierai.NewFromEnv()
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Minute)
+	defer cancel()
+	sys := "You are Frontier AI (DeepSeek fallback). Residual SAST only. Do not re-litigate programmatic hits. Reply with short JSON: summary, findings[], disposition_suggest, tools_used[], residual_risk."
+	res, err := c.Complete(ctx, sys, string(raw))
+	if err != nil {
+		fail(err)
+		return
+	}
+	fmt.Printf("route=%s model=%s tokens=%d\n", res.Route, res.Model, res.Usage.TotalTokens)
+	outDir := filepath.Join(cwd, ".frontier", "enhance")
+	_ = os.MkdirAll(outDir, 0o755)
+	outPath := filepath.Join(outDir, "ai-result.json")
+	// Prefer model JSON; wrap if needed.
+	body := strings.TrimSpace(res.Content)
+	if !strings.HasPrefix(body, "{") {
+		wrapped, _ := json.MarshalIndent(map[string]any{
+			"summary":             body,
+			"findings":            []any{},
+			"disposition_suggest": "advise",
+			"tools_used":          []string{res.Route, res.Model},
+			"residual_risk":       "see summary",
+			"usage":               res.Usage,
+			"route":               res.Route,
+		}, "", "  ")
+		body = string(wrapped)
+	}
+	if err := os.WriteFile(outPath, []byte(body+"\n"), 0o644); err != nil {
+		fail(err)
+		return
+	}
+	tled, err := frontierai.OpenLedger(cwd)
+	if err == nil {
+		_ = tled.Record(res, "enhance.guard")
+		fmt.Printf("token_ledger=%s\n", tled.Path())
+	}
+	fmt.Printf("wrote %s — sealing\n", outPath)
+	runEnhanceSeal(cwd, outPath)
+	axiom("F4", "enhance.ai_call", res.Route)
 }
 
 func runEnhanceStatus(cwd string) {
