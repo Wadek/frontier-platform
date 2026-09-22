@@ -82,9 +82,10 @@ func NewFromEnv() *Client {
 	if habitat == "" {
 		habitat = DefaultHabitatBase
 	}
+	key, _ := ResolveDeepSeekKey()
 	return &Client{
 		HTTP:          &http.Client{Timeout: 120 * time.Second},
-		DeepSeekKey:   strings.TrimSpace(os.Getenv("DEEPSEEK_API_KEY")),
+		DeepSeekKey:   key,
 		DeepSeekBase:  strings.TrimRight(base, "/"),
 		DeepSeekModel: model,
 		OllamaBase:    strings.TrimRight(ollama, "/"),
@@ -109,9 +110,11 @@ func (c *Client) Probe(ctx context.Context) (route string, detail string) {
 		detail += "; habitat: " + why
 	}
 	if c.DeepSeekKey == "" {
-		return RouteDeepSeek, detail + "; deepseek: missing DEEPSEEK_API_KEY"
+		_, src := ResolveDeepSeekKey()
+		return RouteDeepSeek, detail + "; deepseek: missing key (source=" + string(src) + "; run: frontier ai secrets status)"
 	}
-	return RouteDeepSeek, detail + "; deepseek: key present"
+	_, src := ResolveDeepSeekKey()
+	return RouteDeepSeek, detail + "; deepseek: key present (" + string(src) + ")"
 }
 
 func (c *Client) probeOllama(ctx context.Context) (bool, string) {
