@@ -67,6 +67,30 @@ frontier-platform has a new version. Do not deploy this app yet.
 
 Copy `ship/templates/release/` into the app on **first deploy**. `frontier ready` lists what is still missing.
 
+## CI/CD Runner Decision Matrix
+
+Frontier-platform relies on GitHub Actions (`verify.yml` and deployment workflows). When configuring your workflow's `runs-on:` target, use the following decision matrix to determine whether to use GitHub-hosted runners or self-hosted runners.
+
+### GitHub-Hosted Runners (`ubuntu-latest`)
+**Default Choice.** Use this for 95% of standard cloud deployments.
+
+*   **When to use:**
+    *   Deploying to public cloud infrastructure (GCP Cloud Run, AWS, Vercel, Cloudflare) with accessible API endpoints.
+    *   Running standard pipeline stages (SAST, unit tests, Docker builds).
+    *   Pushing to cloud-native container registries (e.g., GCP Artifact Registry).
+*   **Why:** Ephemeral (clean state every run), zero maintenance overhead, auto-scaling, and natively secure.
+*   **Security:** Authenticate via Workload Identity Federation (OIDC) rather than pasting static service account JSON keys into GitHub Secrets.
+
+### Self-Hosted Runners
+**Specialized Choice.** Use only when network topography or hardware strictly requires it.
+
+*   **When to use:**
+    *   **Homelab / On-Premise:** Deploying to local infrastructure (e.g., a local homelab SQLite database, Proxmox cluster, or Raspberry Pi) that sits behind a strict NAT/firewall.
+    *   **Heavy Compute:** Running ML/AI model training, GPU compilation, or massive memory jobs that exceed standard GitHub Actions quotas.
+    *   **Strict VPC Access:** Connecting to internal databases inside a locked-down VPC without provisioning a VPN tunnel to GitHub's dynamic IP ranges.
+*   **Security Warning (CRITICAL):** **Never** attach a self-hosted runner to a public repository without requiring manual approval for all outside contributors. Malicious pull requests can execute arbitrary code directly on your internal network.
+*   **State Warning:** Runners are persistent. CI scripts must proactively tear down test containers, dangling volumes, and clear workspaces to prevent state-bleed between pipeline runs.
+
 ## First deploy (detect, do not mutate)
 
 From the app tree:
