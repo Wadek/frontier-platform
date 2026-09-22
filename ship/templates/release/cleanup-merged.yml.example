@@ -1,0 +1,49 @@
+# After a hotfix/feature PR merges into dev: close linked issues and delete the head branch.
+# Copy to .github/workflows/cleanup-merged.yml
+#
+# Requires: permissions issues: write, contents: write, pull-requests: write
+# Parses Closes/Fixes/Resolves #N from the PR body (GitHub already auto-closes on merge;
+# this step also attempts issue delete when the token allows, then deletes the head ref).
+name: cleanup-merged
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [dev]
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  cleanup:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Close/delete linked issues and delete head branch
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
+          HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
+          BASE_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          echo "$PR_BODY" > /tmp/pr_body.txt
+          # Collect issue numbers from Closes/Fixes/Resolves.
+          mapfile -t ISSUES < <(grep -oiE '(closes|fixes|resolves)[[:space:]]*#[0-9]+' /tmp/pr_body.txt | grep -oE '[0-9]+' | sort -u || true)
+          for n in "${ISSUES[@]:-}"; do
+            [ -z "$n" ] && continue
+            echo "Closing issue #$n"
+            gh issue close "$n" --repo "$BASE_REPO" --comment "Closed by merged PR #${{ github.event.pull_request.number }} (cleanup-merged)." || true
+            echo "Attempting delete issue #$n (may require admin)"
+            gh issue delete "$n" --repo "$BASE_REPO" --yes || true
+          done
+          # Delete head branch when it lives on the base repo (skip forks).
+          if [ "$HEAD_REPO" = "$BASE_REPO" ] && [ -n "$HEAD_REF" ] && [[ "$HEAD_REF" != dev ]] && [[ "$HEAD_REF" != main ]] && [[ "$HEAD_REF" != master ]]; then
+            echo "Deleting branch $HEAD_REF"
+            gh api -X DELETE "repos/${BASE_REPO}/git/refs/heads/${HEAD_REF}" || true
+          else
+            echo "Skip branch delete (fork or protected name): head_repo=$HEAD_REPO ref=$HEAD_REF"
+          fi

@@ -49,8 +49,12 @@ func TestReadyAppPassesFails(t *testing.T) {
 	write(t, root, "pytest.ini", "[pytest]\n")
 	write(t, root, "docker-compose.yml", "services:\n  web:\n    image: nginx\n")
 	write(t, root, "scripts/deploy.ps1", "# deploy\n")
-	write(t, root, ".github/workflows/verify.yml", "name: verify\n# gitleaks trivy semgrep checkov\n")
+	write(t, root, "scripts/ci/report_scanner_issues.py", "# reporter\n")
+	write(t, root, "ops/github-runner/Dockerfile", "FROM scratch\n")
+	write(t, root, ".github/pull_request_template.md", "## Token report\n| Frontier AI (DeepSeek) | 0 |\n")
+	write(t, root, ".github/workflows/verify.yml", "name: verify\n# gitleaks trivy semgrep checkov\n# Stage 1 gate\nscanner-status\nuses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4\n")
 	write(t, root, ".github/workflows/deploy.yml", "name: deploy\n")
+	write(t, root, ".github/workflows/cleanup-merged.yml", "name: cleanup-merged\n")
 	rep, err := Inspect(root)
 	if err != nil {
 		t.Fatal(err)
@@ -67,6 +71,22 @@ func TestReadyAppPassesFails(t *testing.T) {
 	}
 	if got["deploy_script"] != Pass || got["deploy_workflow"] != Pass {
 		t.Fatalf("deploy %+v", got)
+	}
+	if got["scanner_reporter"] != Pass || got["stage1_gate"] != Pass || got["actions_pinned"] != Pass {
+		t.Fatalf("new checks %+v", got)
+	}
+	if got["pr_token_report"] != Pass || got["runner_docker"] != Pass || got["cleanup_merged"] != Pass {
+		t.Fatalf("template checks %+v", got)
+	}
+}
+
+func TestPinnedActionsAdviseOnMutableTags(t *testing.T) {
+	root := t.TempDir()
+	_ = os.Mkdir(filepath.Join(root, ".git"), 0o755)
+	write(t, root, ".github/workflows/verify.yml", "name: verify\njobs:\n  x:\n    steps:\n      - uses: actions/checkout@v4\n")
+	c := checkPinnedActions(root)
+	if c.Status != Advise {
+		t.Fatalf("%+v", c)
 	}
 }
 

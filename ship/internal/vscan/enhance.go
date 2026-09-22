@@ -165,7 +165,7 @@ func residualGaps(p *Pack) []string {
 		gaps = append(gaps, "Dependency/config CVEs: install trivy or run frontier guard trivy.")
 	}
 	if !ran["semgrep"] {
-		gaps = append(gaps, "Broader SAST dataflow: semgrep/CodeQL outside Frontier until adapter exists.")
+		gaps = append(gaps, "Broader SAST: install semgrep or run frontier guard semgrep (p/ci).")
 	}
 	hasLock := false
 	for _, m := range p.Manifests {

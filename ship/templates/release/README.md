@@ -8,8 +8,9 @@ Generic verify / deploy / rollback for apps that use Frontier.
 2. `scripts/ci/report_scanner_issues.py` → `scripts/ci/report_scanner_issues.py`.
 3. `pull_request_template.md` → `.github/pull_request_template.md` (token report + Closes #n).
 4. Optional GCP path: `cloud-deploy.yml.example` → `.github/workflows/cloud-deploy.yml` (fill WIF / project / region).
-5. Optional Compose deploy scripts: `deploy.yml.example`, `runtime.ps1`, `env-table.example.ps1`.
-6. Self-hosted Linux runner: copy `../runner-docker/` to `ops/github-runner/` and `docker compose up -d --build`.
+5. `cleanup-merged.yml.example` → `.github/workflows/cleanup-merged.yml` (close/delete issues + delete head branch after merge to `dev`).
+6. Optional Compose deploy scripts: `deploy.yml.example`, `runtime.ps1`, `env-table.example.ps1`.
+7. Self-hosted Linux runner: copy `../runner-docker/` to `ops/github-runner/` and `docker compose up -d --build`.
 
 ## Stage 1 contract (do not soften)
 
