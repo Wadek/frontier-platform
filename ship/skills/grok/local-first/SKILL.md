@@ -9,12 +9,13 @@ user-invocable: true
 
 # local-first
 
-## Priority order
+## Priority order (least tokens first)
 
-1. **Process first.** If Frontier skills, scripts, scanners, `gh`, `gcloud`, or tests can finish the job, do that. Do not spawn an LLM subagent for mechanical work.
-2. **Local agents when available.** If Ollama (or another local OpenAI-compatible endpoint) is up, use it for drafting/planning. Do not assume Ollama is always running.
-3. **DeepSeek API fallback.** When local agents are unavailable and an LLM is still required, use DeepSeek via its API (respect existing env keys / project config). Stay ready to switch back to local the moment it is healthy.
-4. Avoid other cloud LLM spend unless the user names a provider.
+1. **Process first.** If Frontier skills, scripts, scanners, `gh`, `gcloud`, or tests can finish the job, do that. Do not spawn an LLM subagent for mechanical work (version bumps, Dockerfile USER/HEALTHCHECK, pinning Actions to SHAs, redacting known secrets).
+2. **Laptop local (Ollama).** Prefer already-pulled models on the developer GPU. Treat a weak laptop GPU as an **auto-fallthrough** — one light probe, then continue down the cascade; do not thrash.
+3. **Habitat / Mac mini Qwen-class.** Mid-tier on-prem coding model (e.g. community-tuned ~27B). Until that host is live, **mock** the probe as unavailable and fall through; still record the route as `0 (mocked fallthrough)` in PR token reports so the workflow maps future local capacity.
+4. **Frontier AI = DeepSeek API.** When every local tier is down/insufficient and an LLM is still required, use DeepSeek (respect existing env keys / project config). Do **not** use other cloud coding models for autofix unless the user names one.
+5. Stay ready to switch back up the cascade the moment a higher tier is healthy.
 
 ## Steps
 
