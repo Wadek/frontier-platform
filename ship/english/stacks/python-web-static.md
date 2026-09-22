@@ -95,6 +95,11 @@ Must stay equal: `/health` plus the app’s documented domain invariants (write 
 | Walking `venv/` during `frontier learn` | Learn skipDir must include `venv` and `.venv` |
 | Demo passwords in the HTML header | Fine for local tryout; never the production `SECRET_KEY` |
 | Baking secrets into the image | Compose/env only |
+| GCP Cloud Run shadowing app code on boot | Never mount Secret Manager volumes to `/app/` directly. Mount to `/secrets/.env` and symlink via `RUN ln -s /secrets/.env /app/.env` |
+| GCP Cloud Run crashing on system env vars (e.g. `PORT`) | Pydantic `SettingsConfigDict` must explicitly set `extra="ignore"` for cloud environments |
+| FastAPI `BackgroundTasks` freezing on Cloud Run | Serverless drops CPU allocation to zero after HTTP response. Use Google Cloud Tasks Webhooks for background jobs instead |
+| Cloud Run domain mappings failing in new regions | Do not rely on native domain mappings. Standardize on Firebase Hosting `firebase.json` reverse proxies for universal custom domain support |
+| Brittle `.sh` entrypoints breaking deployment | Deprecate `entrypoint.sh` for production containers. Embed execution directly as `CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]` |
 
 ## Reference layout
 
