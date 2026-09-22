@@ -93,6 +93,7 @@ Frontier-platform relies on GitHub Actions (`verify.yml` and deployment workflow
 *   **State Warning:** Runners are persistent. CI scripts must proactively tear down test containers, dangling volumes, and clear workspaces to prevent state-bleed between pipeline runs.
 *   **Windows service pitfalls:** Prefer `shell: powershell` over `pwsh` when the runner runs as LocalSystem (pwsh is often missing from PATH). Install as a service (`RunnerService.exe` / elevated `config.cmd --runasservice`). Pin scanner CLIs with absolute paths or `setup-python` + `Scripts` on PATH — user-profile installs are invisible to the service account.
 *   **Scanner contract:** Gitleaks = secrets; Trivy fs = `--scanners vuln` when gitleaks already covers secrets; Checkov = `checkov` / `checkov.cmd` CLI (**never** `python -m checkov`). Stage 1 should write JSON reports and open/dedupe GitHub issues on the runner (`issues: write`) so humans (or a later **local** agent) plan fixes — do not burn cloud-agent tokens mid-CI.
+*   **Autofix loop (local-first):** Issues labeled `autofix:queued` (especially gitleaks/trivy) are picked up by a **local** Frontier agent using skill `scanner-hotfix`: patch on `fix/vuln-<n>` / `fix/hotfix-<n>`, PR into `dev` with `hotfix` label, comment on blocked product PRs that they depend on that hotfix. Human still promotes `dev` → `main`.
 
 ## First deploy (detect, do not mutate)
 
