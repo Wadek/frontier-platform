@@ -103,6 +103,7 @@ Frontier-platform relies on GitHub Actions (`verify.yml` and deployment workflow
 *   **Copyable Stage 1:** `ship/templates/release/verify.yml.example` is the hard-fail contract (JSON reports → issue reporter → gate). Do not ship the old soft-fail / `pip install` every job shape.
 *   **Post-merge cleanup:** `ship/templates/release/cleanup-merged.yml.example` closes/deletes linked issues and deletes the head branch after a PR merges to `dev`.
 *   **Frontier AI:** `frontier ai route|complete|tokens` and `frontier enhance guard --call` use the local-first cascade (Ollama → habitat mock → DeepSeek). Spend is recorded in `.frontier/tokens.jsonl` for PR token reports (`frontier ai tokens`).
+*   **DeepSeek key:** You create the key at DeepSeek; Frontier does not ship one. Resolution order everywhere the process runs: (1) process env `DEEPSEEK_API_KEY` — GitHub Actions secrets inject here on hosted **and** self-hosted runners when the workflow sets `env: DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}`; (2) local keystore via `frontier ai secrets set deepseek` (Windows DPAPI under `%LOCALAPPDATA%\frontier\secrets`, Unix `~/.config/frontier/secrets`). Check with `frontier ai secrets status` (never prints the value).
 *   **`frontier ready`:** detects reporter script, Stage 1 gate, SHA-pinned Actions, PR token-report template, runner-docker copy, and cleanup-merged workflow.
 
 ## First deploy (detect, do not mutate)

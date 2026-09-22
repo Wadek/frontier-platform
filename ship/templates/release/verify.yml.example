@@ -22,6 +22,12 @@ permissions:
   contents: read
   issues: write
 
+# When a job calls Frontier AI / DeepSeek on the runner (hosted or self-hosted),
+# inject the repo secret as process env. Local interactive `frontier ai` uses the
+# OS keystore instead (`frontier ai secrets set deepseek`).
+# env:
+#   DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+
 defaults:
   run:
     shell: bash
