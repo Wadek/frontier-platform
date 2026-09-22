@@ -15,9 +15,10 @@ Use when Stage 1 scanners fail and issues are labeled `scanner` + `autofix:queue
 ## Control rules
 
 1. **Human owns merge to `main`.** Hotfix PRs target **`dev`**. Agents may merge into `dev` only if the repo policy allows it.
-2. Prefer **local** models when available (`local-first` / Ollama). If local is down, use **DeepSeek API** for patch drafting. Switch back to local as soon as it is healthy.
+2. **Inference cascade (local-first):** (a) tools/process with zero LLM tokens, (b) laptop Ollama (auto-fallthrough when GPU/model is insufficient), (c) Mac mini / habitat Qwen-class (mock until that host exists), (d) **DeepSeek API** as Frontier AI — never a different cloud coding model unless the user names one.
 3. Do **not** auto-merge secret redactions to `main`. Do **not** rewrite git history unless the user explicitly orders a history purge.
 4. Frontier ship path still applies: feature branch → `frontier plan` / `apply` → push → PR into `dev`.
+5. **One feature branch per scanner issue** (`fix/vuln-<n>-…` or `fix/issue-<n>-…`). After that PR merges to `dev`: close (and delete when the API allows) the issue, and delete the head branch. The finding is done; keep neither artifact.
 
 ## Loop
 
@@ -42,7 +43,16 @@ Use when Stage 1 scanners fail and issues are labeled `scanner` + `autofix:queue
 
 - Title: `fix(sec): <summary> (#<issue>)`
 - Labels: `hotfix`, `scanner`, tool name (`gitleaks` / `trivy` / …).
-- Body links the issue (`Fixes #<issue>` or `Refs #<issue>`).
+- Body links the issue (`Closes #<issue>` / `Fixes #<issue>`).
+- Include a **token report** table in the PR body:
+
+  | Route | Tokens |
+  |-------|--------|
+  | Local tools / process | … |
+  | Laptop Ollama | … (0 if fallthrough) |
+  | Habitat Qwen (mock until live) | … |
+  | Frontier AI (DeepSeek) | … |
+
 - State clearly: vulnerability/secret hotfix; blocked product PRs should rebase after merge.
 
 ### 4. Notify dependents
@@ -53,7 +63,10 @@ Use when Stage 1 scanners fail and issues are labeled `scanner` + `autofix:queue
 
 ### 5. Close the loop
 
-- After the hotfix merges to `dev`, ensure the scanner issue is closed or labeled `autofix:done`.
+- After the hotfix merges to `dev`:
+  1. Confirm the scanner issue is **closed** (`Closes #n` on the PR, or close manually).
+  2. **Delete the issue** when the repo token can (`gh issue delete <n> --yes`). If delete is forbidden, closed + labeled `autofix:done` is the fallback.
+  3. **Delete the feature branch** (`gh pr merge --delete-branch` or delete the ref).
 - Do **not** spend cloud-agent turns watching CI; the self-hosted runner re-checks on push.
 
 ## Runner-side contract (apps)
