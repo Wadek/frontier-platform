@@ -1,47 +1,128 @@
-# Copy to .github/workflows/verify.yml
-# Scanners start advisory. Tighten exit codes after you have a baseline.
+# Copy to .github/workflows/verify.yml and replace Stage 2 with your stack tests.
+# Proven hard-fail Stage 1 contract: run all scanners → open issues → gate on exit codes.
+#
+# Prefer Linux self-hosted with pre-baked scanners (see ship/templates/runner-docker/).
+# For GitHub-hosted, change runs-on to ubuntu-latest and install CLIs in a prior step
+# (still never `python -m checkov`).
+#
+# Pin every `uses:` to a full commit SHA (semgrep github-actions-mutable-action-tag).
 name: verify
+
 on:
   pull_request:
-    branches: [main, dev]
+    branches: [dev, main]
   push:
-    branches: [dev]
+    branches: [dev, main]
+
+concurrency:
+  group: verify-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
+  issues: write
+
+# When a job calls Frontier AI / DeepSeek on the runner (hosted or self-hosted),
+# inject the repo secret as process env. Local interactive `frontier ai` uses the
+# OS keystore instead (`frontier ai secrets set deepseek`).
+# env:
+#   DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+
+defaults:
+  run:
+    shell: bash
 
 jobs:
   stage1-static:
     name: Stage 1 static
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, Linux, X64]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           fetch-depth: 0
-      - name: Install Gitleaks Trivy
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.12"
+      - name: Prepare scanner status dir
         run: |
-          set -eux
-          curl -sSfL -o /tmp/gitleaks.tgz https://github.com/gitleaks/gitleaks/releases/download/v8.24.3/gitleaks_8.24.3_linux_x64.tar.gz
-          tar -xzf /tmp/gitleaks.tgz -C /tmp gitleaks
-          sudo install -m 0755 /tmp/gitleaks /usr/local/bin/gitleaks
-          curl -sSfL -o /tmp/trivy.deb https://github.com/aquasecurity/trivy/releases/download/v0.74.0/trivy_0.74.0_Linux-64bit.deb
-          sudo dpkg -i /tmp/trivy.deb
-          python3 -m pip install --break-system-packages checkov semgrep
+          mkdir -p scanner-status
+          echo "$HOME/bin" >> "$GITHUB_PATH"
+          if [ -n "${pythonLocation:-}" ]; then echo "$pythonLocation/bin" >> "$GITHUB_PATH"; fi
       - name: Gitleaks
+        id: gitleaks
         continue-on-error: true
-        run: gitleaks detect --source . --verbose --exit-code 1
+        run: |
+          set +e
+          # Working tree only (--no-git). History may still contain rotated keys.
+          gitleaks detect --no-git --source . --verbose --report-format json --report-path gitleaks.json --exit-code 1
+          echo $? > scanner-status/gitleaks.txt
       - name: Trivy fs
-        run: trivy fs --severity HIGH,CRITICAL --exit-code 0 --ignore-unfixed .
-      - name: Checkov
-        run: checkov -d . --soft-fail
-      - name: Semgrep
+        id: trivy
         continue-on-error: true
-        run: semgrep scan --config p/ci --quiet
+        run: |
+          set +e
+          # Vulns only when gitleaks already covers secrets.
+          trivy fs --scanners vuln --severity HIGH,CRITICAL --ignore-unfixed --format json --output trivy.json --exit-code 1 .
+          echo $? > scanner-status/trivy.txt
+      - name: Checkov
+        id: checkov
+        continue-on-error: true
+        run: |
+          set +e
+          # Pre-baked console script on PATH. Never `python -m checkov`.
+          checkov -d . -o json -o cli --output-file-path .
+          code=$?
+          if [ -f results_json.json ]; then mv -f results_json.json checkov.json; fi
+          if [ -f checkov_results.json ]; then mv -f checkov_results.json checkov.json; fi
+          echo "$code" > scanner-status/checkov.txt
+      - name: Semgrep
+        id: semgrep
+        continue-on-error: true
+        run: |
+          set +e
+          semgrep scan --config p/ci --json --output semgrep.json
+          echo $? > scanner-status/semgrep.txt
+      - name: Open GitHub issues from scanner findings
+        if: always()
+        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PYTHONIOENCODING: utf-8
+        run: |
+          python -X utf8 scripts/ci/report_scanner_issues.py
+      - name: Upload scanner reports
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: scanner-reports
+          path: |
+            gitleaks.json
+            trivy.json
+            checkov.json
+            semgrep.json
+          if-no-files-found: ignore
+      - name: Stage 1 gate
+        if: always()
+        run: |
+          failed=()
+          for name in gitleaks trivy checkov semgrep; do
+            path="scanner-status/${name}.txt"
+            if [ -f "$path" ]; then code=$(tr -d ' \n\r' < "$path"); else code=1; fi
+            echo "$name exit=$code"
+            if [ "$code" != "0" ]; then failed+=("$name"); fi
+          done
+          if [ "${#failed[@]}" -gt 0 ]; then
+            echo "Stage 1 scanners failed: ${failed[*]}. See scanner issues and artifacts."
+            exit 1
+          fi
 
   stage2-tests:
     name: Stage 2 tests
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, Linux, X64]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.12"
       - name: Run the stack test command
         run: echo "Replace with pytest -v, npm test, or go test ./..."

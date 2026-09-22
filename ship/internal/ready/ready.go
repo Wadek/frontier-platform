@@ -54,6 +54,12 @@ func Inspect(root string) (*Report, error) {
 	r.add(checkTests(root))
 	r.add(checkCI(root))
 	r.add(checkScanners(root))
+	r.add(checkScannerReporter(root))
+	r.add(checkStage1Gate(root))
+	r.add(checkPinnedActions(root))
+	r.add(checkPRTokenReport(root))
+	r.add(checkRunnerDocker(root))
+	r.add(checkCleanupWorkflow(root))
 	r.add(checkDeployScript(root))
 	r.add(checkDeployWorkflow(root))
 	r.add(checkCompose(root))
@@ -197,6 +203,115 @@ func checkCompose(root string) Check {
 func checkGitHubProtectionHint() Check {
 	return Check{ID: "github_protection", Title: "GitHub branch protection on dev and main", Status: Advise,
 		Fix: "in the GitHub UI: require PR into both dev and main, require CI, deny force-push; Frontier does not replace this"}
+}
+
+func checkScannerReporter(root string) Check {
+	if exists(root, "scripts/ci/report_scanner_issues.py") {
+		return Check{ID: "scanner_reporter", Title: "Scanner → GitHub issues reporter", Status: Pass}
+	}
+	return Check{ID: "scanner_reporter", Title: "Scanner → GitHub issues reporter", Status: Advise,
+		Fix: "copy ship/templates/release/scripts/ci/report_scanner_issues.py into scripts/ci/"}
+}
+
+func checkStage1Gate(root string) Check {
+	blob := workflowBlob(root)
+	if blob == "" {
+		return Check{ID: "stage1_gate", Title: "Stage 1 hard-fail gate", Status: Fail,
+			Fix: "copy ship/templates/release/verify.yml.example (includes Stage 1 gate after scanners)"}
+	}
+	if strings.Contains(blob, "stage 1 gate") || strings.Contains(blob, "scanner-status") {
+		return Check{ID: "stage1_gate", Title: "Stage 1 hard-fail gate", Status: Pass}
+	}
+	if strings.Contains(blob, "soft-fail") || strings.Contains(blob, "--exit-code 0") {
+		return Check{ID: "stage1_gate", Title: "Stage 1 hard-fail gate", Status: Advise,
+			Fix: "replace soft-fail / --exit-code 0 scanners with the hard-fail verify.yml.example contract"}
+	}
+	return Check{ID: "stage1_gate", Title: "Stage 1 hard-fail gate", Status: Advise,
+		Fix: "add a final Stage 1 gate that fails when gitleaks/trivy/checkov/semgrep exit non-zero"}
+}
+
+func checkPinnedActions(root string) Check {
+	blob := workflowBlob(root)
+	if blob == "" {
+		return Check{ID: "actions_pinned", Title: "Actions uses: pinned to commit SHAs", Status: Fail,
+			Fix: "copy verify.yml.example (SHA-pinned uses:)"}
+	}
+	// Heuristic: mutable tags look like @v1 / @v4 / @main without a 40-char hex nearby on the same line.
+	mutable := 0
+	for _, line := range strings.Split(blob, "\n") {
+		line = strings.TrimSpace(line)
+		if !strings.Contains(line, "uses:") {
+			continue
+		}
+		if strings.Contains(line, "@v") || strings.HasSuffix(line, "@main") || strings.Contains(line, "@master") {
+			// SHA-pinned lines still often end with " # v4" — require a 40-char hex somewhere on the line.
+			if !hasActionSHA(line) {
+				mutable++
+			}
+		}
+	}
+	if mutable == 0 {
+		return Check{ID: "actions_pinned", Title: "Actions uses: pinned to commit SHAs", Status: Pass}
+	}
+	return Check{ID: "actions_pinned", Title: "Actions uses: pinned to commit SHAs", Status: Advise,
+		Fix: fmt.Sprintf("%d mutable uses: tag(s) — pin to full commit SHAs (see verify.yml.example)", mutable)}
+}
+
+func hasActionSHA(line string) bool {
+	hex := 0
+	for _, r := range line {
+		if (r >= '0' && r <= '9') || (r >= 'a' && r <= 'f') {
+			hex++
+			if hex >= 40 {
+				return true
+			}
+		} else {
+			hex = 0
+		}
+	}
+	return false
+}
+
+func checkPRTokenReport(root string) Check {
+	for _, p := range []string{".github/pull_request_template.md", "pull_request_template.md", ".github/PULL_REQUEST_TEMPLATE.md"} {
+		b, err := os.ReadFile(filepath.Join(root, filepath.FromSlash(p)))
+		if err != nil {
+			continue
+		}
+		low := strings.ToLower(string(b))
+		if strings.Contains(low, "token report") || strings.Contains(low, "frontier ai") {
+			return Check{ID: "pr_token_report", Title: "PR template includes token report", Status: Pass}
+		}
+		return Check{ID: "pr_token_report", Title: "PR template includes token report", Status: Advise,
+			Fix: "add the Token report table from ship/templates/release/pull_request_template.md"}
+	}
+	return Check{ID: "pr_token_report", Title: "PR template includes token report", Status: Advise,
+		Fix: "copy ship/templates/release/pull_request_template.md to .github/pull_request_template.md"}
+}
+
+func checkRunnerDocker(root string) Check {
+	if exists(root, "ops/github-runner/Dockerfile") || exists(root, "ops/github-runner/compose.yml") {
+		return Check{ID: "runner_docker", Title: "Docker Compose self-hosted runner template", Status: Pass}
+	}
+	blob := workflowBlob(root)
+	if strings.Contains(blob, "self-hosted") {
+		return Check{ID: "runner_docker", Title: "Docker Compose self-hosted runner template", Status: Advise,
+			Fix: "workflows use self-hosted; copy ship/templates/runner-docker/ to ops/github-runner/"}
+	}
+	return Check{ID: "runner_docker", Title: "Docker Compose self-hosted runner template", Status: Advise,
+		Fix: "optional: copy ship/templates/runner-docker/ when using Linux self-hosted runners"}
+}
+
+func checkCleanupWorkflow(root string) Check {
+	blob := workflowBlob(root)
+	if strings.Contains(blob, "cleanup-merged") || (strings.Contains(blob, "delete-branch") && strings.Contains(blob, "closes #")) {
+		return Check{ID: "cleanup_merged", Title: "Post-merge issue/branch cleanup workflow", Status: Pass}
+	}
+	if exists(root, ".github/workflows/cleanup-merged.yml") || exists(root, ".github/workflows/cleanup-merged.yaml") {
+		return Check{ID: "cleanup_merged", Title: "Post-merge issue/branch cleanup workflow", Status: Pass}
+	}
+	return Check{ID: "cleanup_merged", Title: "Post-merge issue/branch cleanup workflow", Status: Advise,
+		Fix: "copy ship/templates/release/cleanup-merged.yml.example to .github/workflows/cleanup-merged.yml"}
 }
 
 // RenderText is the short English brief (token-cheap).

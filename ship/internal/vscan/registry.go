@@ -2,14 +2,14 @@ package vscan
 
 import "strings"
 
-// Registry returns built-in + adapter scanners (stubs included for list UX).
+// Registry returns built-in + adapter scanners.
 func Registry() []Scanner {
 	return []Scanner{
 		OWASPScanner{},
 		CheckovScanner{},
 		GitleaksScanner{},
 		TrivyScanner{},
-		stubScanner{name: "semgrep", why: "planned adapter - broad SAST (use when wired)"},
+		SemgrepScanner{},
 	}
 }
 

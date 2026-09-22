@@ -24,7 +24,7 @@ CLI: **`frontier guard`** (letter alias **`G`**). Formal definition-set in axiom
 |-------|------|---------|
 | Built-in OWASP v0 | `internal/owasp` regex ScanTree | no |
 | Secret surfaces | path names only (`.env`, `.pem`, credentials…) | no |
-| Adapters | Checkov / Gitleaks / Trivy if on PATH; semgrep planned | no |
+| Adapters | Checkov / Gitleaks / Trivy / Semgrep if on PATH | no |
 | Scope + inventory | git diff vs main, lang/manifest counts | no |
 | Enhance brief | `.frontier/enhance/V-*.md` capped (~12 KiB) | handoff only |
 
@@ -41,6 +41,7 @@ Gate/plan still **hard-block only** on built-in OWASP High/Critical. Adapter + e
 | `frontier guard checkov` | Checkov adapter if on PATH |
 | `frontier guard gitleaks` | Gitleaks adapter if on PATH |
 | `frontier guard trivy` | Trivy fs adapter if on PATH |
+| `frontier guard semgrep` | Semgrep SAST adapter if on PATH (`p/ci`) |
 | `frontier enhance guard` | Programmatic pack + lean brief |
 | `frontier enhance seal PATH` | Host result → `enhance.completed` (advise) |
 | `frontier gate` | Exam + push rules + seal pass/fail |

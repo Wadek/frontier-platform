@@ -87,6 +87,8 @@ frontier learn             # L — classify this project
 frontier guard             # G — security exam + secret surfaces
 frontier guard list        # scanners: owasp-v0, checkov, …
 frontier enhance guard     # programmatic pack + lean brief for host model
+frontier enhance guard --call  # same + Frontier AI cascade (DeepSeek) + token ledger
+frontier ai route|complete|tokens  # local-first cascade; DeepSeek fallback; PR token report
 frontier hygiene           # H — AI provenance inspect (watermarks-remover)
 frontier runtime           # R — allowlisted probe + chaos dry-run
 frontier slim              # S — planned
