@@ -15,7 +15,8 @@ Reusable patterns for shipping a FastAPI app on Google Cloud Run with Firebase H
 ## Containers
 
 - Prefer array-form `CMD` / `ENTRYPOINT` (e.g. `CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]`).
-- Avoid production reliance on `entrypoint.sh` when Windows CRLF or missing shebang can yield opaque `no such file or directory` failures.
+- Avoid production reliance on `entrypoint.sh` when Windows CRLF or missing shebang can yield opaque `no such file or directory` failures. If you keep a shell entrypoint, strip CR (`sed -i 's/\r$//'`) and `chmod +x` in the image build.
+- App images: non-root `USER` + `HEALTHCHECK` against an HTTP `/health` (or equivalent) for CKV_DOCKER_2 / CKV_DOCKER_3.
 - Run DB migrations on boot only if idempotent and fast enough for cold start (e.g. `alembic upgrade head` before uvicorn).
 
 ## Background work
@@ -42,3 +43,5 @@ Reusable patterns for shipping a FastAPI app on Google Cloud Run with Firebase H
 
 - Gitleaks = secrets; Trivy fs = `--scanners vuln` when gitleaks already covers secrets; Checkov = CLI (`checkov` / `checkov.cmd`), never `python -m checkov`.
 - Emit JSON reports and open deduped GitHub issues from the runner; local-first agents may propose hotfixes under human control.
+- Copyable hard-fail workflow + reporter: `ship/templates/release/`. Pre-baked Linux runner: `ship/templates/runner-docker/`.
+- Pin Actions `uses:` to commit SHAs; avoid column-0 heredocs in `run: |`; download then parse instead of `curl | interpreter`.

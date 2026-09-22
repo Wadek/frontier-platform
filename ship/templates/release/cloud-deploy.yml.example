@@ -1,0 +1,50 @@
+# Example: deploy only after verify succeeds on main (workflow_run).
+# Copy to .github/workflows/ and fill project/region/WIF values.
+# Prefer Workload Identity Federation over static JSON keys.
+# Prefer `gcloud builds submit` / `gcloud run services update --image` so existing
+# Cloud SQL, secret mounts, CPU, and memory stay on the live service.
+name: cloud-deploy
+
+on:
+  workflow_run:
+    workflows:
+      - verify
+    types:
+      - completed
+    branches:
+      - main
+
+concurrency:
+  group: cloud-deploy-main
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  id-token: write
+  actions: read
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  deploy:
+    name: Build and deploy
+    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push'
+    runs-on: [self-hosted, Linux, X64]
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+      - uses: google-github-actions/auth@c200f3691d83b41bf9bbd8638997a462592937ed # v2
+        with:
+          workload_identity_provider: projects/PROJECT_NUMBER/locations/global/workloadIdentityPools/POOL/providers/PROVIDER
+          service_account: deploy-sa@PROJECT_ID.iam.gserviceaccount.com
+      - uses: google-github-actions/setup-gcloud@e427ad8a34f8676edf47cf7d7925499adf3eb74f # v2
+      - name: Submit Cloud Build
+        run: |
+          gcloud builds submit \
+            --project=PROJECT_ID \
+            --region=REGION \
+            --config=cloudbuild.yaml \
+            --service-account=projects/PROJECT_ID/serviceAccounts/deploy-sa@PROJECT_ID.iam.gserviceaccount.com
