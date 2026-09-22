@@ -1,0 +1,31 @@
+# Linux GitHub Actions runner via Docker Desktop (no host/WSL sudo).
+#
+# One-time:
+#   1. Get a registration token (repo Settings → Actions → Runners → New)
+#      or: gh api -X POST repos/<owner>/<repo>/actions/runners/registration-token --jq .token
+#   2. Copy .env.example → .env and set RUNNER_TOKEN= / REPO_URL=
+#   3. docker compose up -d --build
+#
+# Stop competing runners with the same labels so jobs land here.
+
+services:
+  runner:
+    build: .
+    image: frontier-github-runner:local
+    container_name: frontier-github-runner
+    restart: unless-stopped
+    environment:
+      REPO_URL: ${REPO_URL}
+      RUNNER_NAME: ${RUNNER_NAME:-frontier-linux-docker}
+      RUNNER_TOKEN: ${RUNNER_TOKEN}
+      RUNNER_SCOPE: repo
+      LABELS: ${LABELS:-self-hosted,Linux,X64}
+      EPHEMERAL: "false"
+      DISABLE_AUTO_UPDATE: "true"
+    volumes:
+      - runner-work:/tmp/runner/_work
+    # Uncomment if a workflow must run docker locally on the runner:
+    #   - /var/run/docker.sock:/var/run/docker.sock
+
+volumes:
+  runner-work:
