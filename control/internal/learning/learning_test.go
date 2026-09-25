@@ -32,6 +32,16 @@ func TestValidate(t *testing.T) {
 	if err := Validate(bad); err == nil {
 		t.Error("missing session accepted")
 	}
+	bad = sample()
+	bad.Methods = []string{"retrieval", "youtube"}
+	if err := Validate(bad); err == nil {
+		t.Error("unknown method accepted")
+	}
+	ok := sample()
+	ok.Methods = []string{"debrief", "listen"}
+	if err := Validate(ok); err != nil {
+		t.Fatalf("listen+debrief rejected: %v", err)
+	}
 }
 
 func TestAppendRead(t *testing.T) {
