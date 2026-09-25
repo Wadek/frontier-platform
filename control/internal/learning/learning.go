@@ -20,6 +20,7 @@ type Record struct {
 	TS              string            `json:"ts"`
 	TLDR            string            `json:"tldr"`
 	Learned         []string          `json:"learned,omitempty"`
+	Methods         []string          `json:"methods,omitempty"`
 	SkillsProposed  []string          `json:"skills_proposed,omitempty"`
 	MappingsUpdated []string          `json:"mappings_updated,omitempty"`
 	Attribution     map[string]string `json:"attribution,omitempty"`
@@ -38,6 +39,11 @@ func Validate(r Record) error {
 	}
 	if _, err := time.Parse(time.RFC3339, r.TS); err != nil {
 		return fmt.Errorf("bad ts %q: %w", r.TS, err)
+	}
+	for _, m := range r.Methods {
+		if err := ValidateMethod(m); err != nil {
+			return err
+		}
 	}
 	return nil
 }

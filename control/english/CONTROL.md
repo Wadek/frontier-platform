@@ -7,6 +7,7 @@ frontier-control coordinates agents working on projects. It routes, clears, tran
 | Component | Job |
 |---|---|
 | taxonomist | manage per-project taxonomy branches (`control taxonomy …`) |
+| learning | method catalog + debrief ledger; employed by other skills (`english/LEARNING.md`) |
 | data index | registry of projects + agents (`control roster`), derived from the file tree |
 | pricing | peak/off-peak gating + daily pricing-page check (`control pricing`) |
 | job service | scheduled one-shots via the OS scheduler — never polling (`control ops jobs`) |
