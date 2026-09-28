@@ -50,6 +50,7 @@ Four views. PlantUML sources: `docs/architecture/*.puml`.
 ├── frontier-platform/       ship/ · control/ · runtime/ · .agent_frontier-platform/
 ├── .agent_<project>/        taxonomy.yaml · knowledge/ · compositional_skills/
 │                            (grounded/ + ungrounded) · sessions/.agent_learning.jsonl · inbox/
+│                            compositional_skills/learning employed by other skills
 └── .agent_<other>/ …
 ```
 

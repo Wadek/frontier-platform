@@ -6,6 +6,7 @@ task_description: |
   teacher model could generate new examples from it (InstructLab standard).
 created_by: <agent-id>
 grounded: true            # false when the skill never references project docs
+employs: [learning]       # omit only if the skill never teaches or debriefs
 seed_examples:
   - context: |            # grounded skills only: copy-paste from the project docs
       …

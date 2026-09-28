@@ -8,6 +8,8 @@ lineage:
   parent: null             # set when this agent is a child of another (human-gated fork)
 expires: null              # ISO date; children re-validate (fork expiry)
 brief: brief.md
+employs:
+  - learning                 # platform learning process; see english/LEARNING.md
 knowledge:
   - knowledge/architecture.md
   - knowledge/mappings.md
