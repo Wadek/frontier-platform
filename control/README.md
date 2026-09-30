@@ -12,6 +12,7 @@ Go       →  cmd/, internal/   runtime + `_test.go` witness (what is enforced)
 - Architecture: [english/ARCHITECTURE.md](english/ARCHITECTURE.md)
 - Pricing: [english/PRICING.md](english/PRICING.md)
 - Learning format: [english/LEARNING.md](english/LEARNING.md)
+- Authority / learn namespaces / reserved Google AI stub: [../docs/rfc/001-wakabot-authority-providers.md](../docs/rfc/001-wakabot-authority-providers.md)
 
 ## Command surface
 

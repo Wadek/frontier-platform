@@ -13,7 +13,7 @@ frontier-control coordinates agents working on projects. It routes, clears, tran
 | job service | scheduled one-shots via the OS scheduler — never polling (`control ops jobs`) |
 | workflow engine | FSM over an append-only journal; every state rehydrates fresh context |
 | review | review policy: scope, pricing, egress, deny > ask > allow (`control workflow review`) |
-| providers | thin harness adapters: same workflow, `--provider local\|deepseek-flash\|deepseek-v4-pro\|dsh` |
+| providers | thin harness adapters: local / DeepSeek cloud+harness / reserved google-ai stub (fail-closed); see `providers.yaml` |
 | monitor | replay the ledger against directives (`control monitor`) |
 | prove | Proven/Theory harness — no claim without a passing test (`control prove`) |
 
@@ -78,7 +78,7 @@ manifest) is capped and recorded.
 | C5 | Child-agent forking is human-gated (propose → approve) |
 | C6 | All code shipping goes through frontier plan → apply (never bypass) |
 | C7 | No xAI/Anthropic/OpenAI API calls anywhere in the platform |
-| C8 | All cloud calls are api.deepseek.com; pro off-peak only |
+| C8 | Live cloud calls are api.deepseek.com only (pro off-peak). Other cloud kinds (e.g. `google-ai`) may exist only as reserved fail-closed stubs -- no secrets, no live calls -- until an explicit doctrine + wiring change. Never sneak a banned vendor in by rename. |
 | C9 | No new runs when session context/cache is ≥95% — soft-refuse, seal a handoff, open a new session |
 
 ## Session budget (C9)
@@ -87,8 +87,17 @@ When a session's context or cache reaches **95%**, soft-refuse new runs: stop st
 
 ## Providers
 
-`local` (on-host model, 0 cloud tokens) · `deepseek-flash` (anytime, has Vision) ·
-`deepseek-v4-pro` (off-peak only, no Vision) · `dsh` (harness sessions). One workflow, any
-provider — the agent's knowledge lives in files, never in a session.
+Live / usable today:
+
+- `local` -- on-host model, 0 cloud tokens
+- `deepseek-flash` -- anytime after egress; Vision; existing alternate / test path
+- `deepseek-v4-pro` -- off-peak only; teacher / verify
+- `dsh` -- DeepSeek Harness sessions
+
+Reserved (fail-closed; no secrets; no live calls):
+
+- `google-ai-pro` (`kind: google-ai`) -- stub only until an explicit enablement PR. See RFC `docs/rfc/001-wakabot-authority-providers.md` and C8.
+
+One workflow, any **enabled** provider -- the agent's knowledge lives in files, never in a session. Selecting a reserved stub must refuse rather than call out.
 
 **Ship safely. Spend less.**
