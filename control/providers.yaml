@@ -1,4 +1,4 @@
-# Providers — harness adapters. Same workflow, any provider.
+# Providers -- harness adapters. Same workflow, any provider.
 # A provider is a command template + cost class + context injection.
 
 providers:
@@ -17,7 +17,7 @@ providers:
     cost_class: cheap
     model: deepseek-flash
     base_url: https://api.deepseek.com
-    notes: Anytime after egress; supports Vision; coach/tips/draft work.
+    notes: Anytime after egress; supports Vision; coach/tips/draft work. Existing alternate / test path for Frontier AI.
 
   - id: deepseek-v4-pro
     kind: cloud
@@ -25,15 +25,30 @@ providers:
     model: deepseek-v4-pro
     base_url: https://api.deepseek.com
     off_peak_only: true
-    notes: Teacher pass, deep analysis, verify. Deferred at peak (pricing.yaml).
+    notes: Teacher pass, deep analysis, verify. Deferred at peak (pricing.yaml). Existing alternate / test path for Frontier AI.
 
   - id: dsh
     kind: harness
     cost_class: variable
     notes: DeepSeek Harness sessions. Runs any workflow; cost per model.
 
+  # Reserved fail-closed stub. Explicit new kind (google-ai) -- not a rename of a C7-banned vendor.
+  # NO secrets in this tree. NO live calls. Enabling requires a later doctrine + wiring PR.
+  - id: google-ai-pro
+    kind: google-ai
+    cost_class: expensive
+    status: reserved
+    fail_closed: true
+    live_calls: false
+    secrets: none
+    notes: >
+      Reserved stub for Google AI Pro. Refuse / exit non-zero if selected.
+      DeepSeek remains the live cloud alternate for tests. See docs/rfc/001-wakabot-authority-providers.md
+      and control/english/CONTROL.md C7/C8.
+
 policy:
-  sizing: deterministic (control_ref.route) — a model never picks its own provider
+  sizing: deterministic (control_ref.route) -- a model never picks its own provider
   egress: filter before any cloud call
+  live_cloud: api.deepseek.com only until a reserved kind is explicitly enabled
   budgets:
     local_cloud_ratio_target: "90/10"

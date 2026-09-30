@@ -35,3 +35,15 @@ Ingest and classify a **single project** before changing it. Learn is the first 
 - Read-only: Learn does not move/delete files.
 - **Security belongs in Guard** — secret surfaces (`.env`, keys, …) are not part of Learn.
 - Run **per project**, not on an umbrella folder of many apps.
+
+## Not the same as Grok `/learn`
+
+Frontier `L` is **landscape classify** (project kind/topology before change). It is not:
+
+| Other name | Job |
+|------------|-----|
+| Grok `/learn` | Harness skill changes from **traces** |
+| `waka-cli learn` / local REPL `/learn` | Habitat awareness ingest/train/apply (local twin of Grok shape) |
+| Control learning ledger | Session debrief methods (`control/english/LEARNING.md`) |
+
+Optional habitat ingest under WakaBot does not replace `frontier learn classify`. Full authority + namespace map: `docs/rfc/001-wakabot-authority-providers.md`.

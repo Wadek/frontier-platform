@@ -12,3 +12,5 @@ English policy is `ship/english/`. These diagrams are the same process, generic 
 | [06-deployment.puml](06-deployment.puml) | `release-check` then compose |
 
 ASCII one-pager: `ship/english/ARCHITECTURE_ASCII.md`.
+
+Related RFC (authority, learn namespaces, reserved Google AI stub): [../rfc/001-wakabot-authority-providers.md](../rfc/001-wakabot-authority-providers.md).
