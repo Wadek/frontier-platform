@@ -20,7 +20,7 @@ the ledger and reports.
 frontier monitor             # audit this repo's ledger
 frontier monitor all         # audit every ledger under $FRONTIER_RUNTIME/ledgers
 frontier monitor status      # recent monitor.* seals
-frontier monitor directives  # print the D0-D7 reference set
+frontier monitor directives  # print the D0-D8 reference set
 ```
 
 Alias: `frontier audit` is the same command.
@@ -51,9 +51,14 @@ verdict is `violation` or `tampered`.
 | D5 | Denied attempts are incidents: `push.deny`, `apply.deny`, `commit.deny_main`, `plan.failed`, `gate.failed` |
 | D6 | Hygiene service reachable during inspect: `hygiene.service_down` is an advisory |
 | D7 | Runtime chaos stays dry: chaos injection is not implemented; `chaos_denied` is an advisory |
+| D8 | No covert channel: a monitored job's omitted/excluded set must be rule-derived, not an arbitrary list; anomalous gap-and-burst timing in agent logs is a `watch`/`violation` signal (see [`COVERT_CHANNELS.md`](COVERT_CHANNELS.md)) |
 
 D0 and the time-based freshness window (15 min) are verified in the Go runtime;
 `internal/monitor/monitor_test.go` witnesses the state machine of D1-D5.
+D8 is English policy in this file and in [`COVERT_CHANNELS.md`](COVERT_CHANNELS.md);
+the Go witness (omission-set / gap-burst replay) is a follow-up — until it lands,
+reviewers treat D8 as a review checklist and seal findings as `monitor.*` rows
+for later replay.
 
 ## Watching the ledgers (event-driven, not polling)
 
@@ -86,3 +91,10 @@ Trees: `skills/` and `agents/` (see their README files). Monitor directives D1�
 - Not a model: every check is a deterministic replay of sealed rows (no tokens).
 - Not a rewrite tool: it reports findings; triage and remediation stay human or
   agent work, then re-run the monitor to confirm the fix.
+
+## See also
+
+- [`COVERT_CHANNELS.md`](COVERT_CHANNELS.md) — D8 depth (detection / prevention only)
+- [`SECURITY_POLICY_LLM.md`](SECURITY_POLICY_LLM.md) — LLM06 / LLM10
+- [`CPU_OFFLOAD.md`](CPU_OFFLOAD.md) — deterministic work off the model
+
