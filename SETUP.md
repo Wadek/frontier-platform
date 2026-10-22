@@ -18,6 +18,11 @@ On Windows, add `.exe`. Put `runtime/bin` on `PATH`, or set `FRONTIER_RUNTIME` t
 
 Optional: set Git `core.hooksPath` to `$FRONTIER_RUNTIME/hooks` so `git push` re-runs the gate.
 
+The in-repo lefthook config (`lefthook.yml`) shells out to PowerShell helpers under
+`scripts/`. On Linux/macOS prefer `core.hooksPath` pointing at the Go-built
+hooks under `$FRONTIER_RUNTIME/hooks`, or run `frontier plan` / `frontier apply`
+yourself before push.
+
 ## 2. Protect `dev` and `main` on GitHub (you, in the GitHub UI)
 
 Frontier does not replace GitHub branch protection. On **this** repo and on each app repo:
