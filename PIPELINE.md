@@ -21,9 +21,9 @@ Enforcement: set `core.hooksPath` to `$FRONTIER_RUNTIME/hooks` (or use lefthook 
 8. Promote dev to main        (release process; open PR from dev to main)
 ```
 
-Same commands:
+Same commands (any POSIX shell):
 
-```powershell
+```sh
 git checkout -b feat/<slug>
 git add -A
 git commit -m "msg"
@@ -34,7 +34,7 @@ git push -u origin HEAD
 gh pr create --base dev --fill
 ```
 
-Helper (same thing, refuses dev/main):
+Windows helper (same thing, refuses `dev`/`main`):
 
 ```powershell
 powershell -File ./ship/scripts/dogfood-push.ps1
@@ -88,7 +88,7 @@ Ledger is **outside** the work tree (does not dirty the diff):
 
 ## Turn the gate off (you should not)
 
-```powershell
+```sh
 git config --global --unset core.hooksPath
 ```
 

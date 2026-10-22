@@ -4,100 +4,102 @@ Read this in order. Simple English only here.
 
 ## What you are installing
 
-1. **Laws** (English) — what is allowed  
-2. **`git` + `frontier`** (Go) — how you talk to the machine every day  
+1. **Laws** (English) — what is allowed
+2. **`git` + `frontier`** (Go) — how you talk to the machine every day
 3. **Go tests** — the witness that the laws and the code agree (F5)
 
 You do **not** install a new operating system.
 
 ---
 
-## Step 0 — Tools on your PC
+## Step 0 — Tools
 
-- Git for Windows (real engine)  
+- Git (real engine on your PATH)
 - Go 1.22+ (to build the runtime and run the tests)
+
+Linux, macOS, and Windows are all fine. The examples below show both shells.
 
 ---
 
 ## Step 1 — Get the code
 
-```text
+```sh
 git clone https://github.com/Wadek/frontier-platform.git
 cd frontier-platform
 ```
 
-If Frontier `git` is already on your PATH, and it blocks cloning quirks, use the real engine once:
-
-```text
-& "C:\Program Files\Git\cmd\git.exe" clone https://github.com/Wadek/frontier-platform.git
-```
+If a Frontier `git` shim is already ahead of the real engine on your PATH and
+blocks the clone, call the real `git` by absolute path once (Windows example:
+`"C:\Program Files\Git\cmd\git.exe" clone …`).
 
 ---
 
 ## Step 2 — Build the Go runtime
 
-```text
-go build -o $FRONTIER_RUNTIME/bin\git.exe ./cmd/frontier-git
-go build -o $FRONTIER_RUNTIME/bin\frontier.exe ./cmd/frontier
+From the repository root:
+
+```sh
+mkdir -p runtime/bin
+go build -o runtime/bin/frontier     ./ship/cmd/frontier
+go build -o runtime/bin/frontier-git ./ship/cmd/frontier-git
+go build -o runtime/bin/control      ./control/cmd/control
 ```
 
-Or:
+On Windows, add the `.exe` suffix to each `-o` path, or run the helper:
 
-```text
-powershell -File scripts\install-git-interface.ps1
+```powershell
+powershell -File .\ship\scripts\install-git-interface.ps1
 ```
 
-Then open a **new** terminal.
+Put `runtime/bin` on your `PATH`, or set `FRONTIER_RUNTIME` to this `runtime`
+directory. Open a **new** terminal, then check:
 
-Check:
-
-```text
-Get-Command git
-git frontier explain
-git --version
+```sh
+frontier version
+git frontier explain   # if you installed the git shim
+go test ./...
 ```
-
-You should see `$FRONTIER_RUNTIME/bin\git.exe` and a normal git version string.
 
 ---
 
 ## Step 3 — Learn mode (first week)
 
-```text
-$env:FRONTIER_SOFT = "1"
+Warn instead of blocking while you learn the flow:
+
+```sh
+export FRONTIER_SOFT=1          # bash / zsh
+# $env:FRONTIER_SOFT = "1"      # PowerShell
 ```
 
-This warns instead of blocking. Turn it off when ready:
-
-```text
-$env:FRONTIER_SOFT = "0"
-```
+Turn it off when ready (`FRONTIER_SOFT=0` / unset). Soft mode is for learning
+only — never for a real ship.
 
 ---
 
 ## Step 4 — First safe drill (Terraform-like)
 
-```text
+```sh
 cd <some-repo>
 git checkout -b feat/first
 # edit a file
 git add -A
 git commit -m "frontier: first sealed change"
 
-git frontier demo
-git frontier learn         # classify project (L)
-git frontier guard         # security exam (G)
-git frontier plan          # must succeed — fail closed
-git frontier apply         # only works after plan.passed
-git push -u origin HEAD    # only works after apply/gate.passed
+frontier learn         # classify project (L)
+frontier guard         # security exam (G)
+frontier plan          # must succeed — fail closed
+frontier apply         # only works after plan.passed
+git push -u origin HEAD
 ```
 
-If `plan` fails, fix reasons; do not expect apply/push to work.  
-Ledger is state (like Terraform state).
+(`git frontier …` is the same engine as bare `frontier …`.)
+
+If `plan` fails, fix the reasons; do not expect apply/push to work.
+The ledger is state (like Terraform state).
 
 From an **application** tree the first time you intend to deploy:
 
-```text
+```sh
 frontier ready
 ```
 

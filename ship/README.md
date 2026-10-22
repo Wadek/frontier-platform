@@ -37,10 +37,20 @@ Prefer full words in scripts; letters are aliases. See [english/O_OPTIMIZE.md](e
 
 Full steps: **[english/INIT.md](english/INIT.md)**
 
-```powershell
+```sh
 git clone https://github.com/Wadek/frontier-platform.git
 cd frontier-platform
-powershell -File scripts\install-git-interface.ps1
+mkdir -p runtime/bin
+go build -o runtime/bin/frontier     ./ship/cmd/frontier
+go build -o runtime/bin/frontier-git ./ship/cmd/frontier-git
+export PATH="$PWD/runtime/bin:$PATH"   # or set FRONTIER_RUNTIME=$PWD/runtime
+frontier version
+```
+
+Windows helper (builds the binaries and optionally installs a `git` shim):
+
+```powershell
+powershell -File .\ship\scripts\install-git-interface.ps1
 # new terminal
 git frontier explain
 ```
@@ -55,13 +65,13 @@ git frontier explain
 | **Standalone** | `frontier plan` or `frontier guard` |
 
 Same engine. Not `go frontier` — `go` is the Go *language toolchain* (`go build`, `go test`).  
-During development you *may* run `go run ./cmd/frontier guard` (that means “run this package,” not a Go subcommand).
+During development from the repository root you *may* run `go run ./ship/cmd/frontier guard` (that means “run this package,” not a Go subcommand).
 
 ---
 
 ## Terraform-like flow
 
-```powershell
+```sh
 git checkout -b feat/<slug>
 # edit…
 git add -A

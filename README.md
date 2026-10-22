@@ -41,7 +41,7 @@ install. `frontier` is a single static binary.
 
 ## Build
 
-Requires Go 1.22 or newer.
+Requires Go 1.22 or newer. Works on Linux, macOS, and Windows.
 
 ```sh
 go build ./...
@@ -58,7 +58,8 @@ go build -o runtime/bin/frontier-git    ./ship/cmd/frontier-git
 go build -o runtime/bin/control         ./control/cmd/control
 ```
 
-On Windows add the `.exe` suffix. The habitat directory `/runtime/` at the repository root is gitignored.
+On Windows, add the `.exe` suffix. The habitat directory `/runtime/` at the
+repository root is gitignored.
 
 ## Use
 
@@ -73,9 +74,11 @@ git push -u origin HEAD
 gh pr create --base dev --fill
 ```
 
+Same flow via the git interface: `git frontier plan` / `git frontier apply`.
+
 Production deploys are authorized with `frontier release-check`, then the app's
 own deploy script. Process and branch model: `ship/english/RELEASE_PROCESS.md`.
-The permanent pipeline: `PIPELINE.md`.
+The permanent pipeline: `PIPELINE.md`. First-time setup: `SETUP.md`.
 
 ## Status, stated plainly
 

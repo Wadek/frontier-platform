@@ -12,7 +12,7 @@ AI-provenance (Hygiene / H) tooling and its agent skill now live in the separate
 
 List and show via the ship CLI:
 
-```powershell
+```sh
 frontier skills
 frontier skills show dogfood
 ```
