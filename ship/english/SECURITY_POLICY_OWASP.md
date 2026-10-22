@@ -5,6 +5,8 @@ It becomes named rules in `V` (vuln set) in Go.
 At `git frontier gate` / push, Go runs those checks against the change-set.
 Each rule carries a `_test.go` witness in `internal/owasp`.
 
+Agentic / LLM risks live in [`SECURITY_POLICY_LLM.md`](SECURITY_POLICY_LLM.md).
+
 `V` starts from these named rules. Empty matches ⇒ clean under current `V`.
 
 ---
@@ -47,3 +49,11 @@ Untriaged **built-in** High/Critical under `V` blocks plan/apply (F4). Adapter C
             v
   ledger: exam.owasp + gate.passed|failed
 ```
+
+## See also
+
+- [`SECURITY_POLICY_LLM.md`](SECURITY_POLICY_LLM.md) — OWASP Top 10 for LLM Applications (2025)
+- [`COVERT_CHANNELS.md`](COVERT_CHANNELS.md) — log / multi-agent covert-channel detection (pairs with A09)
+- [`MONITOR.md`](MONITOR.md) — directive D8
+- [`CPU_OFFLOAD.md`](CPU_OFFLOAD.md) — deterministic work off the model
+
