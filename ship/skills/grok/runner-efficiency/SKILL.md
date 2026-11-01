@@ -1,32 +1,67 @@
 ---
 name: runner-efficiency
 description: >-
-  Use this skill to diagnose and optimize slow self-hosted CI/CD runners. Contains hardware, caching, and concurrency best practices.
+  Diagnose and speed up slow self-hosted GitHub Actions runners: measure where
+  job time goes, then fix hardware, caching, concurrency, runner state, and
+  scanner tooling in that order of evidence. Use when self-hosted CI is slow,
+  jobs look hung or queued, Stage 1 scanners reinstall on every run, or the
+  user asks to tune a runner.
 user-invocable: true
 ---
 
-# Self-Hosted Runner Efficiency
+# Self-hosted runner efficiency
 
-When tasked with optimizing or diagnosing slow self-hosted CI/CD runners, apply the following analysis steps and recommendations.
+Scope: self-hosted GitHub Actions runners (Windows service, Linux, or the
+Docker Compose template in `ship/templates/runner-docker/`). Not for
+GitHub-hosted runners, where hardware is fixed.
 
-## 1. Hardware and Storage Assessment
-*   **CPU Profiling:** Ensure the runner prioritizes high single-core clock speeds (e.g., overclocked consumer CPUs like Intel i9) over expensive multi-core server processors (e.g., Threadripper/EPYC). Compilation and single-thread critical paths benefit most from high clock speeds.
-*   **Disk I/O:** Verify the runner uses fast local NVMe SSDs. Git cloning, package installation, and container generation are heavily disk-bound.
-*   **Memory Swapping:** Check for adequate RAM. Heavy compilation or multi-stage Docker builds will thrash the disk and destroy performance if memory limits force swap usage.
+## Pstack root
 
-## 2. Caching and Environment Optimization
-*   **Docker Build Layers:** Analyze `Dockerfile`s to ensure they are structured efficiently (e.g., copying package definitions and installing before copying source code). Set up a persistent local Docker build cache so unchanged layers are instantly reused.
-*   **Dependency Directories:** Ensure heavy directories (`node_modules`, `.cargo`, `vendor`) are mapped or persisted across job runs, and strictly keyed to their respective lockfiles (`package-lock.json`, `pnpm-lock.yaml`, `Cargo.lock`).
-*   **Pre-baked Tooling:** Rather than downloading heavy SDKs or base images in every pipeline execution, advise baking these dependencies directly into the runner's base OS image or VM template.
+- `principle-explain-the-number`: measure step timings before proposing a
+  fix, and explain the number after.
+- `benchmark-checklist`: a before/after timing is only reported after it is
+  vetted (same job, same commit, warm vs cold stated, repeated).
+- `principle-make-operations-idempotent`: ephemeral runners and pre-baked
+  tools give each job the same starting state.
+- `principle-boundary-discipline`: caches keyed on lockfiles; state does not
+  leak across jobs.
 
-## 3. Concurrency and Resource Tuning
-*   **Contention Limits:** Diagnose if too many parallel jobs are configured for the runner. Tune the maximum concurrency limits to perfectly match the physical capacity of the machine to prevent CPU/IO starvation.
-*   **Single-runner queues:** One Windows service runner processes **one job at a time**. A long Stage 1 or a backlog makes later PRs look “hung” — check the Actions queue before blaming the service.
-*   **Ephemeral State:** To prevent state pollution and hidden caching bugs, recommend configuring runners to be **ephemeral**. They should handle a single job and self-destruct (using `--ephemeral` flags or containerized scale sets), guaranteeing a pristine clean state for the next build without sacrificing pre-baked tool speed.
+## Steps
 
-## 4. Scanner tooling on the runner
-*   **Pre-bake** gitleaks, trivy, checkov, and semgrep into the runner image or a stable tools dir (e.g. Frontier `runtime/bin`) so Stage 1 does not `pip install` on every job.
-*   Prefer the Compose template at `ship/templates/runner-docker/` (Docker Desktop, Linux labels, no host sudo). Separate venvs for checkov/semgrep; pin `setuptools==75.8.2` for semgrep `pkg_resources`.
-*   After `actions/setup-python`, put `$pythonLocation\Scripts` on PATH (or call `checkov.cmd` / `semgrep.exe` by full path). Never assume a user-profile install exists for LocalSystem.
-*   Split responsibilities: gitleaks → secrets; trivy fs → `--scanners vuln`; checkov → IaC CLI; semgrep → SAST. Persist JSON and open GitHub issues from the workflow — triage with **local** models / humans, not cloud agents in the hot path.
-*   Copy `ship/templates/release/verify.yml.example` + `scripts/ci/report_scanner_issues.py` so the gate matches the baked scanners.
+1. **Measure first.** Pull per-step durations for the last few runs of the
+   slow workflow and find the dominant steps. Check the queue before blaming
+   the runner: a single runner takes one job at a time, so a backlog looks
+   like a hang. Commands: [diagnosis commands](references/diagnosis.md).
+2. **Classify the dominant cost** and apply the matching fix from the
+   [checklist](references/checklist.md):
+
+   | Symptom | Likely cause | Section |
+   |---|---|---|
+   | Jobs wait with status `queued` | Too few runners or one long job | Concurrency |
+   | Install/setup steps dominate | Tools downloaded each run | Pre-baked tooling, scanners |
+   | `docker build` dominates | Layer order or no persistent cache | Caching |
+   | Dependency install dominates | Cache missing or not keyed to lockfile | Caching |
+   | Compile/test dominates, CPU pegged | CPU or contention | Hardware, concurrency |
+   | High iowait, swap in use | Disk or RAM | Hardware |
+   | Flaky results between runs | State left by earlier jobs | Ephemeral runners |
+
+3. **Change one thing**, re-run the same workflow on the same commit, and
+   compare step durations.
+4. **Report** before/after per step with the run URLs.
+
+## Done when
+
+- [ ] The report names the dominant step(s) with measured durations and run
+      URLs, before any recommendation.
+- [ ] Each applied change has a before/after timing on the same workflow and
+      commit, cold or warm cache stated.
+- [ ] Queue time and run time are reported separately.
+- [ ] Scanner tools resolve from a pre-baked path (no per-job `pip install`)
+      when Stage 1 scanners are in scope.
+
+## Conflicts
+
+- Ephemeral runners discard warm caches; keep caches in a mounted volume or a
+  pre-baked image so pristine state does not cost speed.
+- Hardware advice (single-core clock, NVMe) is a recommendation to the user;
+  never change host hardware or service configuration without being asked.

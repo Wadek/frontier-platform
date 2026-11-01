@@ -1,31 +1,64 @@
 # Permanent local pre-GitHub build pipeline
 
-Every session, every repo, every push. Do not invent a shorter path.
+Repository rule, not a skill: it applies to every push from a repo that uses
+the Frontier gate (this repo and repos initialized with `frontier`). Do not
+invent a shorter path.
 
-**Spec:** `./PIPELINE.md` (repo root) or `ship/../PIPELINE.md` in the monorepo  
-**Tool:** Frontier Ship (`frontier` / `git frontier`) on PATH or under `$FRONTIER_RUNTIME/bin`
+- **Spec:** [PIPELINE.md](../../../../PIPELINE.md) at the repo root.
+- **Tool:** Frontier Ship (`frontier` / `git frontier`) on PATH or under
+  `$FRONTIER_RUNTIME/bin`.
+- **Helper:** `ship/scripts/dogfood-push.ps1` runs plan, apply, and push and
+  refuses `dev`, `main`, and `master`.
+
+## Pstack root
+
+- `principle-prove-it-works`: the gate's exit codes and the sealed ledger row
+  are the evidence, not "I ran it".
+- `principle-encode-lessons-in-structure`: the sequence is enforced by hooks
+  (`lefthook.yml` → `scripts/frontier-gate.ps1`), not by memory.
+
+Condition: applies only when the repo has the Frontier gate (a
+`lefthook.yml` or `core.hooksPath` pointing at Frontier hooks, or a
+`PIPELINE.md`). Elsewhere, `regular-git` is the habit to follow.
 
 ## Required sequence before GitHub
 
-1. Feature branch (never commit or push `dev` / `main` / `master`).
-2. Clean commit.
-3. `frontier hygiene` inspects the changeset for AI provenance (optional service at `http://127.0.0.1:8765`). Advise by default.
-4. `frontier plan` must exit 0 (OWASP Guard + push rules).
-5. `frontier apply` must exit 0 (seals `gate.passed`).
-6. `git push` — hooks re-run plan/apply. Never `--no-verify`.
-7. Open a PR into `dev`. Human merges. Promote `dev` to `main` with a second PR.
+1. Feature branch `feat/<slug>` (never commit or push `dev`, `main`, or
+   `master`).
+2. Clean commit; `git status --porcelain` is empty.
+3. `frontier hygiene` checks the changeset for AI provenance (optional service
+   at `http://127.0.0.1:8765`). Advise by default;
+   `FRONTIER_HYGIENE_BLOCK=1` makes it blocking.
+4. `frontier plan` exits 0 (OWASP Guard and push rules).
+5. `frontier apply` exits 0 (seals `gate.passed`; plan must be fresh, 15 min
+   TTL).
+6. `git push` with hooks; they re-run plan and apply.
+7. Open a PR into `dev`. A human merges. `dev` is promoted to `main` by a
+   second PR.
 8. Agents do not merge to `dev` or `main`.
 
-`FRONTIER_SOFT=1` is forbidden for real ship.
+`FRONTIER_SOFT=1` is forbidden for a real ship.
 
 ## Forbidden
 
 - `git push --no-verify`
-- Overriding `core.hooksPath`
-- Calling system `git` in a way that skips Frontier hooks
+- Overriding `core.hooksPath` (including `git -c core.hooksPath= push`)
+- Calling a system `git` in a way that skips Frontier hooks
 - GitHub MCP `push_files`, `create_or_update_file`, or `merge_pull_request`
-- Pushing or committing on `dev`/`main`/`master`
+- Committing or pushing on `dev`, `main`, or `master`
 
 ## Tests
 
-When the repo has a stack playbook or test suite, run it **verbose** locally (`pytest -v`, etc.) and paste the log. Doctrine: `english/O_VERIFY.md`. Tests are not a substitute for `frontier plan`/`apply`.
+When the repo has a stack playbook or test suite, run it verbosely
+(`pytest -v`, `go test ./... -v`) and paste the log. Standard:
+[O_VERIFY.md](../../../english/O_VERIFY.md). Tests do not substitute for
+`frontier plan` / `frontier apply`.
+
+## Done when
+
+- [ ] `frontier plan` and `frontier apply` exit codes (0) are in the report,
+      from a run after the last commit.
+- [ ] The push went through hooks from a feature branch; the PR targets `dev`.
+- [ ] Verbose test log pasted when a suite exists.
+- [ ] If the gate or a hook could not run (missing tool, unsupported OS), the
+      report says so explicitly instead of claiming the gate passed.
